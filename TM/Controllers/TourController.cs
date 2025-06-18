@@ -72,13 +72,22 @@ namespace TM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Tour tour)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Tours.Add(tour);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    _context.Tours.Add(tour);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(List));
+                }
+                return View(tour);
             }
-            return View(tour);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi tạo mới Tour");
+                ModelState.AddModelError(string.Empty, "Đã xảy ra lỗi khi tạo Tour. Vui lòng thử lại.");
+                return View(tour);
+            }
         }
 
         // GET: TourController/Edit/5
@@ -111,15 +120,26 @@ namespace TM.Controllers
         // POST: TourController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                var tour = await _context.Tours.FindAsync(id);
+                if (tour == null)
+                {
+                    return NotFound();
+                }
+
+                _context.Tours.Remove(tour);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(List));
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                _logger.LogError(ex, "Lỗi khi xóa Tour");
+                // Có thể trả về view với thông báo lỗi hoặc chuyển hướng về List với TempData
+                TempData["ErrorMessage"] = "Đã xảy ra lỗi khi xóa Tour. Vui lòng thử lại.";
+                return RedirectToAction(nameof(List));
             }
         }
     }
