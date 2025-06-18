@@ -113,7 +113,7 @@ namespace TM.Controllers
                 {
                     _context.Tours.Add(tour);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(List));
+                    return RedirectToAction(nameof(Create));
                 }
                 return View(tour);
             }
@@ -165,19 +165,24 @@ namespace TM.Controllers
                     return NotFound();
                 }
 
-                _context.Tours.Remove(tour);
+                tour.DeleteAt = DateTime.Now;
+                tour.ModifiedAt = DateTime.Now;
+
+                _context.Tours.Update(tour);
                 await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Xóa tour thành công!";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi khi xóa Tour");
-                // Có thể trả về view với thông báo lỗi hoặc chuyển hướng về List với TempData
                 TempData["ErrorMessage"] = "Đã xảy ra lỗi khi xóa Tour. Vui lòng thử lại.";
-                return RedirectToAction(nameof(List));
+                return RedirectToAction(nameof(Index));
             }
         }
-        
+
+
         // GET: Tour/Surcharges/5
         public async Task<IActionResult> Surcharges(int? id)
         {
