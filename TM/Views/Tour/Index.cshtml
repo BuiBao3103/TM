@@ -24,19 +24,6 @@
         <label for="endDate" class="form-label">Đến ngày</label>
         <input type="date" class="form-control" id="endDate" name="endDate" value="@endDate" />
     </div>
-    <div class="col-md-3">
-        <label for="locationId" class="form-label">Địa điểm</label>
-        <select class="form-select" id="locationId" name="locationId">
-            <option value="0" selected="@((locationId == "0").ToString())">Tất cả</option>
-            @if (ViewBag.LocationList != null)
-            {
-                foreach (var loc in ViewBag.LocationList)
-                {
-                    <option value="@loc.Id" selected="@((locationId == loc.Id.ToString()).ToString())">@loc.Name</option>
-                }
-            }
-        </select>
-    </div>
     <div class="col-md-3 d-flex align-items-end">
         <button type="submit" class="btn btn-primary w-100">
             <i class="bi bi-search"></i> Lọc Tour
