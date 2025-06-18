@@ -47,9 +47,19 @@
                         @item.StartDate.ToString("dd/MM/yyyy") - @item.EndDate.ToString("dd/MM/yyyy")  
                     </h6>  
                     <p class="card-text">  
-                        <strong>Địa điểm:</strong> @item.Location?.LocationName <br />  
-                        <strong>Giá gốc:</strong> @string.Format("{0:N0}₫", item.SuggestPrice) <br />  
-                        <strong>Giá KM:</strong> @string.Format("{0:N0}₫", item.DiscountPrice) <br />  
+                        <strong>Giá:</strong>
+                        @if (item.SuggestPrice == item.DiscountPrice)
+                        {
+                            <span class="fw-bold">@string.Format("{0:N0}₫", item.SuggestPrice)</span>
+                        }
+                        else
+                        {
+                            <span class="fw-bold text-danger">@string.Format("{0:N0}₫", item.DiscountPrice)</span>
+                            <span class="text-muted text-decoration-line-through ms-2" style="font-size: 0.9em;">
+                                @string.Format("{0:N0}₫", item.SuggestPrice)
+                            </span>
+                        }
+                        <br />
                         <strong>Chỗ trống:</strong>  
                         @if (item.AvailableSeats == 0)  
                         {  
