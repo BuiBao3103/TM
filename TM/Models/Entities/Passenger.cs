@@ -32,7 +32,7 @@ public partial class Passenger
     public string Status { get; set; } = null!;
 
     public DateTime? CreatedAt { get; set; }
-
+    public DateTime? ModifiedAt { get; set; }
     public DateTime? DeleteAt { get; set; }
 
     public virtual Tour? Tour { get; set; }
