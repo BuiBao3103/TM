@@ -62,10 +62,15 @@ namespace TM.Controllers
             return View(tours);
         }
 
-        // GET: TourController/Details/5
-        public ActionResult Details(int id)
+        public IActionResult Details(int id)
         {
-            return View();
+            var tour = _context.Tours.Find(id);
+            if (tour == null)
+            {
+                return NotFound();
+            }
+            ViewData["Title"] = "Chi tiết tour";
+            return View(tour);
         }
 
 
@@ -252,5 +257,7 @@ namespace TM.Controllers
         }
 
         
+
+   
     }
 }

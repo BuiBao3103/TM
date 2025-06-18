@@ -71,14 +71,8 @@ namespace TM.Controllers
         }
 
 
-        [Route("Home/TourDetails/{id}")]
-        public IActionResult TourDetails(int id)
-        {
-            var tour = _context.Tours.FirstOrDefault(t => t.Id == id);
-            //var passengers = _context.Passengers.ToList();
-            return View(tour);
-        }
-        
+      
+
 
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
