@@ -1,0 +1,57 @@
+﻿@{
+    ViewData["Title"] = "Test Database Connection";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-database"></i> Test Kết Nối Database
+                    </h3>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.Status == "success")
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">
+                            <i class="fas fa-check-circle fa-2x float-left mr-3"></i>
+                            <h4 class="alert-heading">Thành công!</h4>
+                            <p class="mb-0">@ViewBag.Message</p>
+                            <button type="button" class="close" data-dismiss="alert">
+                                <span>&times;</span>
+                            </button>
+                        </div>
+                    }
+                    else if (ViewBag.Status == "error")
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            <i class="fas fa-exclamation-triangle fa-2x float-left mr-3"></i>
+                            <h4 class="alert-heading">Lỗi kết nối!</h4>
+                            <p class="mb-0">@ViewBag.Message</p>
+                            <button type="button" class="close" data-dismiss="alert">
+                                <span>&times;</span>
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle fa-2x float-left mr-3"></i>
+                            <h4 class="alert-heading">Thông tin</h4>
+                            <p class="mb-0">Nhấn "Test Connection" để kiểm tra kết nối database</p>
+                        </div>
+                    }
+                </div>
+                <div class="card-footer text-center">
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Quay lại Home
+                    </a>
+                    <a href="@Url.Action("TestConnection", "Home")" class="btn btn-success ml-2">
+                        <i class="fas fa-sync-alt"></i> Test lại
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
