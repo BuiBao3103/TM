@@ -40,7 +40,7 @@ public class TourPassengerViewModel
 
     [Display(Name = "Email")]
     [EmailAddress(ErrorMessage = "Email không hợp lệ")]
-    [StringLength(100)]
+    [StringLength(30)]
     public string? Email { get; set; }
 
     [Display(Name = "Địa chỉ")]
@@ -58,14 +58,13 @@ public class TourPassengerViewModel
 
     [Required(ErrorMessage = "Số tiền khách trả là bắt buộc")]
     [Display(Name = "Khách đã trả")]
-    [Range(0, double.MaxValue, ErrorMessage = "Số tiền phải >= 0")]
+    [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
     public decimal CustomerPaid { get; set; }
 
     [Required(ErrorMessage = "Trạng thái là bắt buộc")]
     [Display(Name = "Trạng thái")]
     public string Status { get; set; }
 
-    // Optional: Tên tour cho hiển thị (nếu cần)
     [Display(Name = "Tên Tour")]
     public string TourName { get; set; }
 

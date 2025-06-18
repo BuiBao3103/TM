@@ -26,7 +26,7 @@
                 </div>
                 <div class="card-body">
                     <form asp-action="AddTourPassenger" method="post">
-                        @* Ẩn ID nếu cần *@
+                        @* Ẩn ID để hõ trợ view model truyền data *@
                         <input type="hidden" asp-for="Id" />
                         <input type="hidden" asp-for="TourId" />
 
@@ -78,19 +78,20 @@
                             </h6>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label asp-for="Phone" class="form-label fw-semibold">
-                                        <i class="fas fa-phone me-1"></i>Điện thoại
-                                    </label>
-                                    <input asp-for="Phone" class="form-control" />
-                                    <span asp-validation-for="Phone" class="text-danger small"></span>
-                                </div>
-                                <div class="col-md-6 mb-3">
                                     <label asp-for="Email" class="form-label fw-semibold">
                                         <i class="fas fa-envelope me-1"></i>Email
                                     </label>
                                     <input asp-for="Email" class="form-control" />
                                     <span asp-validation-for="Email" class="text-danger small"></span>
                                 </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Phone" class="form-label fw-semibold">
+                                        <i class="fas fa-envelope me-1"></i>Số điện thoại
+                                    </label>
+                                    <input asp-for="Phone" class="form-control" />
+                                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                                </div>
+
                                 <div class="col-md-6 mb-3">
                                     <label asp-for="IdentityNumber" class="form-label fw-semibold">
                                         <i class="fas fa-id-card me-1"></i>Số CMND/CCCD
@@ -138,10 +139,10 @@
                             <div class="row">
                                 <div class="col-md-4 mb-3">
                                     <label asp-for="AssignedPrice" class="form-label fw-semibold">
-                                        <i class="fas fa-tags me-1"></i>Giá chào
+                                        <i class="fas fa-tags me-1"></i>Giá đề xuất
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="AssignedPrice" class="form-control" />
+                                        <input asp-for="AssignedPrice" type="text" class="form-control money-input" />
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="AssignedPrice" class="text-danger small"></span>
@@ -152,11 +153,12 @@
                                         <i class="fas fa-wallet me-1"></i>Khách đã trả
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="CustomerPaid" class="form-control" />
+                                        <input asp-for="CustomerPaid" type="text" class="form-control money-input" />
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="CustomerPaid" class="text-danger small"></span>
                                 </div>
+
 
                                 <div class="col-md-4 mb-3">
                                     <label asp-for="Status" class="form-label fw-semibold">
