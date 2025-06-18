@@ -320,6 +320,18 @@ namespace TM.Controllers
             return View(viewModel);
         }
 
-   
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeletePassenger(int id)
+        {
+            var passenger = _context.Passengers.FirstOrDefault(p => p.Id == id && p.DeleteAt == null);
+            if (passenger != null)
+            {
+                passenger.DeleteAt = DateTime.Now;
+                _context.SaveChanges();
+            }
+
+            return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
+        }
     }
 }
