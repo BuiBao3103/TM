@@ -46,6 +46,87 @@
             @country.Name
         </a>
     }
+<form class="row g-3 mb-4" method="get" asp-action="Index">  
+    <div class="col-md-4">  
+        <label for="name" class="form-label">Tên Tour</label>  
+        <input type="text" class="form-control" id="name" name="name" value="@name" placeholder="Nhập tên tour..." />  
+    </div>  
+    <div class="col-md-2">  
+        <label for="startDate" class="form-label">Từ ngày</label>  
+        <input type="date" class="form-control" id="startDate" name="startDate" value="@startDate" />  
+    </div>  
+    <div class="col-md-2">  
+        <label for="endDate" class="form-label">Đến ngày</label>  
+        <input type="date" class="form-control" id="endDate" name="endDate" value="@endDate" />  
+    </div>  
+    <div class="col-md-2 d-flex align-items-end">  
+        <button type="submit" class="btn btn-primary w-100">  
+            <i class="bi bi-search"></i> Lọc Tour  
+        </button>  
+    </div>  
+    <div class="col-md-2 d-flex align-items-end">
+        <button asp-area="" asp-controller="Home" asp-action="TestConnection" type="button" class="btn btn-success w-100">
+            <i class="bi bi-plus"></i> Thêm
+        </button>
+    </div>
+</form>  
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">  
+    @foreach (var item in Model)  
+    {  
+        <div class="col">  
+            <div class="card shadow-sm h-100">  
+                <div class="card-body">  
+                    <h5 class="card-title text-primary fw-bold">@item.Name</h5>  
+                    <h6 class="card-subtitle mb-2 text-muted">  
+                        @item.StartDate.ToString("dd/MM/yyyy") - @item.EndDate.ToString("dd/MM/yyyy")  
+                    </h6>  
+                    <p class="card-text">  
+                        <strong>Giá:</strong>
+                        @if (item.SuggestPrice == item.DiscountPrice)
+                        {
+                            <span class="fw-bold">@string.Format("{0:N0}₫", item.SuggestPrice)</span>
+                        }
+                        else
+                        {
+                            <span class="fw-bold text-danger">@string.Format("{0:N0}₫", item.DiscountPrice)</span>
+                            <span class="text-muted text-decoration-line-through ms-2" style="font-size: 0.9em;">
+                                @string.Format("{0:N0}₫", item.SuggestPrice)
+                            </span>
+                        }
+                        <br />
+                        <strong>Chỗ trống:</strong>  
+                        @if (item.AvailableSeats == 0)  
+                        {  
+                            <span class="badge bg-danger">Hết chỗ</span>  
+                        }  
+                        else  
+                        {  
+                            <span class="badge bg-success">@item.AvailableSeats chỗ</span>  
+                        }  
+                        <br />  
+                        <strong>Chuyến đi:</strong> @item.DepartureFlightInfo <br />  
+                        <strong>Chuyến về:</strong> @item.ArrivalFlightInfo  
+                    </p>  
+                </div>  
+                <div class="card-footer text-end bg-white border-0">  
+                    <a class="btn btn-sm btn-outline-info me-1" asp-action="Details" asp-route-id="@item.Id" title="Chi tiết">  
+                        <i class="bi bi-eye"></i>  
+                    </a>  
+                    <a class="btn btn-sm btn-outline-warning me-1" asp-action="Edit" asp-route-id="@item.Id" title="Chỉnh sửa">  
+                        <i class="bi bi-pencil"></i>  
+                    </a>  
+                    <form asp-action="DeleteConfirmed" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa tour này không?');" title="Xóa">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </div>  
+            </div>  
+        </div>  
+    }  
 </div>
 
 <!-- ===== HORIZONTAL LOCATION LIST (nếu có) ===== -->

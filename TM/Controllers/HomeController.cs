@@ -8,11 +8,12 @@ namespace TM.Controllers
 {
     public class HomeController : Controller
     {
-
+        private readonly ILogger<HomeController> _logger;
         private readonly AppDbContext _context;
 
-        public HomeController(AppDbContext context)
+        public HomeController(ILogger<HomeController> logger, AppDbContext context)
         {
+            _logger = logger;
             _context = context;
         }
 
@@ -69,10 +70,15 @@ namespace TM.Controllers
             return View();
         }
 
-        public IActionResult CountryLocation()
+
+        [Route("Home/TourDetails/{id}")]
+        public IActionResult TourDetails(int id)
         {
-            return View();
+            var tour = _context.Tours.FirstOrDefault(t => t.Id == id);
+            return View(tour);
         }
+
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
