@@ -25,20 +25,20 @@
         <label for="endDate" class="form-label">Đến ngày</label>
         <input type="date" class="form-control" id="endDate" name="endDate" value="@endDate" />
     </div>
-    <div class="col-md-3">
-        <label for="locationId" class="form-label">Địa điểm</label>
-        <select class="form-select" id="locationId" name="locationId">
-            <option value="0" @(locationId == "0" ? "selected" : "")>Tất cả</option>
-            <!-- Bạn cần load danh sách Location từ ViewBag.LocationList -->
-            @if (ViewBag.LocationList != null)
-            {
-                foreach (var loc in ViewBag.LocationList)
-                {
-                    <option value="@loc.Id" @(locationId == loc.Id.ToString() ? "selected" : "")>@loc.Name</option>
-                }
-            }
-        </select>
-    </div>
+    @* <div class="col-md-3"> *@
+    @*     <label for="locationId" class="form-label">Địa điểm</label> *@
+    @*     <select class="form-select" id="locationId" name="locationId"> *@
+    @*         <option value="0" @(locationId == "0" ? "selected" : "")>Tất cả</option> *@
+    @*         <!-- Bạn cần load danh sách Location từ ViewBag.LocationList --> *@
+    @*         @if (ViewBag.LocationList != null) *@
+    @*         { *@
+    @*             foreach (var loc in ViewBag.LocationList) *@
+    @*             { *@
+    @*                 <option value="@loc.Id" @(locationId == loc.Id.ToString() ? "selected" : "")>@loc.Name</option> *@
+    @*             } *@
+    @*         } *@
+    @*     </select> *@
+    @* </div> *@
     <div class="col-md-3 d-flex align-items-end">
         <button type="submit" class="btn btn-primary w-100">
             <i class="bi bi-search"></i> Lọc Tour
@@ -87,10 +87,10 @@
                 <td>@string.Format("{0:N0}₫", item.SuggestPrice)</td>
                 <td>@string.Format("{0:N0}₫", item.DiscountPrice)</td>
                 <td>@string.Format("{0:N0}₫", item.HhFee)</td>
-                <td>@(item.IsVisaRequired ? "✔" : "✘")</td>
+                @* <td>@(item.IsVisaRequired ? "✔" : "✘")</td> *@
                 <td>@item.DepartureFlightInfo</td>
                 <td>@item.ArrivalFlightInfo</td>
-                <td>@item.Location?.Name</td>
+                <td>@item.Location?.LocationName</td>
                 <td>
                     <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@item.Id" title="Chi tiết">
                         <i class="bi bi-eye"></i>
