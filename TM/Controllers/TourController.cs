@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using TM.Models;
 using TM.Models.Entities;
 
@@ -19,6 +21,20 @@ namespace TM.Controllers
             return View();
         }
 
+        // GET: TourController
+        public ActionResult List()
+        {
+            var tours = _context.Tours.ToList();
+            return View(tours);
+        }
+
+        // GET: TourController/Details/5
+        public ActionResult Details(int id)
+        {
+            return View();
+        }
+
+
         // GET: Tour/Create
         [HttpGet]
         public IActionResult Create()
@@ -33,9 +49,25 @@ namespace TM.Controllers
                 ModifiedAt = DateTime.Now
             };
 
+            // Query locations với country info
+            var locations = _context.Locations
+                .Include(l => l.Country)
+                .ToList() // Execute query first
+                .Select(l => new
+                {
+                    Id = l.Id,
+                    DisplayText = $"{l.LocationName} - {l.Country.Name}"
+                })
+                .OrderBy(l => l.DisplayText)
+                .ToList();
+
+            ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText");
+
+
             return View(model);
         }
 
+        // POST: TourController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Tour tour)
@@ -47,6 +79,48 @@ namespace TM.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(tour);
+        }
+
+        // GET: TourController/Edit/5
+        public ActionResult Edit(int id)
+        {
+            return View();
+        }
+
+        // POST: TourController/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(int id, IFormCollection collection)
+        {
+            try
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
+        // GET: TourController/Delete/5
+        public ActionResult Delete(int id)
+        {
+            return View();
+        }
+
+        // POST: TourController/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Delete(int id, IFormCollection collection)
+        {
+            try
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return View();
+            }
         }
     }
 }
