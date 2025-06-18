@@ -94,6 +94,7 @@ namespace TM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Tour tour)
         {
+
             try
             {
                 if (ModelState.IsValid)
@@ -154,7 +155,7 @@ namespace TM.Controllers
 
                 _context.Tours.Remove(tour);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(List));
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {

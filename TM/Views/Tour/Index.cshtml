@@ -66,9 +66,16 @@
                     <a class="btn btn-sm btn-outline-warning me-1" asp-action="Edit" asp-route-id="@item.Id" title="Chỉnh sửa">
                         <i class="bi bi-pencil"></i>
                     </a>
-                    <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@item.Id" title="Xóa">
-                        <i class="bi bi-trash"></i>
-                    </a>
+                    <form asp-action="DeleteConfirmed" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa tour này không?');" title="Xóa">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                    @* <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@item.Id" title="Xóa"> *@
+                    @*     <i class="bi bi-trash"></i> *@
+                    @* </a> *@
                 </div>
             </div>
         </div>
