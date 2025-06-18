@@ -49,6 +49,9 @@ public partial class Tour
 
     public DateTime? CreatedAt { get; set; }
 
+    public DateTime? ModifiedAt { get; set; }
+
+
     public DateTime? DeleteAt { get; set; }
 
     public virtual Location? Location { get; set; }
