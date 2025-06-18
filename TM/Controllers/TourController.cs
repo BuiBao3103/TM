@@ -55,12 +55,7 @@ namespace TM.Controllers
             var tours = query.ToList();
             return View(tours);
         }
-        // GET: TourController
-        public ActionResult List()
-        {
-            var tours = _context.Tours.ToList();
-            return View(tours);
-        }
+      
 
         public IActionResult Details(int id)
         {
@@ -118,7 +113,7 @@ namespace TM.Controllers
                 {
                     _context.Tours.Add(tour);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(List));
+                    return RedirectToAction(nameof(Index));
                 }
                 return View(tour);
             }
@@ -131,24 +126,96 @@ namespace TM.Controllers
         }
 
         // GET: TourController/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var tour = await _context.Tours
+                .Include(t => t.TourSurcharges.Where(s => s.DeleteAt == null))
+                .Include(t => t.Passengers.Where(p => p.DeleteAt == null))
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (tour == null)
+            {
+                return NotFound();
+            }
+
+            // Query locations với country info
+            var locations = _context.Locations
+                .Include(l => l.Country)
+                .ToList()
+                .Select(l => new
+                {
+                    Id = l.Id,
+                    DisplayText = $"{l.LocationName} - {l.Country.Name}"
+                })
+                .OrderBy(l => l.DisplayText)
+                .ToList();
+
+            ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText");
+
+            // Map surcharges và passengers sang ViewModel
+            ViewData["Surcharges"] = _mapper.Map<IEnumerable<TourSurchargeViewModel>>(tour.TourSurcharges);
+            ViewData["Passengers"] = tour.Passengers;
+
+            return View(tour);
         }
 
         // POST: TourController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(int id, Tour tour)
         {
-            try
+            if (id != tour.Id)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
-            catch
+
+            if (ModelState.IsValid)
             {
-                return View();
+                try
+                {
+                    tour.ModifiedAt = DateTime.Now;
+                    _context.Update(tour);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!TourExists(tour.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
             }
+
+            // Nếu model không hợp lệ, load lại locations cho dropdown
+            var locations = _context.Locations
+                .Include(l => l.Country)
+                .ToList()
+                .Select(l => new
+                {
+                    Id = l.Id,
+                    DisplayText = $"{l.LocationName} - {l.Country.Name}"
+                })
+                .OrderBy(l => l.DisplayText)
+                .ToList();
+
+            ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText");
+
+            return View(tour);
+        }
+
+        private bool TourExists(int id)
+        {
+            return _context.Tours.Any(e => e.Id == id);
         }
 
         // GET: TourController/Delete/5
@@ -179,7 +246,7 @@ namespace TM.Controllers
                 _logger.LogError(ex, "Lỗi khi xóa Tour");
                 // Có thể trả về view với thông báo lỗi hoặc chuyển hướng về List với TempData
                 TempData["ErrorMessage"] = "Đã xảy ra lỗi khi xóa Tour. Vui lòng thử lại.";
-                return RedirectToAction(nameof(List));
+                return RedirectToAction(nameof(Index));
             }
         }
         
