@@ -9,13 +9,11 @@ namespace TM.Models.ViewModels
 
         [Required(ErrorMessage = "Tên tour là bắt buộc")]
         [Display(Name = "Tên tour")]
-        [StringLength(200, ErrorMessage = "Tên tour không được vượt quá 200 ký tự")]
-        public string Name { get; set; } = null!;
+        public string? Name { get; set; }
 
         [Required(ErrorMessage = "Mã tour là bắt buộc")]
         [Display(Name = "Mã tour")]
-        [StringLength(50, ErrorMessage = "Mã tour không được vượt quá 50 ký tự")]
-        public string Code { get; set; } = null!;
+        public string? Code { get; set; }
 
         [Required(ErrorMessage = "Ngày bắt đầu là bắt buộc")]
         [DataType(DataType.Date)]
@@ -35,7 +33,7 @@ namespace TM.Models.ViewModels
         public int AvailableSeats { get; set; }
 
         [Required(ErrorMessage = "Giá gợi ý là bắt buộc")]
-        [Range(0, double.MaxValue, ErrorMessage = "Giá phải là số dương")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Giá phải lớn hơn 0")]
         [Display(Name = "Giá gợi ý")]
         public decimal SuggestPrice { get; set; }
 
