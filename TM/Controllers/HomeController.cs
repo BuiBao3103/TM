@@ -71,12 +71,7 @@ namespace TM.Controllers
         }
 
 
-        [Route("Home/TourDetails/{id}")]
-        public IActionResult TourDetails(int id)
-        {
-            var tour = _context.Tours.FirstOrDefault(t => t.Id == id);
-            return View(tour);
-        }
+      
 
 
 
