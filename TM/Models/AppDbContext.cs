@@ -80,6 +80,7 @@ public partial class AppDbContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.CustomerPaid).HasColumnType("decimal(12, 2)");
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.DeleteAt).HasColumnType("datetime");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
@@ -114,6 +115,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.DeleteAt).HasColumnType("datetime");
             entity.Property(e => e.DepartureFlightInfo).HasMaxLength(255);
             entity.Property(e => e.DepartureLocation).HasMaxLength(100);
@@ -143,6 +145,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.DeleteAt).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
 
