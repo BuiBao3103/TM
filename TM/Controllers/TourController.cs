@@ -275,28 +275,7 @@ namespace TM.Controllers
             }
         }
         
-        // GET: Tour/Surcharges/5
-        public async Task<IActionResult> Surcharges(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var tour = await _context.Tours
-                .Include(t => t.TourSurcharges.Where(s => s.DeleteAt == null))
-                .FirstOrDefaultAsync(m => m.Id == id);
-
-            if (tour == null)
-            {
-                return NotFound();
-            }
-
-            ViewData["TourId"] = id;
-            ViewData["TourName"] = tour.Name;
-            var surcharges = _mapper.Map<IEnumerable<TourSurchargeViewModel>>(tour.TourSurcharges);
-            return View(surcharges);
-        }
+       
 
         // GET: Tour/CreateSurcharge/5
         public async Task<IActionResult> CreateSurcharge(int id)
@@ -328,7 +307,7 @@ namespace TM.Controllers
 
                 _context.Add(surcharge);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Surcharges), new { id = viewModel.TourId });
+                return  Redirect("/Tour/Edit/" + viewModel.TourId);
             }
 
             // Nếu model không hợp lệ, lấy lại tên tour để hiển thị
