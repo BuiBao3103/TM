@@ -24,12 +24,28 @@ namespace TM.Controllers
         }
         
         // GET: TourController
-        //[HttpGet("List")]
-        public ActionResult Index(String? name, DateTime? startDate, DateTime? endDate, int locationId = 0)
+        [HttpGet]
+        public async Task<IActionResult> Index(
+            string? name,
+            DateTime? startDate,
+            DateTime? endDate,
+            int? countryId,
+            int? locationId)
         {
+            var countries = await _context.Countries.ToListAsync();
+            var locations = new List<Location>();
+
+            if (countryId.HasValue)
+            {
+                locations = await _context.Locations
+                    .Where(l => l.CountryId == countryId)
+                    .ToListAsync();
+            }
+
             var query = _context.Tours
-                    .Include(t => t.Location) // <--- Load luôn thông tin Location
-                    .AsQueryable();
+                .Include(t => t.Location)
+                .ThenInclude(l => l.Country)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(name))
             {
@@ -38,22 +54,31 @@ namespace TM.Controllers
             }
 
             if (startDate.HasValue)
-            {
                 query = query.Where(t => t.StartDate >= startDate.Value);
-            }
 
             if (endDate.HasValue)
-            {
                 query = query.Where(t => t.EndDate <= endDate.Value);
-            }
 
-            if (locationId != 0)
-            {
+            if (locationId.HasValue && locationId.Value != 0)
                 query = query.Where(t => t.LocationId == locationId);
-            }
+            else if (countryId.HasValue)
+                query = query.Where(t => t.Location!.CountryId == countryId);
 
-            var tours = query.ToList();
-            return View(tours);
+            query = query.Where(t => t.DeleteAt == null);
+            
+            var model = new TourViewModel
+            {
+                Countries = countries,
+                SelectedCountryId = countryId,
+                Locations = locations,
+                SelectedLocationId = locationId,
+                Name = name,
+                StartDate = startDate,
+                EndDate = endDate,
+                Tours = await query.ToListAsync()
+            };
+
+            return View(model);
         }
       
 
@@ -250,28 +275,7 @@ namespace TM.Controllers
             }
         }
         
-        // GET: Tour/Surcharges/5
-        public async Task<IActionResult> Surcharges(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var tour = await _context.Tours
-                .Include(t => t.TourSurcharges.Where(s => s.DeleteAt == null))
-                .FirstOrDefaultAsync(m => m.Id == id);
-
-            if (tour == null)
-            {
-                return NotFound();
-            }
-
-            ViewData["TourId"] = id;
-            ViewData["TourName"] = tour.Name;
-            var surcharges = _mapper.Map<IEnumerable<TourSurchargeViewModel>>(tour.TourSurcharges);
-            return View(surcharges);
-        }
+       
 
         [Route("TourController/Passengers/Get")]
         public IActionResult Passengers()
@@ -310,7 +314,7 @@ namespace TM.Controllers
 
                 _context.Add(surcharge);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Surcharges), new { id = viewModel.TourId });
+                return  Redirect("/Tour/Edit/" + viewModel.TourId);
             }
 
             // Nếu model không hợp lệ, lấy lại tên tour để hiển thị
