@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 
 namespace TM.Models.Entities;
@@ -9,10 +10,13 @@ public partial class Tour
 
     public string Name { get; set; } = null!;
 
+    [BindProperty]
     public string Code { get; set; } = null!;
 
+    [BindProperty]
     public DateTime StartDate { get; set; }
 
+    [BindProperty]
     public DateTime EndDate { get; set; }
 
     public int TotalSeats { get; set; }
@@ -50,7 +54,6 @@ public partial class Tour
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? ModifiedAt { get; set; }
-
 
     public DateTime? DeleteAt { get; set; }
 

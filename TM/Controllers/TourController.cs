@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TM.Models;
 
 namespace TM.Controllers
@@ -14,11 +15,32 @@ namespace TM.Controllers
         }
 
         // GET: TourController
-        public ActionResult List()
+        //[HttpGet("List")]
+        public ActionResult Index(DateTime? startDate, DateTime? endDate, int locationId = 0)
         {
-            var tours = _context.Tours.ToList();
+            var query = _context.Tours
+                    .Include(t => t.Location) // <--- Load luôn thông tin Location
+                    .AsQueryable();
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(t => t.StartDate >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(t => t.EndDate <= endDate.Value);
+            }
+
+            if (locationId != 0)
+            {
+                query = query.Where(t => t.LocationId == locationId);
+            }
+
+            var tours = query.ToList();
             return View(tours);
         }
+
 
         // GET: TourController/Details/5
         public ActionResult Details(int id)
