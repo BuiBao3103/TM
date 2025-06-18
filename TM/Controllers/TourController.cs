@@ -24,12 +24,28 @@ namespace TM.Controllers
         }
 
         // GET: TourController
-        //[HttpGet("List")]
-        public ActionResult Index(String? name, DateTime? startDate, DateTime? endDate, int locationId = 0)
+        [HttpGet]
+        public async Task<IActionResult> Index(
+            string? name,
+            DateTime? startDate,
+            DateTime? endDate,
+            int? countryId,
+            int? locationId)
         {
+            var countries = await _context.Countries.ToListAsync();
+            var locations = new List<Location>();
+
+            if (countryId.HasValue)
+            {
+                locations = await _context.Locations
+                    .Where(l => l.CountryId == countryId)
+                    .ToListAsync();
+            }
+
             var query = _context.Tours
-                    .Include(t => t.Location)
-                    .AsQueryable();
+                .Include(t => t.Location)
+                .ThenInclude(l => l.Country)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(name))
             {
@@ -38,36 +54,43 @@ namespace TM.Controllers
             }
 
             if (startDate.HasValue)
-            {
                 query = query.Where(t => t.StartDate >= startDate.Value);
-            }
 
             if (endDate.HasValue)
-            {
                 query = query.Where(t => t.EndDate <= endDate.Value);
-            }
 
-            if (locationId != 0)
-            {
+            if (locationId.HasValue && locationId.Value != 0)
                 query = query.Where(t => t.LocationId == locationId);
-            }
+            else if (countryId.HasValue)
+                query = query.Where(t => t.Location!.CountryId == countryId);
 
             query = query.Where(t => t.DeleteAt == null);
+            
+            var model = new TourViewModel
+            {
+                Countries = countries,
+                SelectedCountryId = countryId,
+                Locations = locations,
+                SelectedLocationId = locationId,
+                Name = name,
+                StartDate = startDate,
+                EndDate = endDate,
+                Tours = await query.ToListAsync()
+            };
 
-            var tours = query.ToList();
-            return View(tours);
+            return View(model);
         }
-        // GET: TourController
-        public ActionResult List()
-        {
-            var tours = _context.Tours.ToList();
-            return View(tours);
-        }
+      
 
-        // GET: TourController/Details/5
-        public ActionResult Details(int id)
+        public IActionResult Details(int id)
         {
-            return View();
+            var tour = _context.Tours.Find(id);
+            if (tour == null)
+            {
+                return NotFound();
+            }
+            ViewData["Title"] = "Chi tiết tour";
+            return View(tour);
         }
 
 
@@ -163,24 +186,96 @@ namespace TM.Controllers
 
 
         // GET: TourController/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var tour = await _context.Tours
+                .Include(t => t.TourSurcharges.Where(s => s.DeleteAt == null))
+                .Include(t => t.Passengers.Where(p => p.DeleteAt == null))
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (tour == null)
+            {
+                return NotFound();
+            }
+
+            // Query locations với country info
+            var locations = _context.Locations
+                .Include(l => l.Country)
+                .ToList()
+                .Select(l => new
+                {
+                    Id = l.Id,
+                    DisplayText = $"{l.LocationName} - {l.Country.Name}"
+                })
+                .OrderBy(l => l.DisplayText)
+                .ToList();
+
+            ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText");
+
+            // Map surcharges và passengers sang ViewModel
+            ViewData["Surcharges"] = _mapper.Map<IEnumerable<TourSurchargeViewModel>>(tour.TourSurcharges);
+            ViewData["Passengers"] = tour.Passengers;
+
+            return View(tour);
         }
 
         // POST: TourController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(int id, Tour tour)
         {
-            try
+            if (id != tour.Id)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
-            catch
+
+            if (ModelState.IsValid)
             {
-                return View();
+                try
+                {
+                    tour.ModifiedAt = DateTime.Now;
+                    _context.Update(tour);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!TourExists(tour.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
             }
+
+            // Nếu model không hợp lệ, load lại locations cho dropdown
+            var locations = _context.Locations
+                .Include(l => l.Country)
+                .ToList()
+                .Select(l => new
+                {
+                    Id = l.Id,
+                    DisplayText = $"{l.LocationName} - {l.Country.Name}"
+                })
+                .OrderBy(l => l.DisplayText)
+                .ToList();
+
+            ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText");
+
+            return View(tour);
+        }
+
+        private bool TourExists(int id)
+        {
+            return _context.Tours.Any(e => e.Id == id);
         }
 
         // GET: TourController/Delete/5
@@ -273,7 +368,7 @@ namespace TM.Controllers
 
                 _context.Add(surcharge);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Surcharges), new { id = viewModel.TourId });
+                return  Redirect("/Tour/Edit/" + viewModel.TourId);
             }
 
             // Nếu model không hợp lệ, lấy lại tên tour để hiển thị
@@ -285,5 +380,7 @@ namespace TM.Controllers
 
             return View(viewModel);
         }
+
+   
     }
 }
