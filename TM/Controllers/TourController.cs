@@ -16,11 +16,17 @@ namespace TM.Controllers
 
         // GET: TourController
         //[HttpGet("List")]
-        public ActionResult Index(DateTime? startDate, DateTime? endDate, int locationId = 0)
+        public ActionResult Index(String? name, DateTime? startDate, DateTime? endDate, int locationId = 0)
         {
             var query = _context.Tours
                     .Include(t => t.Location) // <--- Load luôn thông tin Location
                     .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                string lowerName = name.Trim().ToLower();
+                query = query.Where(t => t.Name.ToLower().Contains(lowerName));
+            }
 
             if (startDate.HasValue)
             {
