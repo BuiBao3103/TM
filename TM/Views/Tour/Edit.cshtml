@@ -357,11 +357,11 @@
                                             </td>
                                             <td class="text-center">
                                                 <div class="btn-group">
-                                                    <a asp-action="EditSurcharge" asp-route-id="@item.Id" 
+                                                    <a href="/tour-surcharge/update?id=@item.Id"
                                                        class="btn btn-outline-primary btn-sm">
                                                         <i class="fas fa-edit me-1"></i>Sửa
                                                     </a>
-                                                    <form asp-action="DeleteSurcharge" method="post" class="d-inline">
+                                                    <form action="/tour-surchange/delete" method="post" class="d-inline">
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="id" value="@item.Id" />
                                                         <button type="submit" class="btn btn-outline-danger btn-sm" 

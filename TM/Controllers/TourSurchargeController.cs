@@ -58,7 +58,7 @@ namespace TM.Controllers
                 oldSuchange.Name = tourSurchangeUpdate.Name;
                 await _appDbContext.SaveChangesAsync();
 
-                return Redirect("/Tour/Surcharges/" + oldSuchange.TourId);
+                return Redirect("/Tour/Edit/" + oldSuchange.TourId);
             } catch (Exception)
             {
                 ViewBag.ErrorMessage = "Đã xảy ra lỗi.";
@@ -84,7 +84,7 @@ namespace TM.Controllers
                 await _appDbContext.SaveChangesAsync();
 
                 ViewBag.SuccessMessage = "Xóa thành công.";
-                return Redirect("/Tour/Surcharges/" + oldSuchange.TourId);
+                return Redirect("/Tour/Edit/" + oldSuchange.TourId);
             } catch (Exception)
             {
                 ViewBag.ErrorMessage = "Đã xảy ra lỗi.";
