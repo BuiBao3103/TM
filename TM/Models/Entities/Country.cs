@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace TM.Models.Entities;
+﻿namespace TM.Models.Entities;
 
 public partial class Country
 {
