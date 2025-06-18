@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TM.Models;
 
 namespace TM.Controllers
@@ -14,9 +15,12 @@ namespace TM.Controllers
         }
 
         // GET: TourController
+        //[HttpGet("List")]
         public ActionResult Index(DateTime? startDate, DateTime? endDate, int locationId = 0)
         {
-            var query = _context.Tours.AsQueryable();
+            var query = _context.Tours
+                    .Include(t => t.Location) // <--- Load luôn thông tin Location
+                    .AsQueryable();
 
             if (startDate.HasValue)
             {

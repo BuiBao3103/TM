@@ -23,7 +23,7 @@ namespace TM.Controllers
         }
 
         // Action test kết nối database
-        public async Task<IActionResult> TestConnection()
+        public Task<IActionResult> TestConnection()
         {
             try
             {
@@ -60,7 +60,7 @@ namespace TM.Controllers
                 ViewBag.Status = "error";
             }
 
-            return View();
+            return Task.FromResult<IActionResult>(View());
         }
 
         public IActionResult Privacy()

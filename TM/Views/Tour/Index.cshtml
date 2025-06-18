@@ -1,13 +1,12 @@
 ﻿@using Azure.Core
 @model IEnumerable<TM.Models.Entities.Tour>
-@using Microsoft.AspNetCore.Http  
- 
-@{  
-    ViewData["Title"] = "Danh sách Tour";  
-    var startDate = Context.Request.Query["startDate"];  
-    var endDate = Context.Request.Query["endDate"];  
-    var locationId = Context.Request.Query["locationId"];  
-}
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Danh sách Tour";
+    var startDate = Context.Request.Query["startDate"];
+    var endDate = Context.Request.Query["endDate"];
+    var locationId = Context.Request.Query["locationId"];
 }
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -28,13 +27,12 @@
     <div class="col-md-3">
         <label for="locationId" class="form-label">Địa điểm</label>
         <select class="form-select" id="locationId" name="locationId">
-            <option value="0" @(locationId == "0" ? "selected" : "")>Tất cả</option>
-            <!-- Bạn cần load danh sách Location từ ViewBag.LocationList -->
+            <option value="0" selected="@((locationId == "0").ToString())">Tất cả</option>
             @if (ViewBag.LocationList != null)
             {
                 foreach (var loc in ViewBag.LocationList)
                 {
-                    <option value="@loc.Id" @(locationId == loc.Id.ToString() ? "selected" : "")>@loc.Name</option>
+                    <option value="@loc.Id" selected="@((locationId == loc.Id.ToString()).ToString())">@loc.Name</option>
                 }
             }
         </select>
@@ -46,63 +44,46 @@
     </div>
 </form>
 
-<table class="table table-bordered table-hover table-striped">
-    <thead class="table-dark">
-        <tr>
-            <th>Tên Tour</th>
-            <th>Mã Tour</th>
-            <th>Ngày đi</th>
-            <th>Ngày về</th>
-            <th>Tổng chỗ</th>
-            <th>Còn trống</th>
-            <th>Giá Gốc</th>
-            <th>Giá KM</th>
-            <th>HH</th>
-            <th>Visa?</th>
-            <th>Chuyến đi</th>
-            <th>Chuyến về</th>
-            <th>Địa điểm</th>
-            <th>Hành động</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr class="align-middle">
-                <td>@item.Name</td>
-                <td>@item.Code</td>
-                <td>@item.StartDate.ToString("dd/MM/yyyy")</td>
-                <td>@item.EndDate.ToString("dd/MM/yyyy")</td>
-                <td>@item.TotalSeats</td>
-                <td>
-                    @if (item.AvailableSeats == 0)
-                    {
-                        <span class="badge bg-danger">Hết chỗ</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-success">@item.AvailableSeats chỗ</span>
-                    }
-                </td>
-                <td>@string.Format("{0:N0}₫", item.SuggestPrice)</td>
-                <td>@string.Format("{0:N0}₫", item.DiscountPrice)</td>
-                <td>@string.Format("{0:N0}₫", item.HhFee)</td>
-                <td>@(item.IsVisaRequired ? "✔" : "✘")</td>
-                <td>@item.DepartureFlightInfo</td>
-                <td>@item.ArrivalFlightInfo</td>
-                <td>@item.Location?.Name</td>
-                <td>
-                    <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@item.Id" title="Chi tiết">
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    @foreach (var item in Model)
+    {
+        <div class="col">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-primary fw-bold">@item.Name</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        @item.StartDate.ToString("dd/MM/yyyy") - @item.EndDate.ToString("dd/MM/yyyy")
+                    </h6>
+                    <p class="card-text">
+                        <strong>Địa điểm:</strong> @item.Location?.LocationName <br />
+                        <strong>Giá gốc:</strong> @string.Format("{0:N0}₫", item.SuggestPrice) <br />
+                        <strong>Giá KM:</strong> @string.Format("{0:N0}₫", item.DiscountPrice) <br />
+                        <strong>Chỗ trống:</strong>
+                        @if (item.AvailableSeats == 0)
+                        {
+                            <span class="badge bg-danger">Hết chỗ</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">@item.AvailableSeats chỗ</span>
+                        }
+                        <br />
+                        <strong>Chuyến đi:</strong> @item.DepartureFlightInfo <br />
+                        <strong>Chuyến về:</strong> @item.ArrivalFlightInfo
+                    </p>
+                </div>
+                <div class="card-footer text-end bg-white border-0">
+                    <a class="btn btn-sm btn-outline-info me-1" asp-action="Details" asp-route-id="@item.Id" title="Chi tiết">
                         <i class="bi bi-eye"></i>
                     </a>
-                    <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@item.Id" title="Chỉnh sửa">
+                    <a class="btn btn-sm btn-outline-warning me-1" asp-action="Edit" asp-route-id="@item.Id" title="Chỉnh sửa">
                         <i class="bi bi-pencil"></i>
                     </a>
-                    <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@item.Id" title="Xóa">
+                    <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@item.Id" title="Xóa">
                         <i class="bi bi-trash"></i>
                     </a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
