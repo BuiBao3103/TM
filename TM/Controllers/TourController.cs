@@ -201,6 +201,13 @@ namespace TM.Controllers
             return View(surcharges);
         }
 
+        [Route("TourController/Passengers/Get")]
+        public IActionResult Passengers()
+        {
+            //var tour = _context.Tours.FirstOrDefault(t => t.Id == id);
+            //var passengers = _context.Passengers.ToList();
+            return View();
+        }
         // GET: Tour/CreateSurcharge/5
         public async Task<IActionResult> CreateSurcharge(int id)
         {
@@ -243,5 +250,7 @@ namespace TM.Controllers
 
             return View(viewModel);
         }
+
+        
     }
 }
