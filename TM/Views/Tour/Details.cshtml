@@ -1,0 +1,50 @@
+@model TM.Models.Entities.Tour
+
+@{
+    ViewData["Title"] = "Chi tiết tour";
+}
+
+<div class="container">
+    <h2>Chi tiết tour</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-8">
+            <dl class="row">
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Code)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Code)</dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.StartDate)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.StartDate)</dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.EndDate)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.EndDate)</dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.SuggestPrice)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.SuggestPrice)</dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.DiscountPrice)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.DiscountPrice)</dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.HhFee)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.HhFee)</dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Location)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Location.LocationName)</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            @await Html.PartialAsync("_SurchargeList", ViewData["Surcharges"])
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Sửa</a>
+        <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
+    </div>
+</div> 
