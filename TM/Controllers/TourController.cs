@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TM.Models;
+using TM.Models.Entities;
+using TM.Models.ViewModels;
 
 namespace TM.Controllers
 {
@@ -16,11 +18,27 @@ namespace TM.Controllers
 
         // GET: TourController
         //[HttpGet("List")]
-        public ActionResult Index(String? name, DateTime? startDate, DateTime? endDate, int locationId = 0)
+        public async Task<IActionResult> Index(
+            string? name,
+            DateTime? startDate,
+            DateTime? endDate,
+            int? countryId,
+            int? locationId)
         {
+            var countries = await _context.Countries.ToListAsync();
+            var locations = new List<Location>();
+
+            if (countryId.HasValue)
+            {
+                locations = await _context.Locations
+                    .Where(l => l.CountryId == countryId)
+                    .ToListAsync();
+            }
+
             var query = _context.Tours
-                    .Include(t => t.Location) // <--- Load luôn thông tin Location
-                    .AsQueryable();
+                .Include(t => t.Location)
+                .ThenInclude(l => l.Country)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(name))
             {
@@ -29,22 +47,29 @@ namespace TM.Controllers
             }
 
             if (startDate.HasValue)
-            {
                 query = query.Where(t => t.StartDate >= startDate.Value);
-            }
 
             if (endDate.HasValue)
-            {
                 query = query.Where(t => t.EndDate <= endDate.Value);
-            }
 
-            if (locationId != 0)
-            {
+            if (locationId.HasValue && locationId.Value != 0)
                 query = query.Where(t => t.LocationId == locationId);
-            }
+            else if (countryId.HasValue)
+                query = query.Where(t => t.Location!.CountryId == countryId);
 
-            var tours = query.ToList();
-            return View(tours);
+            var model = new TourViewModel
+            {
+                Countries = countries,
+                SelectedCountryId = countryId,
+                Locations = locations,
+                SelectedLocationId = locationId,
+                Name = name,
+                StartDate = startDate,
+                EndDate = endDate,
+                Tours = await query.ToListAsync()
+            };
+
+            return View(model);
         }
 
 
