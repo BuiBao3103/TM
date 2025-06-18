@@ -16,11 +16,30 @@ namespace TM.Controllers
             _logger = logger;
             _context = context;
         }
-        public IActionResult Index()
+        
+        // GET: TourController
+        public ActionResult Index(DateTime? startDate, DateTime? endDate, int locationId = 0)
         {
-            return View();
-        }
+            var query = _context.Tours.AsQueryable();
 
+            if (startDate.HasValue)
+            {
+                query = query.Where(t => t.StartDate >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(t => t.EndDate <= endDate.Value);
+            }
+
+            if (locationId != 0)
+            {
+                query = query.Where(t => t.LocationId == locationId);
+            }
+
+            var tours = query.ToList();
+            return View(tours);
+        }
         // GET: TourController
         public ActionResult List()
         {
