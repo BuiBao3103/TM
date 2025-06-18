@@ -28,7 +28,7 @@ namespace TM.Controllers
         public ActionResult Index(String? name, DateTime? startDate, DateTime? endDate, int locationId = 0)
         {
             var query = _context.Tours
-                    .Include(t => t.Location) // <--- Load luôn thông tin Location
+                    .Include(t => t.Location)
                     .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(name))
@@ -51,6 +51,8 @@ namespace TM.Controllers
             {
                 query = query.Where(t => t.LocationId == locationId);
             }
+
+            query = query.Where(t => t.DeleteAt == null);
 
             var tours = query.ToList();
             return View(tours);
