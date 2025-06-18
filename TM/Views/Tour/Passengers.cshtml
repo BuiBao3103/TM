@@ -3,149 +3,219 @@
     ViewData["Title"] = "Passengers";
 }
 @* <head> *@
+@section Styles {
     <style>
-        :root {
-            --primary: #0066bb;
-            --primary-bg: #f8f8f8;
-            --secondary-bg: #eeeeee;
-            --gray-light: #cccccc;
-            --active: #409404;
-            --inactive: #b0b0b0;
+       :root {
+            --bg: #f8f8ff;
+            --table-bg: #ffffff;
+            --primary: #0065bd;
+            --text: #121212;
+            --gray-light: #eaeaea;
+            --active: #4a666a;
+            --inactive: #c0c0c0;
             --offline: #bbbbbb;
-            --tag-dev: #2196f3;
-            --tag-qa: #ffc107;
-            --tag-design: #e91e63;
-            --tag-marketing: #ff545e;
-            --border-color: var(--text);
-            --font-family: sans-serif;
-            --font-size-base: 0.85rem;
-            --font-size-lg: 1.25rem;
-            --font-size-xl: 2rem;
-            --spacing-md: 0.5rem;
-            --spacing-lg: 1rem;
-            --spacing-xl: 2rem;
+            --tag-design: #bdd8ff;
+            --tag-qa: #ffe4bd;
+            --tag-dev: #d8ffc4;
+            --tag-marketing: #ffd4be;
+            --font: 'Source Sans Pro', sans-serif;
+            --font-size-base: 0.9rem;
+            --font-size-large: 1rem;
+            --font-size-small: 0.75rem;
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem; 
         }
 
+    * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+    }
 
-        body {
-            font-family: var(--font-family);
-            display: grid;
-            place-items: center;
-            height: 100vh;
-            background-color: var(--bg);
-            color: var(--text);
+    body {
+        font-family: var(--font);
+        display: grid;
+        place-items: center;
+        height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+    }
+
+    .table-widget {
+        border-radius: 1rem;
+        background: var(--table-bg);
+        padding: var(--spacing-lg);
+        text-align: left;
+        overflow-x:auto;
+        user-select: none;
+        color: var(--text);
+        border: 1px solid var(--border-color);
+        min-width: 600px;
+        max-width: 100%;
+    }
+
+        .table-widget table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: auto;
         }
 
-        .table-widget {
-            border-radius: 1rem;
-            background: var(--table-bg);
-            padding: var(--spacing-lg);
-            text-align: left;
-            overflow: auto;
-            user-select: none;
-            color: var(--text);
-            border: 1px solid var(--border-color);
-            min-width: 500px;
-            max-width: 800px;
-        }
-
-            .table-widget table {
-                width: 100%;
-                border-collapse: collapse;
-                table-layout: auto;
-            }
-
-            .table-widget th:hover {
-                color: var(--primary);
-            }
-
-            .table-widget th::after {
-                content: "";
-                font-size: 0.75rem;
-                margin-left: 8px;
-                color: var(--text);
-            }
-
-            .table-widget th:hover::after,
-            .table-widget th:active::before {
-                color: var(--primary);
-            }
-
-            .table-widget th.sorted-asc::after {
-                content: "▲";
-            }
-
-            .table-widget th.sorted-desc::after {
-                content: "▼";
-            }
-
-            .table-widget td {
-                padding: var(--spacing-md);
-                background-color: transparent;
-                color: var(--text);
-                vertical-align: middle;
-                border-bottom: 1px solid var(--gray-light);
-                white-space: nowrap;
-            }
-
-            .table-widget tbody tr:hover img,
-            .table-widget tbody tr:hover td {
-                border-color: var(--primary);
-            }
-
-            .table-widget tbody tr:hover td {
-                cursor: pointer;
-                color: var(--primary);
-            }
-
-            .table-widget .caption {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: var(--spacing-md);
-            }
-
-        .export-btn {
-            padding: var(--spacing-sm);
-            border: none;
-            border-radius: 0.25rem;
-            background-color: var(--primary);
-            color: white;
-            font-size: var(--font-size-large);
-            cursor: pointer;
+        .table-widget .caption {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 0.5rem;
-            padding: var(--spacing-sm);
-            transition: 0.2s ease;
+            margin-bottom: var(--spacing-md);
         }
 
-            .export-btn:hover {
-                background-color: var(--primary-dark);
+        .table-widget .export-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: var(--font-size-large);
+            padding: var(--spacing-sm);
+            transition: color 0.3s ease;
+        }
+
+            .table-widget .export-btn:hover {
+                color: var(--primary);
             }
 
-            .export-btn svg {
-                width: 1.2rem;
-                height: 1.2rem;
-                fill: white;
+            .table-widget .export-btn svg {
+                width: 2rem;
+                height: 2rem;
             }
 
         .table-widget th {
             padding: var(--spacing-md);
             font-size: var(--font-size-base);
             font-weight: 700;
-            text-transform: uppercase;
-            color: var(--text);
+            vertical-align: middle;
+            user-select: none;
+            position: relative;
             border-bottom: 1px solid var(--border-color);
+            color: var(--text);
             text-align: left;
-            cursor: pointer;
-            transition: background-color 0.2s ease, color 0.2s ease;
+            white-space: nowrap;
+            transition: background-color 0.25s ease, color 0.25s ease;
         }
+
+            .table-widget th:hover {
+                color: var(--primary);
+            }
+
+            .table-widget th::after {
+                content: '';
+                font-size: 0.75rem;
+                margin-left: 8px;
+                color: var(--text);
+            }
+
+            .table-widget th:hover::after,
+            .table-widget th::before {
+                color: var(--primary);
+            }
+
+            .table-widget th.sorted-asc::after {
+                content: '▲';
+            }
+
+            .table-widget th.sorted-desc::after {
+                content: '▼';
+            }
+
+        .table-widget td {
+            padding: var(--spacing-md);
+            background: transparent;
+            color: var(--text);
+            vertical-align: middle;
+            border-bottom: 1px solid var(--gray-light);
+            white-space: nowrap;
+        }
+
+        .table-widget tbody tr:hover img,
+        .table-widget tbody tr:hover .tag {
+            border-color: var(--primary);
+        }
+
+        .table-widget tbody tr:hover td {
+            cursor: pointer;
+            color: var(--primary);
+        }
+
+    /* Team Member Profile */
+    .team-member-profile {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+
+        .team-member-profile img {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            object-fit: cover;
+        }
+
+    .profile-info {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .profile-info_name {
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    /* Status */
+    .status {
+        display: flex;
+        font-weight: 700;
+        gap: var(--spacing-sm);
+        align-items: center;
+    }
+
+    .status_circle {
+        display: inline-block;
+        height: 0.5rem;
+        width: 0.5rem;
+        border-radius: 50%;
+    }
+
+    .status--active {
+        background: var(--active);
+    }
+
+    .status--inactive {
+        background: var(--inactive);
+    }
+
+    .status--offline {
+        background: var(--offline);
+    }
+
+    /* Tags */
+    .tags {
+        display: flex;
+        gap: var(--spacing-sm);
+    }
+
+    .tag {
+        padding: var(--spacing-sm);
+        border-radius: 0.5rem;
+        font-weight: 600;
+        color: var(--text);
+        border: 1px solid
+
     </style>
+}
+}
 @* </head> *@
+<div class="table-overview">
 
 <article class="table-widget">
     <div class="caption">
@@ -165,8 +235,8 @@
                 <td class="team-member-profile">
                     <img src="assets/drew.jpg" alt="Drew Crano">
                     <div class="profile-info">
-                        <div class="profile-info-name">Drew Crano</div>
-                        <div class="profile-info-alias">drew</div>
+                        <div class="profile-info_name">Drew Crano</div>
+                        @* <div class="profile-info_alias">drew</div> *@
                     </div>
                 </td>
                 <td>
@@ -178,7 +248,7 @@
                 <td>drew.cranoexample.com</td>
                 <td>
                     <div class="tags">
-                        <div class="class-tag tag--marketing">
+                        <div class="tag tag--marketing">
                             Marketing
                         </div>
                     </div>
@@ -187,6 +257,7 @@
         </tbody>
     </table>
 </article>
+</div>
 <script>
     document.querySelectorAll('#team-table th.resizable').forEach(th => {
         let startX, startWidth;
