@@ -40,12 +40,13 @@
                                     </td>
                                     <td class="px-4 py-3 text-center align-middle">
                                         <div class="d-flex justify-content-center gap-2">
-                                            <a asp-action="EditSurcharge" asp-route-id="@item.Id" 
+                                            <a href="/tour-surcharge/update?id=@item.Id"
                                                class="btn btn-outline-warning btn-sm px-3">
                                                 <i class="fas fa-edit me-1"></i>Sửa
                                             </a>
-                                            <form asp-action="DeleteSurcharge" asp-route-id="@item.Id" method="post" class="d-inline">
+                                            <form action="/tour-surchange/delete" method="post" class="d-inline">
                                                 @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@item.Id"/>
                                                 <button type="submit" class="btn btn-outline-danger btn-sm px-3" 
                                                         onclick="return confirm('Bạn có chắc chắn muốn xóa phụ phí này?')">
                                                     <i class="fas fa-trash me-1"></i>Xóa
