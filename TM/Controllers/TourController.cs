@@ -22,7 +22,7 @@ namespace TM.Controllers
             _context = context;
             _mapper = mapper;
         }
-        
+
         // GET: TourController
         //[HttpGet("List")]
         public ActionResult Index(String? name, DateTime? startDate, DateTime? endDate, int locationId = 0)
@@ -75,7 +75,8 @@ namespace TM.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            var model = new Tour
+
+            var model = new TourInfoViewModel
             {
                 StartDate = DateTime.Now,
                 EndDate = DateTime.Now.AddDays(7),
@@ -106,26 +107,60 @@ namespace TM.Controllers
         // POST: TourController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Tour tour)
+        public async Task<IActionResult> Create(TourInfoViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                var locations = _context.Locations
+                    .Include(l => l.Country)
+                    .ToList()
+                    .Select(l => new
+                    {
+                        Id = l.Id,
+                        DisplayText = $"{l.LocationName} - {l.Country.Name}"
+                    })
+                    .OrderBy(l => l.DisplayText)
+                    .ToList();
+
+                ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText", model.LocationId);
+
+                return View(model);
+            }
 
             try
             {
-                if (ModelState.IsValid)
-                {
-                    _context.Tours.Add(tour);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Create));
-                }
-                return View(tour);
+                var tour = _mapper.Map<Tour>(model);
+                tour.AvailableSeats = tour.TotalSeats;
+                tour.CreatedAt = DateTime.Now;
+                tour.ModifiedAt = DateTime.Now;
+
+                _context.Tours.Add(tour);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi khi tạo mới Tour");
+
+                var locations = _context.Locations
+                    .Include(l => l.Country)
+                    .ToList()
+                    .Select(l => new
+                    {
+                        Id = l.Id,
+                        DisplayText = $"{l.LocationName} - {l.Country.Name}"
+                    })
+                    .OrderBy(l => l.DisplayText)
+                    .ToList();
+
+                ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText", model.LocationId);
+
                 ModelState.AddModelError(string.Empty, "Đã xảy ra lỗi khi tạo Tour. Vui lòng thử lại.");
-                return View(tour);
+                return View(model);
             }
         }
+
 
         // GET: TourController/Edit/5
         public ActionResult Edit(int id)
