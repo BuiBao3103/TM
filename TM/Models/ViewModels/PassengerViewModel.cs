@@ -4,23 +4,24 @@ namespace TM.Models.ViewModels;
 
 public class PassengerViewModel
 {
+    public int Id { get; set; }
     [Required(ErrorMessage = "Mã khách là bắt buộc")]
     [Display(Name = "Mã khách")]
     [StringLength(50)]
-    public string Code { get; set; }
+    public string? Code { get; set; }
 
     [Required(ErrorMessage = "Họ tên là bắt buộc")]
     [Display(Name = "Họ tên")]
     [StringLength(100)]
-    public string FullName { get; set; }
+    public string? FullName { get; set; }
 
     [Display(Name = "Ngày sinh")]
     [DataType(DataType.Date)]
-    public DateTime? DateOfBirth { get; set; }
+    public DateOnly? DateOfBirth { get; set; }
 
     [Required(ErrorMessage = "Giới tính là bắt buộc")]
     [Display(Name = "Giới tính")]
-    public string Gender { get; set; }
+    public string? Gender { get; set; }
 
     [Display(Name = "Số CMND/CCCD")]
     [StringLength(20)]
@@ -42,17 +43,17 @@ public class PassengerViewModel
 
     [Required(ErrorMessage = "Tour là bắt buộc")]
     [Display(Name = "Mã Tour")]
-    public int TourId { get; set; }
+    public int? TourId { get; set; }
 
     [Required(ErrorMessage = "Giá chào là bắt buộc")]
     [Display(Name = "Giá chào")]
     [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
-    public decimal AssignedPrice { get; set; }
+    public decimal? AssignedPrice { get; set; }
 
     [Required(ErrorMessage = "Số tiền khách trả là bắt buộc")]
     [Display(Name = "Khách đã trả")]
     [Range(0, double.MaxValue, ErrorMessage = "Số tiền phải >= 0")]
-    public decimal CustomerPaid { get; set; }
+    public decimal? CustomerPaid { get; set; }
 
     [Required(ErrorMessage = "Trạng thái là bắt buộc")]
     [Display(Name = "Trạng thái")]
