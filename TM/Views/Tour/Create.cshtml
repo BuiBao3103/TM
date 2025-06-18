@@ -1,4 +1,4 @@
-﻿@model TM.Models.Entities.Tour
+﻿@model TM.Models.ViewModels.TourInfoViewModel
 
 @{
     ViewData["Title"] = "Tạo Tour Mới";
@@ -92,15 +92,6 @@
                                                 </label>
                                                 <input asp-for="TotalSeats" type="number" class="form-control" min="1" />
                                                 <span asp-validation-for="TotalSeats" class="text-danger small"></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label asp-for="AvailableSeats" class="form-label fw-semibold">
-                                                    <i class="fas fa-check-circle me-1"></i>Chỗ trống
-                                                </label>
-                                                <input asp-for="AvailableSeats" type="number" class="form-control" min="0" />
-                                                <span asp-validation-for="AvailableSeats" class="text-danger small"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -313,10 +304,10 @@
 
                             <!-- Action Buttons -->
                             <div class="d-flex justify-content-end gap-2 pt-3 border-top">
-                                <a asp-action="Index" class="btn btn-light btn-lg px-4">
+                                <a asp-action="Index" class="btn btn-danger px-4">
                                     <i class="fas fa-times me-2"></i>Hủy
                                 </a>
-                                <button type="submit" class="btn btn-primary btn-lg px-4">
+                                <button type="submit" class="btn btn-success px-4">
                                     <i class="fas fa-save me-2"></i>Tạo mới
                                 </button>
                             </div>
