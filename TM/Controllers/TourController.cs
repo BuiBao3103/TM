@@ -24,7 +24,7 @@ namespace TM.Controllers
         }
         
         // GET: TourController
-        //[HttpGet("List")]
+        [HttpGet]
         public async Task<IActionResult> Index(
             string? name,
             DateTime? startDate,
