@@ -67,5 +67,7 @@ public class TourPassengerViewModel
 
     // Optional: Tên tour cho hiển thị (nếu cần)
     [Display(Name = "Tên Tour")]
-    public string? TourName { get; set; }
+    public string TourName { get; set; }
+
+    public string TourCode { get; set; }
 }

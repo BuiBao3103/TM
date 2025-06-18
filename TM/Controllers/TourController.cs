@@ -329,10 +329,13 @@ namespace TM.Controllers
             {
                 var passenger = _mapper.Map<Passenger>(viewModel);
                 passenger.CreatedAt = DateTime.Now;
-
+                passenger.TourId= viewModel.TourId;
                 _context.Add(passenger);
+
+                var tourUpdate = await _context.Tours.FindAsync(viewModel.TourId);
+                tourUpdate.AvailableSeats -= 1;
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Surcharges), new { id = viewModel.TourId });
+                return Redirect("/Tour/Edit/" + viewModel.TourId);
             }
 
             // Nếu model không hợp lệ, lấy lại tên tour để hiển thị

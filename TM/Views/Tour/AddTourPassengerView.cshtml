@@ -25,9 +25,11 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Create" method="post">
+                    <form asp-action="AddTourPassenger" method="post">
                         @* Ẩn ID nếu cần *@
                         <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="TourId" />
+
 
                         <!-- Thông tin cơ bản -->
                         <div class="row">
@@ -113,16 +115,16 @@
                             </h6>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label asp-for="TourId" class="form-label fw-semibold">
+                                    <label asp-for="TourCode" class="form-label fw-semibold">
                                         <i class="fas fa-route me-1"></i>Mã Tour
                                     </label>
-                                    <input asp-for="Code" class="form-control" disabled />
+                                    <input asp-for="TourCode" class="form-control" readonly />
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label asp-for="TourName" class="form-label fw-semibold">
                                         <i class="fas fa-globe me-1"></i>Tên Tour
                                     </label>
-                                    <input asp-for="TourName" class="form-control" disabled />
+                                    <input asp-for="TourName" class="form-control" readonly />
                                     <span asp-validation-for="TourName" class="text-danger small"></span>
                                 </div>
                             </div>
@@ -164,7 +166,6 @@
                                         <option value="">-- Chọn trạng thái --</option>
                                         <option value="Reserved">Reserved</option>
                                         <option value="Paid">Paid</option>
-                                        <option value="Cancelled">Cancelled</option>
                                     </select>
                                     <span asp-validation-for="Status" class="text-danger small"></span>
                                 </div>
