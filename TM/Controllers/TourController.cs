@@ -341,6 +341,50 @@ namespace TM.Controllers
             return View(viewModel);
         }
 
-   
+        // POST: Tour/AddTourPassenger
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddTourPassenger(TourPassengerViewModel viewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var passenger = _mapper.Map<Passenger>(viewModel);
+                passenger.CreatedAt = DateTime.Now;
+
+                _context.Add(passenger);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Surcharges), new { id = viewModel.TourId });
+            }
+
+            // Nếu model không hợp lệ, lấy lại tên tour để hiển thị
+            var tour = await _context.Tours.FindAsync(viewModel.TourId);
+            if (tour != null)
+            {
+                viewModel.TourName = tour.Name;
+            }
+
+            return View(viewModel);
+        }
+
+        public async Task<IActionResult> AddTourPassengerView(int tourId)
+        {
+            var tour = await _context.Tours.FindAsync(tourId);
+            if (tour == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new TourPassengerViewModel
+            {
+                TourId = tourId,
+                TourName = tour.Name,
+                TourCode = tour.Code,
+                AssignedPrice = tour.DiscountPrice ?? 0,
+                DateOfBirth = new DateTime(2000, 1, 1)
+
+            };
+
+            return View(viewModel);
+        }
     }
 }
