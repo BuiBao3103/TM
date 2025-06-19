@@ -66,7 +66,7 @@ namespace TM.Controllers
             }
         }
 
-        [HttpPost("tour-surchange/delete")]
+        [HttpPost("tour-surcharge/delete")]
         public async Task<IActionResult> Delete([FromForm] int id)
         {
             try
@@ -83,11 +83,9 @@ namespace TM.Controllers
                 oldSuchange.DeleteAt = DateTime.Now;
                 await _appDbContext.SaveChangesAsync();
 
-                ViewBag.SuccessMessage = "Xóa thành công.";
                 return Redirect("/Tour/Edit/" + oldSuchange.TourId);
             } catch (Exception)
             {
-                ViewBag.ErrorMessage = "Đã xảy ra lỗi.";
                 return Redirect("/Tour");
             }
         }

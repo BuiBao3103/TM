@@ -1,12 +1,14 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TM.Models;
-using AutoMapper;
-using TM.Models.ViewModels;
 using TM.Models.Entities;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using TM.Models.ViewModels;
 
 namespace TM.Controllers
 {
@@ -98,21 +100,9 @@ namespace TM.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-
-            var model = new TourInfoViewModel
-            {
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now.AddDays(7),
-                VisaDeadline = null,
-                FullPayDeadline = null,
-                CreatedAt = DateTime.Now,
-                ModifiedAt = DateTime.Now
-            };
-
-            // Query locations với country info
             var locations = _context.Locations
                 .Include(l => l.Country)
-                .ToList() // Execute query first
+                .ToList() 
                 .Select(l => new
                 {
                     Id = l.Id,
@@ -123,8 +113,7 @@ namespace TM.Controllers
 
             ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText");
 
-
-            return View(model);
+            return View();
         }
 
         // POST: TourController/Create
@@ -338,6 +327,13 @@ namespace TM.Controllers
             return View(surcharges);
         }
 
+        [Route("TourController/Passengers/Get")]
+        public IActionResult Passengers()
+        {
+            //var tour = _context.Tours.FirstOrDefault(t => t.Id == id);
+            //var passengers = _context.Passengers.ToList();
+            return View();
+        }
         // GET: Tour/CreateSurcharge/5
         public async Task<IActionResult> CreateSurcharge(int id)
         {
@@ -381,6 +377,105 @@ namespace TM.Controllers
             return View(viewModel);
         }
 
+        // POST: Tour/AddTourPassenger
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddTourPassenger(TourPassengerViewModel viewModel)
+        {
+
+            if (viewModel.Code.IsNullOrEmpty())
+            {
+                ModelState.AddModelError("Code", "Mã không được để trống.");
+                return View(viewModel);
+            }
+
+            if (viewModel.FullName.IsNullOrEmpty())
+            {
+                ModelState.AddModelError("FullName", "Họ và tên không được để trống.");
+                return View(viewModel);
+            }
+
+            if (!Regex.IsMatch(viewModel.Phone ?? "", @"^\d+$"))
+            {
+                ModelState.AddModelError("Phone", "Số điện thoại chỉ được chứa chữ số.");
+                return View(viewModel);
+            }
+
+            if (!Regex.IsMatch(viewModel.IdentityNumber ?? "", @"^\d+$"))
+            {
+                ModelState.AddModelError("IdentityNumber", "Số CCCD chỉ được chứa chữ số.");
+                return View(viewModel);
+            }
+
+            if (ModelState.IsValid)
+            {
+
+                bool emailExists = _context.Passengers.Any(p => p.Email == viewModel.Email);
+                if (emailExists)
+                {
+                    ModelState.AddModelError("Email", "Email này đã tồn tại.");
+                    return View(viewModel);
+                }
+
+                bool phoneExists = _context.Passengers.Any(p => p.Phone == viewModel.Phone);
+                if (phoneExists)
+                {
+                    ModelState.AddModelError("Phone", "Số điện thoại này đã tồn tại.");
+                    return View(viewModel);
+                }
+
+                Tour? tourUpdate = await _context.Tours.FindAsync(viewModel.TourId);
+
+                Passenger? passenger = _mapper.Map<Passenger>(viewModel);
+                passenger.CreatedAt = DateTime.Now;
+                passenger.TourId= viewModel.TourId;
+                _context.Add(passenger);
+
+                int bookedSeatsAmount = _context.Passengers.Where(p => p.TourId == viewModel.TourId).ToList().Count;
+
+                tourUpdate.AvailableSeats = tourUpdate.TotalSeats - bookedSeatsAmount;
+
+                if (tourUpdate.AvailableSeats == 0)
+                {
+                    ModelState.AddModelError("", "Tour đã đủ số lượng hành khách.");
+                    return View(viewModel);
+                }
+
+                await _context.SaveChangesAsync();
+                return Redirect("/Tour/Edit/" + viewModel.TourId);
+            }
+
+            // Nếu model không hợp lệ, lấy lại tên tour để hiển thị
+            var tour = await _context.Tours.FindAsync(viewModel.TourId);
+            if (tour != null)
+            {
+                viewModel.TourName = tour.Name;
+            }
+
+            return View(viewModel);
+        }
+
+        public async Task<IActionResult> AddTourPassenger(int tourId)
+        {
+            var tour = await _context.Tours.FindAsync(tourId);
+            if (tour == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new TourPassengerViewModel
+            {
+                TourId = tourId,
+                TourName = tour.Name,
+                TourCode = tour.Code,
+                AssignedPrice = tour.DiscountPrice ?? 0,
+                DateOfBirth = new DateTime(2000, 1, 1)
+
+            };
+
+            return View(viewModel);
+            }
+            
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult DeletePassenger(int id)
@@ -393,6 +488,62 @@ namespace TM.Controllers
             }
 
             return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
+        }
+
+        public IActionResult EditPassenger(int id)
+        {
+            var passenger = _context.Passengers.Find(id);
+            if (passenger == null)
+            {
+                return NotFound();
+            }
+            var viewModel = new PassengerViewModel
+            {
+                Id = passenger.Id,
+                FullName = passenger.FullName,
+                Code = passenger.Code,
+                DateOfBirth = passenger.DateOfBirth,
+                Gender = passenger.Gender,
+                IdentityNumber = passenger.IdentityNumber ?? "",
+                Phone = passenger.Phone,
+                Email = passenger.Email,
+                Address = passenger.Address,
+                TourId = passenger.TourId,
+                AssignedPrice = passenger.AssignedPrice,
+                CustomerPaid = passenger.AssignedPrice,
+                Status = passenger.Status,
+            };
+            ViewData["Title"] = "Sửa thông tin khách hàng";
+
+            return View(viewModel); 
+        }
+        [HttpPost]
+        public IActionResult UpdatePassenger(PassengerViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("EditPassenger", model); 
+            }
+            var passenger = _context.Passengers.Find(model.Id);
+            if (passenger == null)
+            {
+                return NotFound();
+            }
+            passenger.FullName = model.FullName;
+            passenger.Code = model.Code;
+            passenger.DateOfBirth = model.DateOfBirth;
+            passenger.Gender = model.Gender;
+            passenger.IdentityNumber = model.IdentityNumber;
+            passenger.Phone = model.Phone;
+            passenger.Email = model.Email;
+            passenger.Address = model.Address;
+            passenger.TourId = model.TourId;
+            passenger.AssignedPrice = model.AssignedPrice;
+            passenger.CustomerPaid = model.CustomerPaid;
+            passenger.Status = model.Status;
+
+            _context.SaveChanges();
+            return RedirectToAction("Edit", new { id = model.TourId });
         }
     }
 }

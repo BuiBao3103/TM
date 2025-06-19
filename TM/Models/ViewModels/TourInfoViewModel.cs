@@ -3,39 +3,37 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TM.Models.ViewModels
 {
-    public class TourInfoViewModel
+    public class TourInfoViewModel : IValidatableObject
     {
-        public int Id { get; set; }
-
         [Required(ErrorMessage = "Tên tour là bắt buộc")]
         [Display(Name = "Tên tour")]
-        public string? Name { get; set; }
+        public required string Name { get; set; }
 
         [Required(ErrorMessage = "Mã tour là bắt buộc")]
         [Display(Name = "Mã tour")]
-        public string? Code { get; set; }
+        public required string Code { get; set; }
 
         [Required(ErrorMessage = "Ngày bắt đầu là bắt buộc")]
         [DataType(DataType.Date)]
         [Display(Name = "Ngày bắt đầu")]
-        public DateTime StartDate { get; set; }
+        public required DateTime StartDate { get; set; }
 
         [Required(ErrorMessage = "Ngày kết thúc là bắt buộc")]
         [DataType(DataType.Date)]
         [Display(Name = "Ngày kết thúc")]
-        public DateTime EndDate { get; set; }
+        public required DateTime EndDate { get; set; }
 
         [Required(ErrorMessage = "Tổng số chỗ là bắt buộc")]
         [Range(1, int.MaxValue, ErrorMessage = "Tổng số chỗ phải lớn hơn 0")]
         [Display(Name = "Tổng số chỗ")]
-        public int TotalSeats { get; set; }
+        public required int TotalSeats { get; set; }
 
-        public int AvailableSeats { get; set; }
+        public int? AvailableSeats { get; set; }
 
         [Required(ErrorMessage = "Giá gợi ý là bắt buộc")]
         [Range(0.01, double.MaxValue, ErrorMessage = "Giá phải lớn hơn 0")]
         [Display(Name = "Giá gợi ý")]
-        public decimal SuggestPrice { get; set; }
+        public required decimal SuggestPrice { get; set; }
 
         [Display(Name = "Giá khuyến mãi")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá khuyến mãi phải là số dương")]
@@ -44,16 +42,15 @@ namespace TM.Models.ViewModels
         [Required(ErrorMessage = "Phí hoa hồng là bắt buộc")]
         [Display(Name = "Phí hoa hồng")]
         [Range(0, double.MaxValue, ErrorMessage = "Phí hoa hồng phải là số dương")]
-        public decimal HhFee { get; set; }
+        public required decimal HhFee { get; set; }
 
         [Required(ErrorMessage = "Chuyến bay đi là bắt buộc")]
         [Display(Name = "Chuyến bay đi")]
-        public string? DepartureFlightInfo { get; set; }
+        public required string DepartureFlightInfo { get; set; }
 
         [Required(ErrorMessage = "Chuyến bay về là bắt buộc")]
         [Display(Name = "Chuyến bay về")]
-        public string? ArrivalFlightInfo { get; set; }
-
+        public required string ArrivalFlightInfo { get; set; }
 
         [Display(Name = "Giữ chỗ tự động")]
         public bool? IsAutoHoldTime { get; set; }
@@ -86,9 +83,65 @@ namespace TM.Models.ViewModels
 
         [Display(Name = "Ghi chú khác")]
         public string? Note { get; set; }
+
         public DateTime? ModifiedAt { get; set; }
         public DateTime? DeleteAt { get; set; }
         public DateTime? CreatedAt { get; set; }
 
+        // Custom validation method
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            var results = new List<ValidationResult>();
+
+            // Ngày bắt đầu < ngày kết thúc
+            if (StartDate >= EndDate)
+            {
+                results.Add(new ValidationResult(
+                    "Ngày bắt đầu phải nhỏ hơn ngày kết thúc",
+                    new[] { nameof(StartDate), nameof(EndDate) }));
+            }
+
+            // Ngày bắt đầu phải từ hôm nay trở đi
+            if (StartDate.Date < DateTime.Today)
+            {
+                results.Add(new ValidationResult(
+                    "Ngày bắt đầu không được là ngày trong quá khứ",
+                    new[] { nameof(StartDate) }));
+            }
+
+            // Giá khuyến mãi < giá gợi ý 
+            if (DiscountPrice.HasValue && DiscountPrice >= SuggestPrice)
+            {
+                results.Add(new ValidationResult(
+                    "Giá khuyến mãi phải nhỏ hơn giá gợi ý",
+                    new[] { nameof(DiscountPrice) }));
+            }
+
+            // Phí hoa hồng < giá gợi ý
+            if (HhFee >= SuggestPrice)
+            {
+                results.Add(new ValidationResult(
+                    "Phí hoa hồng phải nhỏ hơn giá gợi ý",
+                    new[] { nameof(HhFee) }));
+            }
+
+            // Hạn visa phải > ngày bắt đầu (nếu cần visa)
+            if (IsVisaRequired == true && VisaDeadline.HasValue && VisaDeadline >= StartDate)
+            {
+                results.Add(new ValidationResult(
+                    "Hạn visa phải trước ngày bắt đầu tour",
+                    new[] { nameof(VisaDeadline) }));
+            }
+
+            // Hạn thanh toán phải trước ngày bắt đầu
+            if (FullPayDeadline.HasValue && FullPayDeadline >= StartDate)
+            {
+                results.Add(new ValidationResult(
+                    "Hạn thanh toán phải trước ngày bắt đầu tour",
+                    new[] { nameof(FullPayDeadline) }));
+            }
+
+            return results;
+        }
     }
 }

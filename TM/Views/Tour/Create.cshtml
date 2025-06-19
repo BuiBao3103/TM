@@ -15,9 +15,6 @@
                     </h2>
                     <p class="text-muted mb-0">Điền thông tin chi tiết để tạo tour du lịch mới</p>
                 </div>
-                @* <a asp-action="Index" class="btn btn-outline-secondary"> *@
-                @*     <i class="fas fa-arrow-left me-2"></i>Quay lại *@
-                @* </a> *@
             </div>
 
             <!-- Form Card -->
@@ -60,7 +57,6 @@
                                                 <label asp-for="StartDate" class="form-label fw-semibold">
                                                     <i class="fas fa-calendar-alt me-1"></i>Ngày bắt đầu
                                                 </label>
-                                                @* <input asp-for="StartDate" type="datetime-local" class="form-control" /> *@
                                                 <input asp-for="StartDate" type="datetime-local" class="form-control"
                                                        placeholder="YYYY-MM-DD HH:MM" />
                                                 <span asp-validation-for="StartDate" class="text-danger small"></span>
@@ -156,7 +152,7 @@
                                         <label asp-for="DepartureFlightInfo" class="form-label fw-semibold">
                                             <i class="fas fa-plane-departure me-1"></i>Chuyến bay đi
                                         </label>
-                                        <input asp-for="DepartureFlightInfo" class="form-control" placeholder="VD: VN120 06:00 - 12:30" />
+                                        <input asp-for="DepartureFlightInfo" class="form-control" placeholder="VD: VN192//KIX//SIN//19:25" />
                                         <span asp-validation-for="DepartureFlightInfo" class="text-danger small"></span>
                                     </div>
 
@@ -164,7 +160,7 @@
                                         <label asp-for="ArrivalFlightInfo" class="form-label fw-semibold">
                                             <i class="fas fa-plane-arrival me-1"></i>Chuyến bay về
                                         </label>
-                                        <input asp-for="ArrivalFlightInfo" class="form-control" placeholder="VD: VN121 15:00 - 21:30" />
+                                        <input asp-for="ArrivalFlightInfo" class="form-control" placeholder="VD: VJ427//SIN//KIX//19:29" />
                                         <span asp-validation-for="ArrivalFlightInfo" class="text-danger small"></span>
                                     </div>
                                 </div>
@@ -196,7 +192,7 @@
                                                 </label>
                                                 <div class="input-group">
                                                     <input asp-for="HoldTime" type="number" class="form-control" min="0" />
-                                                    <span class="input-group-text">phút</span>
+                                                    <span class="input-group-text">giờ</span>
                                                 </div>
                                                 <span asp-validation-for="HoldTime" class="text-danger small"></span>
                                             </div>
