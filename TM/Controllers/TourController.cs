@@ -506,8 +506,33 @@ namespace TM.Controllers
         public IActionResult UpdatePassenger(PassengerViewModel model)
         {
             if (!ModelState.IsValid)
-            {
+            {  
                 return View("EditPassenger", model); 
+            }
+            if (!Regex.IsMatch(model.Phone ?? "", @"^\d+$"))
+            {
+                ModelState.AddModelError("Phone", "Số điện thoại chỉ được chứa chữ số.");
+                return View(model);
+            }
+
+            if (!Regex.IsMatch(model.IdentityNumber ?? "", @"^\d+$"))
+            {
+                ModelState.AddModelError("IdentityNumber", "Số CCCD chỉ được chứa chữ số.");
+                return View(model);
+            }
+
+            bool emailExists = _context.Passengers.Any(p => p.Email == model.Email);
+            if (emailExists)
+            {
+                ModelState.AddModelError("Email", "Email này đã tồn tại.");
+                return View(model);
+            }
+
+            bool phoneExists = _context.Passengers.Any(p => p.Phone == model.Phone);
+            if (phoneExists)
+            {
+                ModelState.AddModelError("Phone", "Số điện thoại này đã tồn tại.");
+                return View(model);
             }
             var passenger = _context.Passengers.Find(model.Id);
             if (passenger == null)
