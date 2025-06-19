@@ -11,23 +11,25 @@
             --primary: #0065bd;
             --text: #121212;
             --gray-light: #eaeaea;
-            --active: #4a666a;
-            --inactive: #c0c0c0;
+            --active: #40a46a;
+            --inactive: #ffd071;
             --offline: #bbbbbb;
-            --tag-design: #bdd8ff;
-            --tag-qa: #ffe4bd;
-            --tag-dev: #d8ffc4;
-            --tag-marketing: #ffd4be;
-            --font: 'Source Sans Pro', sans-serif;
-            --font-size-base: 0.9rem;
-            --font-size-large: 1rem;
-            --font-size-small: 0.75rem;
+            --tag-design: #bd8eff;
+            --tag-qa: #ff8585;
+            --tag-dev: #89b6ff;
+            --tag-marketing: #ffd45e;
+            --border-color: var(--text);
+            --font: 'Poppins', sans-serif;
+            --font-size-base: 0.95rem;
+            --font-size-large: 1.2rem;
+            --font-size-small: 0.85rem;
             --spacing-xs: 0.25rem;
             --spacing-sm: 0.5rem;
             --spacing-md: 1rem;
             --spacing-lg: 1.5rem; 
         }
 
+        
     * {
         margin: 0;
         padding: 0;
@@ -74,6 +76,7 @@
             border: none;
             color: var(--text);
             cursor: pointer;
+            font-weight: 600;
             font-size: var(--font-size-large);
             display:flex;
             align-items:center;
@@ -110,7 +113,7 @@
             }
 
             .table-widget th::after {
-                content: '';
+                content: '↔';
                 font-size: 0.75rem;
                 margin-left: 8px;
                 color: var(--text);
@@ -212,10 +215,27 @@
         border-radius: 0.5rem;
         font-weight: 600;
         color: var(--text);
-        border: 1px solid
+        border: 1px solid var(--border-color);
+        font-size:var(--font-size-small);
+        transition: border-color 0.2s ease;
+        text-transform:capitalize;
 
-    </style>
 }
+        .tag--design{
+            background: var(--tag-design);
+        }
+        .tag--QA {
+            background: var(--tag-qa);
+        }
+
+        .tag--dev{
+            background: var(--tag-dev);
+        }
+
+        .tag--marketing{
+            background: var(--tag-marketing);
+        }
+    </style>
 }
 @* </head> *@
 <div class="table-overview">
