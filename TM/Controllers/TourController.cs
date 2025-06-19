@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -381,19 +382,33 @@ namespace TM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddTourPassenger(TourPassengerViewModel viewModel)
         {
+
+            if (viewModel.Code.IsNullOrEmpty())
+            {
+                ModelState.AddModelError("Code", "Mã không được để trống.");
+                return View(viewModel);
+            }
+
+            if (viewModel.FullName.IsNullOrEmpty())
+            {
+                ModelState.AddModelError("FullName", "Họ và tên không được để trống.");
+                return View(viewModel);
+            }
+
+            if (!Regex.IsMatch(viewModel.Phone ?? "", @"^\d+$"))
+            {
+                ModelState.AddModelError("Phone", "Số điện thoại chỉ được chứa chữ số.");
+                return View(viewModel);
+            }
+
+            if (!Regex.IsMatch(viewModel.IdentityNumber ?? "", @"^\d+$"))
+            {
+                ModelState.AddModelError("IdentityNumber", "Số CCCD chỉ được chứa chữ số.");
+                return View(viewModel);
+            }
+
             if (ModelState.IsValid)
             {
-                if (!Regex.IsMatch(viewModel.Phone ?? "", @"^\d+$"))
-                {
-                    ModelState.AddModelError("Phone", "Số điện thoại chỉ được chứa chữ số.");
-                    return View(viewModel);
-                }
-
-                if (!Regex.IsMatch(viewModel.IdentityNumber ?? "", @"^\d+$"))
-                {
-                    ModelState.AddModelError("IdentityNumber", "Số CCCD chỉ được chứa chữ số.");
-                    return View(viewModel);
-                }
 
                 bool emailExists = _context.Passengers.Any(p => p.Email == viewModel.Email);
                 if (emailExists)
