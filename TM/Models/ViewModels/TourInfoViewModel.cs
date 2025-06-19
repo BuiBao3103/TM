@@ -9,33 +9,33 @@ namespace TM.Models.ViewModels
 
         [Required(ErrorMessage = "Tên tour là bắt buộc")]
         [Display(Name = "Tên tour")]
-        public string? Name { get; set; }
+        public required string Name { get; set; }
 
         [Required(ErrorMessage = "Mã tour là bắt buộc")]
         [Display(Name = "Mã tour")]
-        public string? Code { get; set; }
+        public required string Code { get; set; }
 
         [Required(ErrorMessage = "Ngày bắt đầu là bắt buộc")]
         [DataType(DataType.Date)]
         [Display(Name = "Ngày bắt đầu")]
-        public DateTime StartDate { get; set; }
+        public required DateTime StartDate { get; set; }
 
         [Required(ErrorMessage = "Ngày kết thúc là bắt buộc")]
         [DataType(DataType.Date)]
         [Display(Name = "Ngày kết thúc")]
-        public DateTime EndDate { get; set; }
+        public required DateTime EndDate { get; set; }
 
         [Required(ErrorMessage = "Tổng số chỗ là bắt buộc")]
         [Range(1, int.MaxValue, ErrorMessage = "Tổng số chỗ phải lớn hơn 0")]
         [Display(Name = "Tổng số chỗ")]
-        public int TotalSeats { get; set; }
+        public required int TotalSeats { get; set; }
 
-        public int AvailableSeats { get; set; }
+        public int? AvailableSeats { get; set; }
 
         [Required(ErrorMessage = "Giá gợi ý là bắt buộc")]
         [Range(0.01, double.MaxValue, ErrorMessage = "Giá phải lớn hơn 0")]
         [Display(Name = "Giá gợi ý")]
-        public decimal SuggestPrice { get; set; }
+        public required decimal SuggestPrice { get; set; }
 
         [Display(Name = "Giá khuyến mãi")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá khuyến mãi phải là số dương")]
@@ -44,15 +44,15 @@ namespace TM.Models.ViewModels
         [Required(ErrorMessage = "Phí hoa hồng là bắt buộc")]
         [Display(Name = "Phí hoa hồng")]
         [Range(0, double.MaxValue, ErrorMessage = "Phí hoa hồng phải là số dương")]
-        public decimal HhFee { get; set; }
+        public required decimal HhFee { get; set; }
 
         [Required(ErrorMessage = "Chuyến bay đi là bắt buộc")]
         [Display(Name = "Chuyến bay đi")]
-        public string? DepartureFlightInfo { get; set; }
+        public required string DepartureFlightInfo { get; set; }
 
         [Required(ErrorMessage = "Chuyến bay về là bắt buộc")]
         [Display(Name = "Chuyến bay về")]
-        public string? ArrivalFlightInfo { get; set; }
+        public required string ArrivalFlightInfo { get; set; }
 
 
         [Display(Name = "Giữ chỗ tự động")]
