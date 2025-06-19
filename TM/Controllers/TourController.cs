@@ -165,8 +165,6 @@ namespace TM.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Lỗi khi tạo mới Tour");
-
                 var locations = _context.Locations
                     .Include(l => l.Country)
                     .ToList()
@@ -279,12 +277,6 @@ namespace TM.Controllers
             return _context.Tours.Any(e => e.Id == id);
         }
 
-        // GET: TourController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
         // POST: TourController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -309,7 +301,6 @@ namespace TM.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Lỗi khi xóa Tour");
                 TempData["ErrorMessage"] = "Đã xảy ra lỗi khi xóa Tour. Vui lòng thử lại.";
                 return RedirectToAction(nameof(Index));
             }
