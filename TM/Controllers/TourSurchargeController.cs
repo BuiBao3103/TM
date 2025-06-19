@@ -1,16 +1,62 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TM.Models;
+using TM.Models.Entities;
 using TM.Models.ViewModels;
 
 namespace TM.Controllers
 {
     public class TourSurchargeController : Controller
     {
-        AppDbContext _appDbContext;
+        private readonly AppDbContext _appDbContext;
+        private readonly IMapper _mapper;
 
-        public TourSurchargeController(AppDbContext dbContext)
+        public TourSurchargeController(AppDbContext dbContext, IMapper mapper)
         {
             _appDbContext = dbContext;
+            _mapper = mapper;
+        }
+        public async Task<IActionResult> CreateSurcharge(int id)
+        {
+            var tour = await _appDbContext.Tours.FindAsync(id);
+            if (tour == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new TourSurchargeViewModel
+            {
+                TourId = id,
+                TourName = tour.Name
+            };
+
+            return View(viewModel);
+        }
+
+        // POST: Tour/CreateSurcharge
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateSurcharge(TourSurchargeViewModel viewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var surcharge = _mapper.Map<TourSurcharge>(viewModel);
+                surcharge.CreatedAt = DateTime.Now;
+
+                _appDbContext.Add(surcharge);
+                await _appDbContext.SaveChangesAsync();
+                return Redirect("/Tour/Edit/" + viewModel.TourId+"#surcharge-list");
+            }
+
+            // Nếu model không hợp lệ, lấy lại tên tour để hiển thị
+            var tour = await _appDbContext.Tours.FindAsync(viewModel.TourId);
+            if (tour != null)
+            {
+                viewModel.TourName = tour.Name;
+            }
+
+            return View(viewModel);
         }
 
         [HttpGet("tour-surcharge/update")]
@@ -58,6 +104,7 @@ namespace TM.Controllers
                 oldSuchange.Name = tourSurchangeUpdate.Name;
                 await _appDbContext.SaveChangesAsync();
 
+                TempData["SuccessMessage"] = "Cập nhật thành công.";
                 return Redirect("/Tour/Edit/" + oldSuchange.TourId);
             } catch (Exception)
             {
@@ -67,7 +114,7 @@ namespace TM.Controllers
         }
 
         [HttpPost("tour-surcharge/delete")]
-        public async Task<IActionResult> Delete([FromForm] int id)
+        public async Task<IActionResult> Delete([FromForm] int id, [FromForm] int tourId)
         {
             try
             {
@@ -76,17 +123,19 @@ namespace TM.Controllers
                 if (oldSuchange == null || oldSuchange.DeleteAt != null)
                 {
 
-                    ViewBag.ErrorMessage = "Không tìm thấy phụ thu với ID đã nhập.";
+                    TempData["ErrorMessage"] = "Không tìm thấy phụ thu với ID đã nhập!";
                     return Redirect("/Tour");
                 }
 
                 oldSuchange.DeleteAt = DateTime.Now;
                 await _appDbContext.SaveChangesAsync();
 
-                return Redirect("/Tour/Edit/" + oldSuchange.TourId);
+                TempData["SuccessMessage"] = "Xóa thành công.";
+                return Redirect($"/Tour/Edit/{oldSuchange.TourId}");
             } catch (Exception)
             {
-                return Redirect("/Tour");
+                TempData["ErrorMessage"] = "Đã xảy ra lỗi khi thao tác với dữ liệu!";
+                return Redirect($"/Tour/Edit/{tourId}");
             }
         }
     }
