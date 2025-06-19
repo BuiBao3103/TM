@@ -326,6 +326,13 @@ namespace TM.Controllers
             return View(surcharges);
         }
 
+        [Route("TourController/Passengers/Get")]
+        public IActionResult Passengers()
+        {
+            //var tour = _context.Tours.FirstOrDefault(t => t.Id == id);
+            //var passengers = _context.Passengers.ToList();
+            return View();
+        }
         // GET: Tour/CreateSurcharge/5
         public async Task<IActionResult> CreateSurcharge(int id)
         {
@@ -466,6 +473,62 @@ namespace TM.Controllers
             }
 
             return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
+        }
+
+        public IActionResult EditPassenger(int id)
+        {
+            var passenger = _context.Passengers.Find(id);
+            if (passenger == null)
+            {
+                return NotFound();
+            }
+            var viewModel = new PassengerViewModel
+            {
+                Id = passenger.Id,
+                FullName = passenger.FullName,
+                Code = passenger.Code,
+                DateOfBirth = passenger.DateOfBirth,
+                Gender = passenger.Gender,
+                IdentityNumber = passenger.IdentityNumber ?? "",
+                Phone = passenger.Phone,
+                Email = passenger.Email,
+                Address = passenger.Address,
+                TourId = passenger.TourId,
+                AssignedPrice = passenger.AssignedPrice,
+                CustomerPaid = passenger.AssignedPrice,
+                Status = passenger.Status,
+            };
+            ViewData["Title"] = "Sửa thông tin khách hàng";
+
+            return View(viewModel); 
+        }
+        [HttpPost]
+        public IActionResult UpdatePassenger(PassengerViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("EditPassenger", model); 
+            }
+            var passenger = _context.Passengers.Find(model.Id);
+            if (passenger == null)
+            {
+                return NotFound();
+            }
+            passenger.FullName = model.FullName;
+            passenger.Code = model.Code;
+            passenger.DateOfBirth = model.DateOfBirth;
+            passenger.Gender = model.Gender;
+            passenger.IdentityNumber = model.IdentityNumber;
+            passenger.Phone = model.Phone;
+            passenger.Email = model.Email;
+            passenger.Address = model.Address;
+            passenger.TourId = model.TourId;
+            passenger.AssignedPrice = model.AssignedPrice;
+            passenger.CustomerPaid = model.CustomerPaid;
+            passenger.Status = model.Status;
+
+            _context.SaveChanges();
+            return RedirectToAction("Edit", new { id = model.TourId });
         }
     }
 }
