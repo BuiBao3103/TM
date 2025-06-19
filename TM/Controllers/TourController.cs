@@ -1,12 +1,13 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TM.Models;
-using AutoMapper;
-using TM.Models.ViewModels;
 using TM.Models.Entities;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using TM.Models.ViewModels;
 
 namespace TM.Controllers
 {
@@ -368,6 +369,103 @@ namespace TM.Controllers
             return View(viewModel);
         }
 
-   
+        // POST: Tour/AddTourPassenger
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddTourPassenger(TourPassengerViewModel viewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                if (!Regex.IsMatch(viewModel.Phone ?? "", @"^\d+$"))
+                {
+                    ModelState.AddModelError("Phone", "Số điện thoại chỉ được chứa chữ số.");
+                    return View(viewModel);
+                }
+
+                if (!Regex.IsMatch(viewModel.IdentityNumber ?? "", @"^\d+$"))
+                {
+                    ModelState.AddModelError("IdentityNumber", "Số CCCD chỉ được chứa chữ số.");
+                    return View(viewModel);
+                }
+
+                bool emailExists = _context.Passengers.Any(p => p.Email == viewModel.Email);
+                if (emailExists)
+                {
+                    ModelState.AddModelError("Email", "Email này đã tồn tại.");
+                    return View(viewModel);
+                }
+
+                bool phoneExists = _context.Passengers.Any(p => p.Phone == viewModel.Phone);
+                if (phoneExists)
+                {
+                    ModelState.AddModelError("Phone", "Số điện thoại này đã tồn tại.");
+                    return View(viewModel);
+                }
+
+                Tour? tourUpdate = await _context.Tours.FindAsync(viewModel.TourId);
+
+                Passenger? passenger = _mapper.Map<Passenger>(viewModel);
+                passenger.CreatedAt = DateTime.Now;
+                passenger.TourId= viewModel.TourId;
+                _context.Add(passenger);
+
+                int bookedSeatsAmount = _context.Passengers.Where(p => p.TourId == viewModel.TourId).ToList().Count;
+
+                tourUpdate.AvailableSeats = tourUpdate.TotalSeats - bookedSeatsAmount;
+
+                if (tourUpdate.AvailableSeats == 0)
+                {
+                    ModelState.AddModelError("", "Tour đã đủ số lượng hành khách.");
+                    return View(viewModel);
+                }
+
+                await _context.SaveChangesAsync();
+                return Redirect("/Tour/Edit/" + viewModel.TourId);
+            }
+
+            // Nếu model không hợp lệ, lấy lại tên tour để hiển thị
+            var tour = await _context.Tours.FindAsync(viewModel.TourId);
+            if (tour != null)
+            {
+                viewModel.TourName = tour.Name;
+            }
+
+            return View(viewModel);
+        }
+
+        public async Task<IActionResult> AddTourPassenger(int tourId)
+        {
+            var tour = await _context.Tours.FindAsync(tourId);
+            if (tour == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new TourPassengerViewModel
+            {
+                TourId = tourId,
+                TourName = tour.Name,
+                TourCode = tour.Code,
+                AssignedPrice = tour.DiscountPrice ?? 0,
+                DateOfBirth = new DateTime(2000, 1, 1)
+
+            };
+
+            return View(viewModel);
+            }
+            
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeletePassenger(int id)
+        {
+            var passenger = _context.Passengers.FirstOrDefault(p => p.Id == id && p.DeleteAt == null);
+            if (passenger != null)
+            {
+                passenger.DeleteAt = DateTime.Now;
+                _context.SaveChanges();
+            }
+
+            return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
+        }
     }
 }
