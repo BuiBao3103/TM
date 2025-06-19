@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using TM.Mapper;
 using TM.Models;
+using Hangfire;
+using Hangfire.MemoryStorage;
+using TM.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +17,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(TourProfile));
 
+// Thêm cấu hình Hangfire
+builder.Services.AddHangfire(config =>
+    config.UseMemoryStorage() // hoặc UseSqlServerStorage(connectionString)
+);
+builder.Services.AddHangfireServer();
+
+// Đăng ký PassengerStatusChecker
+builder.Services.AddTransient<PassengerStatusChecker>();
 
 var app = builder.Build();
 
@@ -37,6 +48,6 @@ app.MapControllerRoute(
     pattern: "{controller=Tour}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-
+app.UseHangfireDashboard(); // Truy cập /hangfire để xem job
 
 app.Run();

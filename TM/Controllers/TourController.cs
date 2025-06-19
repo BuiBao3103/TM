@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using TM.Models;
 using TM.Models.Entities;
 using TM.Models.ViewModels;
+using Hangfire;
 
 namespace TM.Controllers
 {
@@ -29,12 +30,14 @@ namespace TM.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IBackgroundJobClient _backgroundJobClient;
 
-        public TourController(ILogger<HomeController> logger, AppDbContext context, IMapper mapper)
+        public TourController(ILogger<HomeController> logger, AppDbContext context, IMapper mapper, IBackgroundJobClient backgroundJobClient)
         {
             _logger = logger;
             _context = context;
             _mapper = mapper;
+            _backgroundJobClient = backgroundJobClient;
         }
 
         // GET: TourController
@@ -391,6 +394,15 @@ namespace TM.Controllers
                 }
 
                 await _context.SaveChangesAsync();
+
+                // Nếu trạng thái là Reserved thì đặt lịch kiểm tra sau 2 tiếng
+                if (passenger.Status == "Reserved")
+                {
+                    _backgroundJobClient.Schedule<TM.Services.PassengerStatusChecker>(
+                        checker => checker.CheckAndCancelPassenger(passenger.Id, viewModel.TourId),
+                        TimeSpan.FromSeconds(5)
+                    );
+                }
                 return Redirect("/Tour/Edit/" + viewModel.TourId);
             }
 
