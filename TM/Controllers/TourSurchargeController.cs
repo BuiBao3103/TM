@@ -66,7 +66,7 @@ namespace TM.Controllers
             }
         }
 
-        [HttpPost("tour-surchange/delete")]
+        [HttpPost("tour-surcharge/delete")]
         public async Task<IActionResult> Delete([FromForm] int id)
         {
             try
