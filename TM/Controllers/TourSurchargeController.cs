@@ -58,6 +58,7 @@ namespace TM.Controllers
                 oldSuchange.Name = tourSurchangeUpdate.Name;
                 await _appDbContext.SaveChangesAsync();
 
+                TempData["SuccessMessage"] = "Cập nhật thành công.";
                 return Redirect("/Tour/Edit/" + oldSuchange.TourId);
             } catch (Exception)
             {
@@ -67,7 +68,7 @@ namespace TM.Controllers
         }
 
         [HttpPost("tour-surcharge/delete")]
-        public async Task<IActionResult> Delete([FromForm] int id)
+        public async Task<IActionResult> Delete([FromForm] int id, [FromForm] int tourId)
         {
             try
             {
@@ -76,17 +77,19 @@ namespace TM.Controllers
                 if (oldSuchange == null || oldSuchange.DeleteAt != null)
                 {
 
-                    ViewBag.ErrorMessage = "Không tìm thấy phụ thu với ID đã nhập.";
+                    TempData["ErrorMessage"] = "Không tìm thấy phụ thu với ID đã nhập!";
                     return Redirect("/Tour");
                 }
 
                 oldSuchange.DeleteAt = DateTime.Now;
                 await _appDbContext.SaveChangesAsync();
 
-                return Redirect("/Tour/Edit/" + oldSuchange.TourId);
+                TempData["SuccessMessage"] = "Xóa thành công.";
+                return Redirect($"/Tour/Edit/{oldSuchange.TourId}");
             } catch (Exception)
             {
-                return Redirect("/Tour");
+                TempData["ErrorMessage"] = "Đã xảy ra lỗi khi thao tác với dữ liệu!";
+                return Redirect($"/Tour/Edit/{tourId}");
             }
         }
     }
