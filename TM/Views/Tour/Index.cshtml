@@ -7,7 +7,7 @@
     var startDate = Context.Request.Query["startDate"];  
     var endDate = Context.Request.Query["endDate"];  
     var locationId = Context.Request.Query["locationId"];  
-    var name = Context.Request.Query["name"]; // Added this line to define 'name'  
+    var name = Context.Request.Query["name"]; 
 } 
 
 <style>
@@ -72,7 +72,7 @@
 
 </div>
 
-<!-- ===== HORIZONTAL LOCATION LIST (nếu có) ===== -->
+<!-- ===== HORIZONTAL LOCATION LIST ===== -->
 @if (Model.Locations.Any())
 {
     <h5>Địa điểm</h5>
