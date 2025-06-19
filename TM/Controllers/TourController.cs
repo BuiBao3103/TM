@@ -519,5 +519,19 @@ namespace TM.Controllers
             _context.SaveChanges();
             return RedirectToAction("Edit", new { id = model.TourId });
         }
+
+
+        // Create country
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult CreateCountry(Country country)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Countries.Add(country);
+                _context.SaveChanges();
+            }
+            return RedirectToAction("Index", "Tour");
+        }
     }
 }
