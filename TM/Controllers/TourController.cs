@@ -23,7 +23,7 @@ namespace TM.Controllers
             _context = context;
             _mapper = mapper;
         }
-        
+
         // GET: TourController
         [HttpGet]
         public async Task<IActionResult> Index(
@@ -99,7 +99,8 @@ namespace TM.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            var model = new Tour
+
+            var model = new TourInfoViewModel
             {
                 StartDate = DateTime.Now,
                 EndDate = DateTime.Now.AddDays(7),
@@ -130,26 +131,60 @@ namespace TM.Controllers
         // POST: TourController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Tour tour)
+        public async Task<IActionResult> Create(TourInfoViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                var locations = _context.Locations
+                    .Include(l => l.Country)
+                    .ToList()
+                    .Select(l => new
+                    {
+                        Id = l.Id,
+                        DisplayText = $"{l.LocationName} - {l.Country.Name}"
+                    })
+                    .OrderBy(l => l.DisplayText)
+                    .ToList();
+
+                ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText", model.LocationId);
+
+                return View(model);
+            }
 
             try
             {
-                if (ModelState.IsValid)
-                {
-                    _context.Tours.Add(tour);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                return View(tour);
+                var tour = _mapper.Map<Tour>(model);
+                tour.AvailableSeats = tour.TotalSeats;
+                tour.CreatedAt = DateTime.Now;
+                tour.ModifiedAt = DateTime.Now;
+
+                _context.Tours.Add(tour);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi khi tạo mới Tour");
+
+                var locations = _context.Locations
+                    .Include(l => l.Country)
+                    .ToList()
+                    .Select(l => new
+                    {
+                        Id = l.Id,
+                        DisplayText = $"{l.LocationName} - {l.Country.Name}"
+                    })
+                    .OrderBy(l => l.DisplayText)
+                    .ToList();
+
+                ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText", model.LocationId);
+
                 ModelState.AddModelError(string.Empty, "Đã xảy ra lỗi khi tạo Tour. Vui lòng thử lại.");
-                return View(tour);
+                return View(model);
             }
         }
+
 
         // GET: TourController/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -263,20 +298,46 @@ namespace TM.Controllers
                     return NotFound();
                 }
 
-                _context.Tours.Remove(tour);
+                tour.DeleteAt = DateTime.Now;
+                tour.ModifiedAt = DateTime.Now;
+
+                _context.Tours.Update(tour);
                 await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Xóa tour thành công!";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi khi xóa Tour");
-                // Có thể trả về view với thông báo lỗi hoặc chuyển hướng về List với TempData
                 TempData["ErrorMessage"] = "Đã xảy ra lỗi khi xóa Tour. Vui lòng thử lại.";
                 return RedirectToAction(nameof(Index));
             }
         }
-        
-       
+
+
+        // GET: Tour/Surcharges/5
+        public async Task<IActionResult> Surcharges(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var tour = await _context.Tours
+                .Include(t => t.TourSurcharges.Where(s => s.DeleteAt == null))
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (tour == null)
+            {
+                return NotFound();
+            }
+
+            ViewData["TourId"] = id;
+            ViewData["TourName"] = tour.Name;
+            var surcharges = _mapper.Map<IEnumerable<TourSurchargeViewModel>>(tour.TourSurcharges);
+            return View(surcharges);
+        }
 
         // GET: Tour/CreateSurcharge/5
         public async Task<IActionResult> CreateSurcharge(int id)
@@ -404,6 +465,20 @@ namespace TM.Controllers
             };
 
             return View(viewModel);
+            }
+            
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeletePassenger(int id)
+        {
+            var passenger = _context.Passengers.FirstOrDefault(p => p.Id == id && p.DeleteAt == null);
+            if (passenger != null)
+            {
+                passenger.DeleteAt = DateTime.Now;
+                _context.SaveChanges();
+            }
+
+            return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
         }
     }
 }
