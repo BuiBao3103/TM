@@ -44,15 +44,15 @@ namespace TM.Models.ViewModels
         [Required(ErrorMessage = "Phí hoa hồng là bắt buộc")]
         [Display(Name = "Phí hoa hồng")]
         [Range(0, double.MaxValue, ErrorMessage = "Phí hoa hồng phải là số dương")]
-        public decimal HhFee { get; set; }
+        public required decimal HhFee { get; set; }
 
         [Required(ErrorMessage = "Chuyến bay đi là bắt buộc")]
         [Display(Name = "Chuyến bay đi")]
-        public string? DepartureFlightInfo { get; set; }
+        public required string DepartureFlightInfo { get; set; }
 
         [Required(ErrorMessage = "Chuyến bay về là bắt buộc")]
         [Display(Name = "Chuyến bay về")]
-        public string? ArrivalFlightInfo { get; set; }
+        public required string ArrivalFlightInfo { get; set; }
 
 
         [Display(Name = "Giữ chỗ tự động")]
