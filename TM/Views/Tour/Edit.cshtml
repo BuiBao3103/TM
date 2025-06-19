@@ -326,12 +326,12 @@
             </div>
 
             <!-- Surcharges Card -->
-            <div class="card shadow-sm mb-4">
+            <div class="card shadow-sm mb-4" id="surcharge-list">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="fas fa-receipt me-2"></i>Danh sách phụ phí
                     </h5>
-                    <a asp-action="CreateSurcharge" asp-route-id="@Model.Id" class="btn btn-light btn-sm">
+                    <a asp-controller="TourSurcharge" asp-action="CreateSurcharge" asp-route-id="@Model.Id" class="btn btn-light btn-sm">
                         <i class="fas fa-plus me-2"></i>Thêm phụ phí
                     </a>
                 </div>

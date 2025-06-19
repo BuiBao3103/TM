@@ -1,16 +1,62 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TM.Models;
+using TM.Models.Entities;
 using TM.Models.ViewModels;
 
 namespace TM.Controllers
 {
     public class TourSurchargeController : Controller
     {
-        AppDbContext _appDbContext;
+        private readonly AppDbContext _appDbContext;
+        private readonly IMapper _mapper;
 
-        public TourSurchargeController(AppDbContext dbContext)
+        public TourSurchargeController(AppDbContext dbContext, IMapper mapper)
         {
             _appDbContext = dbContext;
+            _mapper = mapper;
+        }
+        public async Task<IActionResult> CreateSurcharge(int id)
+        {
+            var tour = await _appDbContext.Tours.FindAsync(id);
+            if (tour == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new TourSurchargeViewModel
+            {
+                TourId = id,
+                TourName = tour.Name
+            };
+
+            return View(viewModel);
+        }
+
+        // POST: Tour/CreateSurcharge
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateSurcharge(TourSurchargeViewModel viewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var surcharge = _mapper.Map<TourSurcharge>(viewModel);
+                surcharge.CreatedAt = DateTime.Now;
+
+                _appDbContext.Add(surcharge);
+                await _appDbContext.SaveChangesAsync();
+                return Redirect("/Tour/Edit/" + viewModel.TourId+"#surcharge-list");
+            }
+
+            // Nếu model không hợp lệ, lấy lại tên tour để hiển thị
+            var tour = await _appDbContext.Tours.FindAsync(viewModel.TourId);
+            if (tour != null)
+            {
+                viewModel.TourName = tour.Name;
+            }
+
+            return View(viewModel);
         }
 
         [HttpGet("tour-surcharge/update")]
