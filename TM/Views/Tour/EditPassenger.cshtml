@@ -1,0 +1,96 @@
+@model TM.Models.ViewModels.PassengerViewModel
+
+
+
+
+<form asp-action="UpdatePassenger" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="FullName"></label>
+        <input asp-for="FullName" class="form-control" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Code"></label>
+        <input asp-for="Code" class="form-control" />
+        <span asp-validation-for="Code" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="DateOfBirth"></label>
+        <input asp-for="DateOfBirth" class="form-control" type="date" />
+        <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Gender"></label>
+        <select asp-for="Gender" class="form-control">
+            <option value="">Chọn giới tính</option>
+            <option value="Male">Nam</option>
+            <option value="Female">Nữ</option>
+            <option value="Other">Khác</option>
+        </select>
+        <span asp-validation-for="Gender" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="IdentityNumber"></label>
+        <input asp-for="IdentityNumber" class="form-control" />
+        <span asp-validation-for="IdentityNumber" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Phone"></label>
+        <input asp-for="Phone" class="form-control" />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" type="email" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Address"></label>
+        <input asp-for="Address" class="form-control" />
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="TourId"></label>
+        <input asp-for="TourId" class="form-control" type="number" />
+        <span asp-validation-for="TourId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="AssignedPrice"></label>
+        <input asp-for="AssignedPrice" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="AssignedPrice" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CustomerPaid"></label>
+        <input asp-for="CustomerPaid" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="CustomerPaid" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Status"></label>
+        <select asp-for="Status" class="form-control">
+            <option value="">Chọn trạng thái</option>
+            <option value="Paid">Hoạt động</option>
+            <option value="Cancelled">Không hoạt động</option>
+            <option value="Reserved">Đang chờ</option>
+        </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+
+    <p style="color:red">@ViewBag.ErrorMessage</p>
+    <p style="color:green">@ViewBag.SuccessMessage</p>
+
+    <button type="submit" class="btn btn-primary">Cập nhật</button>
+</form>
+
