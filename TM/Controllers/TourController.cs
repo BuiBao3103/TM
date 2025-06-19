@@ -98,21 +98,9 @@ namespace TM.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-
-            var model = new TourInfoViewModel
-            {
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now.AddDays(7),
-                VisaDeadline = null,
-                FullPayDeadline = null,
-                CreatedAt = DateTime.Now,
-                ModifiedAt = DateTime.Now
-            };
-
-            // Query locations với country info
             var locations = _context.Locations
                 .Include(l => l.Country)
-                .ToList() // Execute query first
+                .ToList() 
                 .Select(l => new
                 {
                     Id = l.Id,
@@ -123,8 +111,7 @@ namespace TM.Controllers
 
             ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText");
 
-
-            return View(model);
+            return View();
         }
 
         // POST: TourController/Create
