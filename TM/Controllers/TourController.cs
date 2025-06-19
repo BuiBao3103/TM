@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TM.Models;
@@ -12,6 +13,17 @@ using TM.Models.ViewModels;
 
 namespace TM.Controllers
 {
+    public enum PassengerGender
+    {
+        [Display(Name = "Nam")]
+        Male,
+
+        [Display(Name = "Nữ")]
+        Female,
+
+        [Display(Name = "Khác")]
+        Other
+    }
     public class TourController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -395,6 +407,12 @@ namespace TM.Controllers
                 return View(viewModel);
             }
 
+            if (!Enum.TryParse<PassengerGender>(viewModel.Gender, out _))
+            {
+                ModelState.AddModelError("Gender", "Giới tính không hợp lệ.");
+                return View(viewModel);
+            }
+
             if (!Regex.IsMatch(viewModel.Phone ?? "", @"^\d+$"))
             {
                 ModelState.AddModelError("Phone", "Số điện thoại chỉ được chứa chữ số.");
@@ -421,6 +439,13 @@ namespace TM.Controllers
                 if (phoneExists)
                 {
                     ModelState.AddModelError("Phone", "Số điện thoại này đã tồn tại.");
+                    return View(viewModel);
+                }
+
+                bool identityNumberExists = _context.Passengers.Any(p => p.IdentityNumber == viewModel.IdentityNumber);
+                if (identityNumberExists)
+                {
+                    ModelState.AddModelError("IdentityNumber", "Số điện thoại này đã tồn tại.");
                     return View(viewModel);
                 }
 
