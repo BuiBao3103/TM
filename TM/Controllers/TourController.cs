@@ -162,6 +162,20 @@ namespace TM.Controllers
                 _context.Tours.Add(tour);
                 await _context.SaveChangesAsync();
 
+                if (tour.FullPayDeadline.HasValue)
+                {
+                    var delay = tour.FullPayDeadline.Value - DateTime.Now;
+
+                    if (delay > TimeSpan.Zero)
+                    {
+                        _backgroundJobClient.Schedule<TM.Services.PassengerStatusChecker>(
+                            checker => checker.CheckHoldTime(tour.Id),
+                            delay
+                        );
+                    }
+                }
+
+
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
@@ -395,9 +409,9 @@ namespace TM.Controllers
                 if (passenger.Status == "Reserved" && tourUpdate.IsAutoHoldTime == true && tourUpdate.HoldTime.HasValue)
                 {
                     _backgroundJobClient.Schedule<TM.Services.PassengerStatusChecker>(
-                        checker => checker.CheckAndCancelPassenger(passenger.Id, viewModel.TourId),
-                        //TimeSpan.FromHours(tourUpdate.HoldTime.Value)
-                        TimeSpan.FromSeconds(5)
+                        checker => checker.CheckHoldTime(passenger.Id),
+                        TimeSpan.FromHours(tourUpdate.HoldTime.Value)
+                        //TimeSpan.FromSeconds(3)
                     );
                 }
 
