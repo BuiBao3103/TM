@@ -438,7 +438,10 @@
                                     <tr>
                                         <th>Họ tên</th>
                                         <th>Số điện thoại</th>
-                                        <th>Email</th>
+                                        <th>Giá đề xuất</th>
+                                        <th>Đã trả</th>
+                                        <th>Passport</th>
+                                        <th>Vé máy bay</th>
                                         <th>Trạng thái</th>
                                         <th class="text-center">Thao tác</th>
                                     </tr>
@@ -449,7 +452,32 @@
                                         <tr>
                                             <td>@item.FullName</td>
                                             <td>@item.Phone</td>
-                                            <td>@item.Email</td>
+                                            <td>
+                                                <span class="">@string.Format("{0:N0}₫", item.AssignedPrice)</span>
+                                            </td>
+                                            <td>
+                                                <span class="">@string.Format("{0:N0}₫", item.CustomerPaid)</span>
+                                            </td>
+                                            <td>
+                                                @if (item.PassportNum != null)
+                                                {
+                                                    <span class="badge bg-success">Đã có</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">Chưa có</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (item.DepartureFlightInfo != null)
+                                                {
+                                                    <span class="badge bg-success">Đã có</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">Chưa có</span>
+                                                }
+                                            </td>
                                             <td>
                                                 @if (item.Status == "Paid")
                                                 {
