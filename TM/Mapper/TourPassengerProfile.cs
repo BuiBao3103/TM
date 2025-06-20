@@ -16,5 +16,7 @@ public class TourPassengerProfile : Profile
         //     .ForMember(dest => dest.TourId, opt => opt.MapFrom(src =>
         //src.TourId));
 
+        CreateMap<TM.Models.ViewModels.PassengerEditViewModel, Passenger>();
+        CreateMap<Passenger, TM.Models.ViewModels.PassengerEditViewModel>();
     }
 }

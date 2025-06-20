@@ -18,9 +18,9 @@ namespace TM.Models.ViewModels
     public enum PassengerStatus
     {
         Reserved,
-        Confirm,
+        Confirmed,
         Paid,
-        Cancel
+        Cancelled
     }
 
     public class TourPassengerViewModel
