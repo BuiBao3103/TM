@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using TM.Models;
 using TM.Models.ViewModels;
 
@@ -44,5 +45,27 @@ namespace TM.Controllers
             HttpContext.Session.Clear();
             return RedirectToAction("Login");
         }
+
     }
+
+    public class RequireAuthorizeAttribute : ActionFilterAttribute
+    {
+        private readonly string[] _roles;
+
+        public RequireAuthorizeAttribute(params string[] roles)
+        {
+            _roles = roles;
+        }
+
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            var role = context.HttpContext.Session.GetString("Role");
+
+            if (string.IsNullOrEmpty(role) || !_roles.Contains(role))
+            {
+                context.Result = new RedirectToActionResult("AccessDenied", "Account", null);
+            }
+        }
+    }
+
 }
