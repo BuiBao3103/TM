@@ -11,6 +11,7 @@ using TM.Models;
 using TM.Models.Entities;
 using TM.Models.ViewModels;
 using Hangfire;
+using TM.Enum;
 
 namespace TM.Controllers
 {
@@ -341,7 +342,7 @@ namespace TM.Controllers
                 return View(viewModel);
             }
 
-            if (!Enum.TryParse<PassengerGender>(viewModel.Gender, out _))
+            if (!System.Enum.TryParse<PassengerGender>(viewModel.Gender, out _))
             {
                 ModelState.AddModelError("Gender", "Giới tính không hợp lệ.");
                 return View(viewModel);
@@ -406,7 +407,7 @@ namespace TM.Controllers
                 // The issue occurs because `tourUpdate.HoldTime` is of type `int?` (nullable int), but `TimeSpan.FromHours` expects a non-nullable `int`.
                 // To fix this, we need to ensure that `tourUpdate.HoldTime` is not null before passing it to `TimeSpan.FromHours`.
 
-                if (passenger.Status == "Reserved" && tourUpdate.IsAutoHoldTime == true && tourUpdate.HoldTime.HasValue)
+                if (passenger.Status == PassengerStatus.Reserved.ToString() && tourUpdate.IsAutoHoldTime == true && tourUpdate.HoldTime.HasValue)
                 {
                     _backgroundJobClient.Schedule<TM.Services.PassengerStatusChecker>(
                         checker => checker.CheckHoldTime(passenger.Id),

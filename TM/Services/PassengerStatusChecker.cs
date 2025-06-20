@@ -1,6 +1,7 @@
 ﻿using TM.Models;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using TM.Enum;
 
 namespace TM.Services
 {
@@ -15,9 +16,9 @@ namespace TM.Services
         public void CheckHoldTime(int passengerId)
         {
             var passenger =  _context.Passengers.Find(passengerId);
-            if (passenger != null && passenger.Status == "Reserved")
+            if (passenger != null && passenger.Status == PassengerStatus.Reserved.ToString())
             {
-                passenger.Status = "Cancelled";
+                passenger.Status = PassengerStatus.Cancelled.ToString();
                 _context.SaveChanges();
             }
         }
@@ -25,12 +26,12 @@ namespace TM.Services
         public void CheckFullpayDeadline(int tourId)
         {
             var passengers = _context.Passengers
-                .Where(p => p.TourId == tourId && p.Status == "Confirmed")
+                .Where(p => p.TourId == tourId && p.Status == PassengerStatus.Confirmed.ToString())
                 .ToList();
 
             foreach (var passenger in passengers)
             {
-                passenger.Status = "Cancelled";
+                passenger.Status = PassengerStatus.Cancelled.ToString();
             }
 
             if (passengers.Count != 0)
