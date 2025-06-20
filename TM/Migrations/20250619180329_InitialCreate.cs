@@ -142,7 +142,7 @@ namespace TM.Migrations
                     TourId = table.Column<int>(type: "int", nullable: true),
                     AssignedPrice = table.Column<decimal>(type: "decimal(18,0)", nullable: true),
                     CustomerPaid = table.Column<decimal>(type: "decimal(18,0)", nullable: true),
-                    PassportNum = table.Column<string>(type: "varchar(8)", unicode: false, maxLength: 8, nullable: true),
+                    PassportNum = table.Column<string>(type: "varchar(9)", unicode: false, maxLength: 9, nullable: true),
                     DepartureTicket = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: true),
                     ArrivalTicket = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: true),
                     Status = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false, defaultValue: "Reserved"),

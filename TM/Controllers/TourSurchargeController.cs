@@ -16,6 +16,8 @@ namespace TM.Controllers
             _appDbContext = dbContext;
             _mapper = mapper;
         }
+
+        [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> CreateSurcharge(int id)
         {
             var tour = await _appDbContext.Tours.FindAsync(id);
@@ -36,6 +38,7 @@ namespace TM.Controllers
         // POST: Tour/CreateSurcharge
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> CreateSurcharge(TourSurchargeViewModel viewModel)
         {
             if (ModelState.IsValid)
@@ -59,6 +62,7 @@ namespace TM.Controllers
         }
 
         [HttpGet("tour-surcharge/update")]
+        [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> UpdateAsync([FromQuery] int id)
         {
             try
@@ -83,6 +87,7 @@ namespace TM.Controllers
         }
 
         [HttpPost("tour-surcharge/update")]
+        [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> UpdateAsync(TourSurchargeUpdateViewModel tourSurchangeUpdate)
         {
             try
@@ -115,6 +120,7 @@ namespace TM.Controllers
         }
 
         [HttpPost("tour-surcharge/delete")]
+        [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> Delete([FromForm] int id, [FromForm] int tourId)
         {
             try

@@ -449,7 +449,7 @@
                                         <th>Số điện thoại</th>
                                         <th>Giá đề xuất</th>
                                         <th>Đã trả</th>
-                                        <th>Phải trả</th>
+                                        <th>Còn phải trả</th>
                                         <th>Passport</th>
                                         <th>Vé máy bay</th>
                                         <th>Trạng thái</th>
@@ -513,13 +513,13 @@
                                             </td>
                                             <td class="text-center">
                                                 <div class="btn-group">
-                                                    <a asp-action="EditPassenger" asp-route-id="@item.Id"
+                                                    <a asp-action="EditPassenger" asp-route-passengerId="@item.Id"
                                                        class="btn btn-outline-primary btn-sm">
                                                         <i class="fas fa-edit me-1"></i>Sửa
                                                     </a>
                                                     <form asp-action="DeletePassenger" method="post" class="d-inline">
                                                         @Html.AntiForgeryToken()
-                                                        <input type="hidden" name="passengerId" value="@item.Id" />
+                                                        <input type="hidden" value="@item.Id" />
                                                         <button type="button" class="btn btn-outline-danger btn-sm"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#confirmDeleteModal"
@@ -581,7 +581,6 @@
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
         <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
             <div class="toast-header" style="background-color: #70ff83">
-                <i class="fa-solid fa-check" style="margin-right: 5px"></i>
                 <strong class="me-auto">Thông báo</strong>
                 <small>vừa xong</small>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -607,7 +606,6 @@
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
         <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
             <div class="toast-header" style="background-color: #ff7770c9">
-                <i class="fa-solid fa-xmark" style="margin-right: 5px"></i>
                 <strong class="me-auto">Thông báo</strong>
                 <small>vừa xong</small>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>

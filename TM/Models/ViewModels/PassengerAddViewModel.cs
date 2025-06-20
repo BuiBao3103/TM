@@ -23,7 +23,7 @@ namespace TM.Models.ViewModels
         Cancelled
     }
 
-    public class TourPassengerViewModel
+    public class PassengerAddViewModel
     {
         public int Id { get; set; }
 
@@ -53,6 +53,12 @@ namespace TM.Models.ViewModels
         [StringLength(20, ErrorMessage = "Số CCCD không được vượt quá 20 ký tự")]
         public string IdentityNumber { get; set; }
 
+        [Required(ErrorMessage = "Số hộ chiếu là bắt buộc")]
+        [Display(Name = "Số hộ chiếu")]
+        [StringLength(9, MinimumLength = 6, ErrorMessage = "Số hộ chiếu phải từ 6 đến 9 ký tự.")]
+        [RegularExpression("^[A-Za-z0-9]+$", ErrorMessage = "Số hộ chiếu chỉ được chứa chữ và số.")]
+        public string? PassportNum { get; set; }
+
         [Display(Name = "Số điện thoại")]
         [RegularExpression(@"^\d+$", ErrorMessage = "Số điện thoại chỉ được chứa chữ số")]
         [StringLength(15, ErrorMessage = "Số điện thoại không được vượt quá 15 ký tự")]
@@ -75,6 +81,12 @@ namespace TM.Models.ViewModels
 
         [Display(Name = "Mã Tour")]
         public string TourCode { get; set; }
+
+        [StringLength(100, ErrorMessage = "Thông tin không được vượt quá 100 ký tự")]
+        public string? DepartureFlightInfo { get; set; }
+
+        [StringLength(100, ErrorMessage = "Thông tin không được vượt quá 100 ký tự")]
+        public string? ArrivalFlightInfo { get; set; }
 
         [Required(ErrorMessage = "Giá chào là bắt buộc")]
         [Display(Name = "Giá chào")]

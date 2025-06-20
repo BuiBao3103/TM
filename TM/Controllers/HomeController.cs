@@ -17,6 +17,7 @@ namespace TM.Controllers
             _context = context;
         }
 
+        [RequireAuthorize("Admin", "Sale")]
         // Thêm lại action Index
         public IActionResult Index()
         {

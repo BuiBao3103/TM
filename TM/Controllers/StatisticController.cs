@@ -19,6 +19,7 @@ namespace TM.Controllers
             _mapper = mapper;
         }
 
+        [RequireAuthorize("Admin", "Sale")]
         public IActionResult Index(string? selectedCountry = null, string? selectedLocation = null,
             DateTime? fromDate = null, DateTime? toDate = null, bool includeRevenue = true)
         {
@@ -112,6 +113,7 @@ namespace TM.Controllers
             return View(model);
         }
 
+        [RequireAuthorize("Admin", "Sale")]
         private IQueryable<Tour> ApplyFilters(IQueryable<Tour> query, string? selectedCountry,
             string? selectedLocation, DateTime? fromDate, DateTime? toDate)
         {
@@ -146,6 +148,7 @@ namespace TM.Controllers
             return query;
         }
 
+        [RequireAuthorize("Admin", "Sale")]
         private List<SelectListItem> GetCountriesSelectList()
         {
             var countries = _context.Tours
@@ -166,6 +169,7 @@ namespace TM.Controllers
             return selectList;
         }
 
+        [RequireAuthorize("Admin", "Sale")]
         private List<SelectListItem> GetLocationsSelectList()
         {
             var locations = _context.Tours
@@ -187,6 +191,7 @@ namespace TM.Controllers
 
         // API endpoint để lấy locations theo country (cho AJAX)
         [HttpGet]
+        [RequireAuthorize("Admin", "Sale")]
         public JsonResult GetLocationsByCountry(string country)
         {
             var locations = string.IsNullOrEmpty(country)

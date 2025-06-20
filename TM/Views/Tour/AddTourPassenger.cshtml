@@ -1,4 +1,4 @@
-@model TM.Models.ViewModels.TourPassengerViewModel
+@model TM.Models.ViewModels.PassengerAddViewModel
 
 @{
     ViewData["Title"] = "Thêm khách hành cho tour";
@@ -88,7 +88,7 @@
                                     <label asp-for="Phone" class="form-label fw-semibold">
                                         <i class="fas fa-envelope me-1"></i>Số điện thoại
                                     </label>
-                                    <input asp-for="Phone" class="form-control" />
+                                    <input asp-for="Phone" class="form-control" type="number" />
                                     <span asp-validation-for="Phone" class="text-danger small"></span>
                                 </div>
 
@@ -96,9 +96,18 @@
                                     <label asp-for="IdentityNumber" class="form-label fw-semibold">
                                         <i class="fas fa-id-card me-1"></i>Số CMND/CCCD
                                     </label>
-                                    <input asp-for="IdentityNumber" class="form-control" />
+                                    <input asp-for="IdentityNumber" class="form-control" type="number" />
                                     <span asp-validation-for="IdentityNumber" class="text-danger small"></span>
                                 </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="PassportNum" class="form-label fw-semibold">
+                                        <i class="fas fa-passport me-1"></i>Số hộ chiếu
+                                    </label>
+                                    <input asp-for="PassportNum" class="form-control" />
+                                    <span asp-validation-for="PassportNum" class="text-danger small"></span>
+                                </div>
+
                                 <div class="col-md-6 mb-3">
                                     <label asp-for="Address" class="form-label fw-semibold">
                                         <i class="fas fa-map-marker-alt me-1"></i>Địa chỉ
@@ -127,6 +136,22 @@
                                     </label>
                                     <input asp-for="TourName" class="form-control" readonly />
                                     <span asp-validation-for="TourName" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="DepartureFlightInfo" class="form-label fw-semibold">
+                                        <i class="fas fa-plane-departure me-1"></i>Chuyến bay đi
+                                    </label>
+                                    <input asp-for="DepartureFlightInfo" class="form-control" />
+                                    <span asp-validation-for="DepartureFlightInfo" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="ArrivalFlightInfo" class="form-label fw-semibold">
+                                        <i class="fas fa-plane-arrival me-1"></i>Chuyến bay về
+                                    </label>
+                                    <input asp-for="ArrivalFlightInfo" class="form-control" />
+                                    <span asp-validation-for="ArrivalFlightInfo" class="text-danger small"></span>
                                 </div>
                             </div>
                         </div>
@@ -187,7 +212,7 @@
                             <button type="submit" class="btn btn-success">
                                 <i class="fas fa-save me-1"></i>Lưu hành khách
                             </button>
-                            <a asp-action="Edit" asp-route-id="@Model.TourId" class="btn btn-secondary ms-2">
+                            <a href="@Url.Action("Edit", "Tour",new { id = Model.TourId })#passenger-list" class="btn btn-secondary ms-2">
                                 <i class="fas fa-arrow-left me-1"></i>Quay lại
                             </a>
                         </div>
@@ -198,6 +223,55 @@
         </div>
     </div>
 </div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+            <div class="toast-header" style="background-color: #70ff83">
+                <strong class="me-auto">Thông báo</strong>
+                <small>vừa xong</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                @TempData["SuccessMessage"]
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const toastEl = document.getElementById('liveToast');
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        });
+    </script>
+}
+
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+            <div class="toast-header" style="background-color: #ff7770c9">
+                <strong class="me-auto">Thông báo</strong>
+                <small>vừa xong</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                @TempData["ErrorMessage"]
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const toastEl = document.getElementById('liveToast');
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        });
+    </script>
+}
 
 @section Scripts {
     @{

@@ -6,7 +6,7 @@ public class TourPassengerProfile : Profile
 {
     public TourPassengerProfile()
     {
-        CreateMap<TourPassengerViewModel, Passenger>()
+        CreateMap<PassengerAddViewModel, Passenger>()
             .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src =>
                 DateOnly.FromDateTime(src.DateOfBirth)))
             .ForMember(dest => dest.Tour, opt => opt.Ignore()) // tránh AutoMapper cố map navigation property

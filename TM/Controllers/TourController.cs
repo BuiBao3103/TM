@@ -3,17 +3,10 @@ using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using TM.Models;
 using TM.Models.Entities;
 using TM.Models.ViewModels;
-using Hangfire;
-using TM.Enum;
+using TM.Services;
 
 namespace TM.Controllers
 {
@@ -23,6 +16,7 @@ namespace TM.Controllers
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
         private readonly IBackgroundJobClient _backgroundJobClient;
+        private readonly PassengerValidatorService _validator;
 
         public TourController(ILogger<HomeController> logger, AppDbContext context, IMapper mapper, IBackgroundJobClient backgroundJobClient)
         {
@@ -30,10 +24,12 @@ namespace TM.Controllers
             _context = context;
             _mapper = mapper;
             _backgroundJobClient = backgroundJobClient;
+            _validator = new PassengerValidatorService(context);
         }
 
         // GET: TourController
         [HttpGet]
+        [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> Index(
             string? name,
             DateTime? startDate,
@@ -41,8 +37,8 @@ namespace TM.Controllers
             int? countryId,
             int? locationId)
         {
-            var countries = await _context.Countries.ToListAsync();
-            var locations = new List<Location>();
+            List<Country>? countries = await _context.Countries.ToListAsync();
+            List<Location>? locations = new List<Location>();
 
             if (countryId.HasValue)
             {
@@ -51,7 +47,7 @@ namespace TM.Controllers
                     .ToListAsync();
             }
 
-            var query = _context.Tours
+            IQueryable<Tour> query = _context.Tours
                 .Include(t => t.Location)
                 .ThenInclude(l => l.Country)
                 .AsQueryable();
@@ -74,8 +70,8 @@ namespace TM.Controllers
                 query = query.Where(t => t.Location!.CountryId == countryId);
 
             query = query.Where(t => t.DeleteAt == null);
-            
-            var model = new TourViewModel
+
+            TourViewModel model = new TourViewModel
             {
                 Countries = countries,
                 SelectedCountryId = countryId,
@@ -89,26 +85,15 @@ namespace TM.Controllers
 
             return View(model);
         }
-      
-
-        public IActionResult Details(int id)
-        {
-            var tour = _context.Tours.Find(id);
-            if (tour == null)
-            {
-                return NotFound();
-            }
-            ViewData["Title"] = "Chi tiết tour";
-            return View(tour);
-        }
 
 
+        [RequireAuthorize("Admin", "Sale")]
         [HttpGet]
         public IActionResult Create()
         {
             var locations = _context.Locations
                 .Include(l => l.Country)
-                .ToList() 
+                .ToList()
                 .Select(l => new
                 {
                     Id = l.Id,
@@ -122,6 +107,7 @@ namespace TM.Controllers
             return View();
         }
 
+        [RequireAuthorize("Admin", "Sale")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TourInfoViewModel model)
@@ -146,7 +132,7 @@ namespace TM.Controllers
 
             try
             {
-                var tour = _mapper.Map<Tour>(model);
+                Tour? tour = _mapper.Map<Tour>(model);
                 tour.AvailableSeats = tour.TotalSeats;
                 tour.CreatedAt = DateTime.Now;
                 tour.ModifiedAt = DateTime.Now;
@@ -156,7 +142,7 @@ namespace TM.Controllers
 
                 if (tour.FullPayDeadline.HasValue)
                 {
-                    var delay = tour.FullPayDeadline.Value - DateTime.Now;
+                    TimeSpan delay = tour.FullPayDeadline.Value - DateTime.Now;
 
                     if (delay > TimeSpan.Zero)
                     {
@@ -166,7 +152,6 @@ namespace TM.Controllers
                         );
                     }
                 }
-
 
                 return RedirectToAction(nameof(Index));
             }
@@ -190,8 +175,20 @@ namespace TM.Controllers
             }
         }
 
+        [RequireAuthorize("Admin", "Sale")]
+        public IActionResult Details(int id)
+        {
+            Tour? tour = _context.Tours.Find(id);
+            if (tour == null)
+            {
+                return NotFound();
+            }
+            ViewData["Title"] = "Chi tiết tour";
+            return View(tour);
+        }
 
         [HttpGet]
+        [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -231,6 +228,7 @@ namespace TM.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> Edit(int id, TM.Models.ViewModels.TourEditViewModel model)
         {
             if (id != model.Id)
@@ -277,6 +275,7 @@ namespace TM.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             try
@@ -303,96 +302,27 @@ namespace TM.Controllers
             }
         }
 
-
-
-
         [Route("TourController/Passengers/Get")]
+        [RequireAuthorize("Admin", "Sale")]
         public IActionResult Passengers()
         {
             //var tour = _context.Tours.FirstOrDefault(t => t.Id == id);
             //var passengers = _context.Passengers.ToList();
             return View();
         }
-        // GET: Tour/CreateSurcharge/5
 
-        // POST: Tour/AddTourPassenger
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [RequireAuthorize("Admin", "Sale")]
-        public async Task<IActionResult> AddTourPassenger(TourPassengerViewModel viewModel)
-        {
-
-            if (ModelState.IsValid)
-            {
-                bool identityNumberExists = _context.Passengers.Any(p => p.IdentityNumber == viewModel.IdentityNumber && p.TourId == viewModel.TourId);
-                if (identityNumberExists)
-                {
-                    ModelState.AddModelError("IdentityNumber", "Số CCCD này đã tồn tại trong tour.");
-                }
-
-                if (!ModelState.IsValid)
-                {
-                    return View(viewModel);
-                }
-
-                Tour? tourUpdate = await _context.Tours.FindAsync(viewModel.TourId);
-                String? authId = HttpContext.Session.GetString("AuthId");
-
-                Passenger? passenger = _mapper.Map<Passenger>(viewModel);
-                passenger.CreatedAt = DateTime.Now;
-                passenger.TourId= viewModel.TourId;
-                passenger.ModifiedAt = DateTime.Now;
-                passenger.ModifiedById = int.Parse(authId);
-                _context.Add(passenger);
-
-                int bookedSeatsAmount = _context.Passengers.Where(p => p.TourId == viewModel.TourId).ToList().Count;
-
-                tourUpdate.AvailableSeats = tourUpdate.TotalSeats - bookedSeatsAmount;
-
-                if (tourUpdate.AvailableSeats == 0)
-                {
-                    ModelState.AddModelError("", "Tour đã đủ số lượng hành khách.");
-                    return View(viewModel);
-                }
-
-                await _context.SaveChangesAsync();
-
-                // Fix for CS1503: Argument 1: cannot convert from 'int?' to 'int'
-                // The issue occurs because `tourUpdate.HoldTime` is of type `int?` (nullable int), but `TimeSpan.FromHours` expects a non-nullable `int`.
-                // To fix this, we need to ensure that `tourUpdate.HoldTime` is not null before passing it to `TimeSpan.FromHours`.
-
-                if (passenger.Status == TM.Enum.PassengerStatus.Reserved.ToString() && tourUpdate.IsAutoHoldTime == true && tourUpdate.HoldTime.HasValue)
-                {
-                    _backgroundJobClient.Schedule<TM.Services.PassengerStatusChecker>(
-                        checker => checker.CheckHoldTime(passenger.Id),
-                        TimeSpan.FromHours(tourUpdate.HoldTime.Value)
-                        //TimeSpan.FromSeconds(3)
-                    );
-                }
-
-                return Redirect("/Tour/Edit/" + viewModel.TourId);
-            }
-
-            // Nếu model không hợp lệ, lấy lại tên tour để hiển thị
-            var tour = await _context.Tours.FindAsync(viewModel.TourId);
-            if (tour != null)
-            {
-                viewModel.TourName = tour.Name;
-            }
-
-            return View(viewModel);
-        }
-
+        // Passengers handle section
         [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> AddTourPassenger(int tourId)
         {
-            var tour = await _context.Tours.FindAsync(tourId);
+            Tour? tour = await _context.Tours.FindAsync(tourId);
             if (tour == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Có lỗi xảy ra, dữ liệu không tồn tại.";
+                return Redirect($"{Url.Action("Edit", new { id = tourId })}#passenger-list");
             }
 
-            var viewModel = new TourPassengerViewModel
+            var viewModel = new PassengerAddViewModel
             {
                 TourId = tourId,
                 TourName = tour.Name,
@@ -402,101 +332,184 @@ namespace TM.Controllers
             };
 
             return View(viewModel);
-            }
-            
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuthorize("Admin", "Sale")]
-        public IActionResult DeletePassenger(int passengerId)
+        public async Task<IActionResult> AddTourPassenger(PassengerAddViewModel viewModel)
         {
-            String? id = HttpContext.Session.GetString("AuthId");
+            // Check duplicate identity/passport/code in tour
+            _validator.ValidateDuplicatePassengerFields(
+                viewModel.TourId,
+                viewModel.IdentityNumber,
+                viewModel.Code,
+                viewModel.PassportNum,
+                ModelState
+            );
 
-            Passenger? passenger = _context.Passengers.FirstOrDefault(p => p.Id == passengerId && p.DeleteAt == null);
-
-            if (passenger != null)
+            // If model state is invalid, retrieve the tour name and return the view with the model
+            if (!ModelState.IsValid)
             {
-                bool isAdmin = role == "Admin";
-                bool isValidSale = role == "Sale" && passenger?.ModifiedById != null && passenger.ModifiedById.ToString() == id;
-
-                if (!(isAdmin || isValidSale))
+                Tour? tour = await _context.Tours.FindAsync(viewModel.TourId);
+                if (tour != null)
                 {
-                    TempData["ErrorMessage"] = "Bạn không có quyền xóa hành khách này.";
-                    return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
+                    viewModel.TourName = tour.Name;
+                    viewModel.TourCode = tour.Code;
                 }
-
-                passenger.DeleteAt = DateTime.Now;
-                _context.SaveChanges();
+                return View(viewModel);
             }
 
+            // Check if passenger is existed 
+            Passenger? passenger = _mapper.Map<Passenger>(viewModel);
+            if (passenger == null)
+            {
+                TempData["ErrorMessage"] = "Có lỗi xảy ra, dữ liệu không tồn tại.";
+                return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
+            }
+
+            // Create a new passenger
+            passenger.CreatedAt = DateTime.Now;
+            passenger.TourId = viewModel.TourId;
+            passenger.ModifiedAt = DateTime.Now;
+            if (int.TryParse(HttpContext.Session.GetString("AuthId"), out int authId))
+                passenger.ModifiedById = authId;
+
+            _context.Add(passenger);
+
+            // Update tour's available seats
+            Tour? tourUpdate = await _context.Tours.FindAsync(viewModel.TourId);
+            int bookedSeatsAmount = _context.Passengers.Where(p => p.TourId == viewModel.TourId).ToList().Count;
+
+            if (tourUpdate == null)
+            {
+                TempData["ErrorMessage"] = "Có lỗi xảy ra, dữ liệu không tồn tại.";
+                return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
+            }
+
+            tourUpdate.AvailableSeats = tourUpdate.TotalSeats - bookedSeatsAmount;
+
+            if (tourUpdate.AvailableSeats == 0)
+            {
+                ModelState.AddModelError("", "Tour đã đủ số lượng hành khách.");
+                return View(viewModel);
+            }
+
+            await _context.SaveChangesAsync();
+
+            if (passenger.Status == TM.Enum.PassengerStatus.Reserved.ToString() && tourUpdate.IsAutoHoldTime == true && tourUpdate.HoldTime.HasValue)
+            {
+                _backgroundJobClient.Schedule<TM.Services.PassengerStatusChecker>(
+                    checker => checker.CheckHoldTime(passenger.Id),
+                    TimeSpan.FromHours(tourUpdate.HoldTime.Value)
+                //TimeSpan.FromSeconds(3)
+                );
+            }
+
+            TempData["SuccessMessage"] = "Thêm hành khách thành công!";
             return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
         }
 
-        public IActionResult EditPassenger(int id)
+        [RequireAuthorize("Admin", "Sale")]
+        public IActionResult EditPassenger(int passengerId)
         {
-            var passenger = _context.Passengers.Find(id);
+            Passenger? passenger = _context.Passengers.Find(passengerId);
             if (passenger == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Có lỗi xảy ra, dữ liệu không tồn tại.";
+                return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
             }
-            var viewModel = _mapper.Map<TM.Models.ViewModels.PassengerEditViewModel>(passenger);
+
+            String? id = HttpContext.Session.GetString("AuthId");
+            String? role = HttpContext.Session.GetString("Role");
+
+            bool isAdmin = role == "Admin";
+            bool isValidSale = role == "Sale" && passenger?.ModifiedById != null && passenger.ModifiedById.ToString() == id;
+
+            if (!(isAdmin || isValidSale))
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền xóa hành khách này.";
+                return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
+            }
+
+            PassengerEditViewModel viewModel = _mapper.Map<TM.Models.ViewModels.PassengerEditViewModel>(passenger);
             ViewData["Title"] = "Sửa thông tin khách hàng";
             return View(viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditPassenger(TM.Models.ViewModels.PassengerEditViewModel model)
+        [RequireAuthorize("Admin", "Sale")]
+        public IActionResult EditPassenger(PassengerEditViewModel viewModel)
         {
+            // Check duplicate identity/passport/code in tour
+            _validator.ValidateDuplicatePassengerFields(
+                viewModel.TourId,
+                viewModel.IdentityNumber,
+                viewModel.Code,
+                viewModel.PassportNum,
+                ModelState
+            );
+
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return View(viewModel);
             }
-            if (!string.IsNullOrEmpty(model.Phone) && !Regex.IsMatch(model.Phone, @"^\d+$"))
-            {
-                ModelState.AddModelError("Phone", "Số điện thoại chỉ được chứa chữ số.");
-                return View(model);
-            }
-            if (!string.IsNullOrEmpty(model.IdentityNumber) && !Regex.IsMatch(model.IdentityNumber, @"^\d+$"))
-            {
-                ModelState.AddModelError("IdentityNumber", "Số CCCD chỉ được chứa chữ số.");
-                return View(model);
-            }
-            // Kiểm tra trùng email/phone/identity trong cùng tour (trừ chính mình)
-            if (!string.IsNullOrEmpty(model.Email) && _context.Passengers.Any(p => p.Email == model.Email && p.Id != model.Id && p.TourId == model.TourId))
-            {
-                ModelState.AddModelError("Email", "Email này đã tồn tại trong tour.");
-                return View(model);
-            }
-            if (!string.IsNullOrEmpty(model.Phone) && _context.Passengers.Any(p => p.Phone == model.Phone && p.Id != model.Id && p.TourId == model.TourId))
-            {
-                ModelState.AddModelError("Phone", "Số điện thoại này đã tồn tại trong tour.");
-                return View(model);
-            }
-            if (!string.IsNullOrEmpty(model.IdentityNumber) && _context.Passengers.Any(p => p.IdentityNumber == model.IdentityNumber && p.Id != model.Id && p.TourId == model.TourId))
-            {
-                ModelState.AddModelError("IdentityNumber", "Số CCCD này đã tồn tại trong tour.");
-                return View(model);
-            }
-            var passenger = _context.Passengers.Find(model.Id);
+
+            Passenger? passenger = _context.Passengers.Find(viewModel.Id);
             if (passenger == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Có lỗi xảy ra, dữ liệu không tồn tại.";
+                return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
             }
-            _mapper.Map(model, passenger);
+
+            _mapper.Map(viewModel, passenger);
             _context.SaveChanges();
             TempData["SuccessMessage"] = "Cập nhật hành khách thành công!";
-            return RedirectToAction("Edit", new { id = model.TourId });
+            return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
         }
 
-
-        // modify country
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequireAuthorize("Admin", "Sale")]
+        public IActionResult DeletePassenger(int passengerId)
+        {
+            Passenger? passenger = _context.Passengers.FirstOrDefault(p => p.Id == passengerId && p.DeleteAt == null);
+
+            if (passenger == null)
+            {
+                TempData["ErrorMessage"] = "Có lỗi xảy ra, dữ liệu không tồn tại.";
+                return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
+            }
+
+            String? id = HttpContext.Session.GetString("AuthId");
+            String? role = HttpContext.Session.GetString("Role");
+
+            bool isAdmin = role == "Admin";
+            bool isValidSale = role == "Sale" && passenger?.ModifiedById != null && passenger.ModifiedById.ToString() == id;
+
+            if (!(isAdmin || isValidSale))
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền xóa hành khách này.";
+                return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
+            }
+
+            passenger!.DeleteAt = DateTime.Now;
+            _context.SaveChanges();
+
+            return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
+        }
+
+        // Countries/Locations handle section
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequireAuthorize("Admin")]
         public IActionResult SaveCountry(Country model)
         {
             if (model.Id > 0)
             {
-                // tìm nếu tồn tại => update
+                // Find if exists => update
                 var c = _context.Countries.Find(model.Id);
                 if (c != null)
                 {
@@ -506,7 +519,7 @@ namespace TM.Controllers
             }
             else
             {
-                // tìm nếu không tồn tại => create
+                // Find if not exists => create
                 _context.Countries.Add(model);
             }
 
@@ -516,6 +529,7 @@ namespace TM.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequireAuthorize("Admin")]
         public IActionResult SaveLocation(Location model)
         {
             if (!ModelState.IsValid)
@@ -523,8 +537,8 @@ namespace TM.Controllers
 
             if (model.Id > 0)
             {
-                // tìm nếu tồn tại => update
-                var existing = _context.Locations.FirstOrDefault(l => l.Id == model.Id);
+                // Find if exists => update
+                Location? existing = _context.Locations.FirstOrDefault(l => l.Id == model.Id);
                 if (existing != null)
                 {
                     existing.LocationName = model.LocationName;
@@ -533,7 +547,7 @@ namespace TM.Controllers
             }
             else
             {
-                // tìm nếu không tồn tại => create
+                // Find if not exists => create
                 _context.Locations.Add(model);
                 _context.SaveChanges();
             }

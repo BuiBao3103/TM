@@ -215,9 +215,9 @@ namespace TM.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("PassportNum")
-                        .HasMaxLength(8)
+                        .HasMaxLength(9)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(8)");
+                        .HasColumnType("varchar(9)");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(15)
