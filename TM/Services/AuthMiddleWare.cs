@@ -12,6 +12,13 @@
         public async Task Invoke(HttpContext context)
         {
             var path = context.Request.Path;
+            var isLoggedIn = !string.IsNullOrEmpty(context.Session.GetString("Username"));
+
+            if (path.StartsWithSegments("/Account/Login") && isLoggedIn)
+            {
+                context.Response.Redirect("/Tour/Index"); // hoặc trang chính khác
+                return;
+            }
 
             // Bỏ qua những route không cần kiểm tra
             if (path.StartsWithSegments("/Account/Login") || path.StartsWithSegments("/css") || path.StartsWithSegments("/js"))
