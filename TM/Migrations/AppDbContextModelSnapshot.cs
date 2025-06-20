@@ -22,6 +22,35 @@ namespace TM.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("TM.Models.Entities.Account", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id")
+                        .HasName("PK__Account__3214EC07745155F3");
+
+                    b.ToTable("Account", (string)null);
+                });
+
             modelBuilder.Entity("TM.Models.Entities.Country", b =>
                 {
                     b.Property<int>("Id")
@@ -36,18 +65,34 @@ namespace TM.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(3)");
 
+                    b.Property<DateTime?>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<DateTime?>("DeleteAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int?>("ModifiedById")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id")
-                        .HasName("PK__Country__3214EC0707FF62DC");
+                        .HasName("PK__Country__3214EC072B231A63");
 
-                    b.HasIndex(new[] { "Name" }, "UQ__Country__737584F67CFF0565")
+                    b.HasIndex("ModifiedById");
+
+                    b.HasIndex(new[] { "Name" }, "UQ__Country__737584F6AEA61A1C")
                         .IsUnique();
 
-                    b.HasIndex(new[] { "Code" }, "UQ__Country__A25C5AA781CE55DD")
+                    b.HasIndex(new[] { "Code" }, "UQ__Country__A25C5AA7583A9C18")
                         .IsUnique();
 
                     b.ToTable("Country", (string)null);
@@ -64,6 +109,14 @@ namespace TM.Migrations
                     b.Property<int>("CountryId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<DateTime?>("DeleteAt")
+                        .HasColumnType("datetime");
+
                     b.Property<string>("Description")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -73,10 +126,18 @@ namespace TM.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int?>("ModifiedById")
+                        .HasColumnType("int");
+
                     b.HasKey("Id")
-                        .HasName("PK__Location__3214EC074AC8A40E");
+                        .HasName("PK__Location__3214EC070DDE3659");
 
                     b.HasIndex("CountryId");
+
+                    b.HasIndex("ModifiedById");
 
                     b.ToTable("Location", (string)null);
                 });
@@ -93,8 +154,17 @@ namespace TM.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<string>("ArrivalFlightInfo")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("ArrivalTicket")
+                        .HasMaxLength(100)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(100)");
+
                     b.Property<decimal?>("AssignedPrice")
-                        .HasColumnType("decimal(12, 2)");
+                        .HasColumnType("decimal(18, 0)");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -108,13 +178,22 @@ namespace TM.Migrations
                         .HasDefaultValueSql("(getdate())");
 
                     b.Property<decimal?>("CustomerPaid")
-                        .HasColumnType("decimal(12, 2)");
+                        .HasColumnType("decimal(18, 0)");
 
                     b.Property<DateOnly?>("DateOfBirth")
                         .HasColumnType("date");
 
                     b.Property<DateTime?>("DeleteAt")
                         .HasColumnType("datetime");
+
+                    b.Property<string>("DepartureFlightInfo")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("DepartureTicket")
+                        .HasMaxLength(100)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(100)
@@ -136,6 +215,17 @@ namespace TM.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(20)");
 
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int?>("ModifiedById")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PassportNum")
+                        .HasMaxLength(8)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(8)");
+
                     b.Property<string>("Phone")
                         .HasMaxLength(15)
                         .IsUnicode(false)
@@ -152,21 +242,11 @@ namespace TM.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id")
-                        .HasName("PK__Passenge__3214EC07A9F840C4");
+                        .HasName("PK__Passenge__3214EC072CBEAAAC");
+
+                    b.HasIndex("ModifiedById");
 
                     b.HasIndex("TourId");
-
-                    b.HasIndex(new[] { "Phone" }, "UQ__Passenge__5C7E359E2F12F510")
-                        .IsUnique()
-                        .HasFilter("[Phone] IS NOT NULL");
-
-                    b.HasIndex(new[] { "IdentityNumber" }, "UQ__Passenge__6354A73F5778F8EB")
-                        .IsUnique()
-                        .HasFilter("[IdentityNumber] IS NOT NULL");
-
-                    b.HasIndex(new[] { "Email" }, "UQ__Passenge__A9D105347CDF4DC5")
-                        .IsUnique()
-                        .HasFilter("[Email] IS NOT NULL");
 
                     b.ToTable("Passenger", (string)null);
                 });
@@ -200,6 +280,9 @@ namespace TM.Migrations
                     b.Property<DateTime?>("DeleteAt")
                         .HasColumnType("datetime");
 
+                    b.Property<DateTime?>("DepartureAssembleTime")
+                        .HasColumnType("datetime");
+
                     b.Property<string>("DepartureFlightInfo")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -209,7 +292,7 @@ namespace TM.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal?>("DiscountPrice")
-                        .HasColumnType("decimal(12, 2)");
+                        .HasColumnType("decimal(18, 0)");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime");
@@ -218,7 +301,7 @@ namespace TM.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<decimal>("HhFee")
-                        .HasColumnType("decimal(12, 2)");
+                        .HasColumnType("decimal(18, 0)");
 
                     b.Property<int?>("HoldTime")
                         .HasColumnType("int");
@@ -230,6 +313,12 @@ namespace TM.Migrations
                         .HasColumnType("bit");
 
                     b.Property<int?>("LocationId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int?>("ModifiedById")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -248,8 +337,15 @@ namespace TM.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasDefaultValue("Available");
+
                     b.Property<decimal>("SuggestPrice")
-                        .HasColumnType("decimal(12, 2)");
+                        .HasColumnType("decimal(18, 0)");
 
                     b.Property<int>("TotalSeats")
                         .HasColumnType("int");
@@ -258,9 +354,11 @@ namespace TM.Migrations
                         .HasColumnType("datetime");
 
                     b.HasKey("Id")
-                        .HasName("PK__Tour__3214EC0714C1900D");
+                        .HasName("PK__Tour__3214EC073708CED1");
 
                     b.HasIndex("LocationId");
+
+                    b.HasIndex("ModifiedById");
 
                     b.ToTable("Tour", (string)null);
                 });
@@ -274,7 +372,7 @@ namespace TM.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(12, 2)");
+                        .HasColumnType("decimal(18, 0)");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -283,6 +381,12 @@ namespace TM.Migrations
 
                     b.Property<DateTime?>("DeleteAt")
                         .HasColumnType("datetime");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int?>("ModifiedById")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -293,11 +397,23 @@ namespace TM.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id")
-                        .HasName("PK__TourSurc__3214EC0741E14AA3");
+                        .HasName("PK__TourSurc__3214EC0738DFF85C");
+
+                    b.HasIndex("ModifiedById");
 
                     b.HasIndex("TourId");
 
                     b.ToTable("TourSurcharge", (string)null);
+                });
+
+            modelBuilder.Entity("TM.Models.Entities.Country", b =>
+                {
+                    b.HasOne("TM.Models.Entities.Account", "ModifiedBy")
+                        .WithMany("Countries")
+                        .HasForeignKey("ModifiedById")
+                        .HasConstraintName("FK__Country__Modifie__4F12BBB9");
+
+                    b.Navigation("ModifiedBy");
                 });
 
             modelBuilder.Entity("TM.Models.Entities.Location", b =>
@@ -306,17 +422,31 @@ namespace TM.Migrations
                         .WithMany("Locations")
                         .HasForeignKey("CountryId")
                         .IsRequired()
-                        .HasConstraintName("FK__Location__Countr__30C33EC3");
+                        .HasConstraintName("FK__Location__Countr__5006DFF2");
+
+                    b.HasOne("TM.Models.Entities.Account", "ModifiedBy")
+                        .WithMany("Locations")
+                        .HasForeignKey("ModifiedById")
+                        .HasConstraintName("FK__Location__Modifi__50FB042B");
 
                     b.Navigation("Country");
+
+                    b.Navigation("ModifiedBy");
                 });
 
             modelBuilder.Entity("TM.Models.Entities.Passenger", b =>
                 {
+                    b.HasOne("TM.Models.Entities.Account", "ModifiedBy")
+                        .WithMany("Passengers")
+                        .HasForeignKey("ModifiedById")
+                        .HasConstraintName("FK__Passenger__Modif__4E1E9780");
+
                     b.HasOne("TM.Models.Entities.Tour", "Tour")
                         .WithMany("Passengers")
                         .HasForeignKey("TourId")
-                        .HasConstraintName("FK__Passenger__TourI__2FCF1A8A");
+                        .HasConstraintName("FK__Passenger__TourI__4D2A7347");
+
+                    b.Navigation("ModifiedBy");
 
                     b.Navigation("Tour");
                 });
@@ -326,19 +456,46 @@ namespace TM.Migrations
                     b.HasOne("TM.Models.Entities.Location", "Location")
                         .WithMany("Tours")
                         .HasForeignKey("LocationId")
-                        .HasConstraintName("FK__Tour__LocationId__2EDAF651");
+                        .HasConstraintName("FK__Tour__LocationId__4B422AD5");
+
+                    b.HasOne("TM.Models.Entities.Account", "ModifiedBy")
+                        .WithMany("Tours")
+                        .HasForeignKey("ModifiedById")
+                        .HasConstraintName("FK__Tour__ModifiedBy__4C364F0E");
 
                     b.Navigation("Location");
+
+                    b.Navigation("ModifiedBy");
                 });
 
             modelBuilder.Entity("TM.Models.Entities.TourSurcharge", b =>
                 {
+                    b.HasOne("TM.Models.Entities.Account", "ModifiedBy")
+                        .WithMany("TourSurcharges")
+                        .HasForeignKey("ModifiedById")
+                        .HasConstraintName("FK__TourSurch__Modif__52E34C9D");
+
                     b.HasOne("TM.Models.Entities.Tour", "Tour")
                         .WithMany("TourSurcharges")
                         .HasForeignKey("TourId")
-                        .HasConstraintName("FK__TourSurch__TourI__31B762FC");
+                        .HasConstraintName("FK__TourSurch__TourI__51EF2864");
+
+                    b.Navigation("ModifiedBy");
 
                     b.Navigation("Tour");
+                });
+
+            modelBuilder.Entity("TM.Models.Entities.Account", b =>
+                {
+                    b.Navigation("Countries");
+
+                    b.Navigation("Locations");
+
+                    b.Navigation("Passengers");
+
+                    b.Navigation("TourSurcharges");
+
+                    b.Navigation("Tours");
                 });
 
             modelBuilder.Entity("TM.Models.Entities.Country", b =>

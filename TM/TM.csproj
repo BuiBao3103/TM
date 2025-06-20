@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\Entities\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
   <ItemGroup>

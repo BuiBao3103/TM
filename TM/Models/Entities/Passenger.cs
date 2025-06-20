@@ -1,4 +1,7 @@
-﻿namespace TM.Models.Entities;
+﻿using System;
+using System.Collections.Generic;
+
+namespace TM.Models.Entities;
 
 public partial class Passenger
 {
@@ -26,11 +29,27 @@ public partial class Passenger
 
     public decimal? CustomerPaid { get; set; }
 
+    public string? PassportNum { get; set; }
+
+    public string? DepartureTicket { get; set; }
+
+    public string? ArrivalTicket { get; set; }
+
     public string Status { get; set; } = null!;
 
+    public string? DepartureFlightInfo { get; set; }
+
+    public string? ArrivalFlightInfo { get; set; }
+
     public DateTime? CreatedAt { get; set; }
+
     public DateTime? ModifiedAt { get; set; }
+
+    public int? ModifiedById { get; set; }
+
     public DateTime? DeleteAt { get; set; }
+
+    public virtual Account? ModifiedBy { get; set; }
 
     public virtual Tour? Tour { get; set; }
 }

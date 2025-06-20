@@ -1,4 +1,7 @@
-﻿namespace TM.Models.Entities;
+﻿using System;
+using System.Collections.Generic;
+
+namespace TM.Models.Entities;
 
 public partial class TourSurcharge
 {
@@ -14,7 +17,11 @@ public partial class TourSurcharge
 
     public DateTime? ModifiedAt { get; set; }
 
+    public int? ModifiedById { get; set; }
+
     public DateTime? DeleteAt { get; set; }
+
+    public virtual Account? ModifiedBy { get; set; }
 
     public virtual Tour? Tour { get; set; }
 }
