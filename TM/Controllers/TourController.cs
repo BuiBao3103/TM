@@ -524,5 +524,58 @@ namespace TM.Controllers
             _context.SaveChanges();
             return RedirectToAction("Edit", new { id = model.TourId });
         }
+
+
+        // modify country
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SaveCountry(Country model)
+        {
+            if (model.Id > 0)
+            {
+                // tìm nếu tồn tại => update
+                var c = _context.Countries.Find(model.Id);
+                if (c != null)
+                {
+                    c.Name = model.Name;
+                    c.Code = model.Code;
+                }
+            }
+            else
+            {
+                // tìm nếu không tồn tại => create
+                _context.Countries.Add(model);
+            }
+
+            _context.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SaveLocation(Location model)
+        {
+            if (!ModelState.IsValid)
+                return RedirectToAction("Index");
+
+            if (model.Id > 0)
+            {
+                // tìm nếu tồn tại => update
+                var existing = _context.Locations.FirstOrDefault(l => l.Id == model.Id);
+                if (existing != null)
+                {
+                    existing.LocationName = model.LocationName;
+                    _context.SaveChanges();
+                }
+            }
+            else
+            {
+                // tìm nếu không tồn tại => create
+                _context.Locations.Add(model);
+                _context.SaveChanges();
+            }
+
+            return RedirectToAction("Index");
+        }
     }
 }
