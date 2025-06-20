@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.IO;
 using TM.Models;
+using TM.Models.Entities;
 using TM.Models.ViewModels;
 
 namespace TM.Controllers
@@ -25,7 +27,7 @@ namespace TM.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var user = _context.Accounts.FirstOrDefault(a =>
+            Account? user = _context.Accounts.FirstOrDefault(a =>
                 a.Username == model.Username &&
                 a.Password == model.Password);
 
@@ -37,6 +39,7 @@ namespace TM.Controllers
 
             HttpContext.Session.SetString("Username", user.Username);
             HttpContext.Session.SetString("Role", user.Role);
+            HttpContext.Session.SetString("AuthId", user.Id.ToString());
             return RedirectToAction("Index", "Tour");
         }
 
@@ -64,7 +67,7 @@ namespace TM.Controllers
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            var role = context.HttpContext.Session.GetString("Role");
+            String? role = context.HttpContext.Session.GetString("Role");
 
             if (string.IsNullOrEmpty(role) || !_roles.Contains(role))
             {

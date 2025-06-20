@@ -19,12 +19,6 @@ namespace TM.Services
 
             if (path.StartsWithSegments("/Account/Login") && isLoggedIn)
             {
-                context.Response.Redirect("/Tour/Index"); // hoặc trang chính khác
-                return;
-            }
-
-            if (path.StartsWithSegments("/Account/Login") && context.Session.IsAvailable)
-            {
                 context.Response.Redirect("/Tour/Index");
                 return;
             }
@@ -37,7 +31,7 @@ namespace TM.Services
             }
 
             // Kiểm tra session đăng nhập
-            var username = context.Session.GetString("Username");
+            String? username = context.Session.GetString("Username");
             if (string.IsNullOrEmpty(username))
             {
                 context.Response.Redirect("/Account/Login");

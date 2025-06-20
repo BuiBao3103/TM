@@ -506,7 +506,7 @@
                                                     </a>
                                                     <form asp-action="DeletePassenger" method="post" class="d-inline">
                                                         @Html.AntiForgeryToken()
-                                                        <input type="hidden" name="id" value="@item.Id" />
+                                                        <input type="hidden" name="passengerId" value="@item.Id" />
                                                         <button type="button" class="btn btn-outline-danger btn-sm"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#confirmDeleteModal"
@@ -541,7 +541,7 @@
     <div class="modal-dialog">
         <form asp-action="DeletePassenger" method="post">
             @Html.AntiForgeryToken()
-            <input type="hidden" id="deletePassengerId" name="id" />
+            <input type="hidden" id="deletePassengerId" name="passengerId" />
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title" id="confirmDeleteModalLabel">

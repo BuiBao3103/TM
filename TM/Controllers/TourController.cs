@@ -1,16 +1,17 @@
 using AutoMapper;
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TM.Models;
 using TM.Models.Entities;
 using TM.Models.ViewModels;
-using Hangfire;
 
 namespace TM.Controllers
 {
@@ -301,13 +302,12 @@ namespace TM.Controllers
         // POST: Tour/AddTourPassenger
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [RequireAuthorize("Admin")]
+        [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> AddTourPassenger(TourPassengerViewModel viewModel)
         {
 
             if (ModelState.IsValid)
             {
-
                 bool identityNumberExists = _context.Passengers.Any(p => p.IdentityNumber == viewModel.IdentityNumber && p.TourId == viewModel.TourId);
                 if (identityNumberExists)
                 {
@@ -320,10 +320,13 @@ namespace TM.Controllers
                 }
 
                 Tour? tourUpdate = await _context.Tours.FindAsync(viewModel.TourId);
+                String? authId = HttpContext.Session.GetString("AuthId");
 
                 Passenger? passenger = _mapper.Map<Passenger>(viewModel);
                 passenger.CreatedAt = DateTime.Now;
                 passenger.TourId= viewModel.TourId;
+                passenger.ModifiedAt = DateTime.Now;
+                passenger.ModifiedById = int.Parse(authId);
                 _context.Add(passenger);
 
                 int bookedSeatsAmount = _context.Passengers.Where(p => p.TourId == viewModel.TourId).ToList().Count;
@@ -359,6 +362,7 @@ namespace TM.Controllers
             return View(viewModel);
         }
 
+        [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> AddTourPassenger(int tourId)
         {
             var tour = await _context.Tours.FindAsync(tourId);
@@ -374,7 +378,6 @@ namespace TM.Controllers
                 TourCode = tour.Code,
                 AssignedPrice = tour.DiscountPrice ?? 0,
                 DateOfBirth = new DateTime(2000, 1, 1)
-
             };
 
             return View(viewModel);
@@ -382,11 +385,24 @@ namespace TM.Controllers
             
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DeletePassenger(int id)
+        [RequireAuthorize("Admin", "Sale")]
+        public IActionResult DeletePassenger(int passengerId)
         {
-            var passenger = _context.Passengers.FirstOrDefault(p => p.Id == id && p.DeleteAt == null);
+            String? id = HttpContext.Session.GetString("AuthId");
+
+            Passenger? passenger = _context.Passengers.FirstOrDefault(p => p.Id == passengerId && p.DeleteAt == null);
+
             if (passenger != null)
             {
+                bool isAdmin = role == "Admin";
+                bool isValidSale = role == "Sale" && passenger?.ModifiedById != null && passenger.ModifiedById.ToString() == id;
+
+                if (!(isAdmin || isValidSale))
+                {
+                    TempData["ErrorMessage"] = "Bạn không có quyền xóa hành khách này.";
+                    return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
+                }
+
                 passenger.DeleteAt = DateTime.Now;
                 _context.SaveChanges();
             }
