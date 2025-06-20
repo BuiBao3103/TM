@@ -15,6 +15,13 @@ namespace TM.Services
         public async Task Invoke(HttpContext context)
         {
             var path = context.Request.Path;
+            var isLoggedIn = !string.IsNullOrEmpty(context.Session.GetString("Username"));
+
+            if (path.StartsWithSegments("/Account/Login") && isLoggedIn)
+            {
+                context.Response.Redirect("/Tour/Index"); // hoặc trang chính khác
+                return;
+            }
 
             if (path.StartsWithSegments("/Account/Login") && context.Session.IsAvailable)
             {
