@@ -94,9 +94,6 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.Address).HasMaxLength(255);
             entity.Property(e => e.ArrivalFlightInfo).HasMaxLength(255);
-            entity.Property(e => e.ArrivalTicket)
-                .HasMaxLength(100)
-                .IsUnicode(false);
             entity.Property(e => e.AssignedPrice).HasColumnType("decimal(18, 0)");
             entity.Property(e => e.Code)
                 .HasMaxLength(50)
@@ -107,9 +104,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.CustomerPaid).HasColumnType("decimal(18, 0)");
             entity.Property(e => e.DeleteAt).HasColumnType("datetime");
             entity.Property(e => e.DepartureFlightInfo).HasMaxLength(255);
-            entity.Property(e => e.DepartureTicket)
-                .HasMaxLength(100)
-                .IsUnicode(false);
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .IsUnicode(false);
