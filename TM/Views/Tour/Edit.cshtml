@@ -378,7 +378,7 @@
                                                 @string.Format("{0:N0}₫", item.Amount)
                                             </td>
                                             <td class="text-center">
-                                                <div class="btn-group">
+                                                <div>
                                                     <a href="/tour-surcharge/update?id=@item.Id"
                                                        class="btn btn-outline-primary btn-sm">
                                                         <i class="fas fa-edit me-1"></i>Sửa
@@ -430,17 +430,44 @@
                     }
 
                 </div>
-
+               
+                
                 <div class="card-body" id="passenger-list">
 
                     @if (passengers != null && passengers.Any())
                     {
-                        <div class="input-group mb-2">
-                            <div class="input-group-text">
-                                <i class="fa-solid fa-magnifying-glass"></i>
+                        <form id="filterCustomerForm" class="row g-3 mb-2">
+                            <div class="col-md-5">
+                                <div class="input-group">
+                                    <div class="input-group-text">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                    </div>
+                                    <input type="text" class="form-control" placeholder=" Tìm theo Tên, CCCD hoặc SĐT" name="keyword">
+                                </div>
                             </div>
-                            <input type="text" class="form-control" placeholder="Tên, CCCD hoặc SĐT">
-                        </div>
+                            <div class="col-md-3">
+                                <div class="input-group">
+                                    <label class="input-group-text">Trạng thái</label>
+                                    <select class="form-select" name="status">
+                                        <option value="">Không lọc</option>
+                                        <option value="Paid">Thanh toán đầy đủ</option>
+                                        <option value="Reserved">Đang giữ chỗ</option>
+                                        <option value="Cancelled">Đã hủy</option>
+                                        <option value="Confirmed">Đã cọc</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <label class="input-group-text">Gom nhóm</label>
+                                    <select class="form-select" name="group">
+                                        <option value="">Không gom nhóm</option>
+                                        <option value="go">Gom theo chuyến bay đi</option>
+                                        <option value="return">Gom theo chuyến bay về</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead class="table-light">
@@ -575,7 +602,7 @@
     </div>
 </div>
 
-
+<!-- Show toast temp data success message-->
 @if (TempData["SuccessMessage"] != null)
 {
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
@@ -600,7 +627,7 @@
     </script>
 }
 
-
+<!-- Show toast temp data error message-->
 @if (TempData["ErrorMessage"] != null)
 {
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
@@ -625,7 +652,8 @@
     </script>
 }
 
-
+<!-- JS -->
+<!-- Show delete confirm modal -->
 <script>
     const deleteModal = document.getElementById('confirmDeleteModal');
     deleteModal.addEventListener('show.bs.modal', function (event) {
@@ -638,6 +666,61 @@
     });
 </script>
 
+<!-- Search customer -->
+<script>
+    // Debounce function
+    function debounce(func, delay) {
+      let timeoutId;
+      return function (...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          func.apply(this, args);
+        }, delay);
+      };
+    }
+
+    // Fetch filter data
+    function fetchFilterData() {
+      const form = document.getElementById("filterCustomerForm");
+      const formData = new FormData(form);
+      const params = new URLSearchParams(formData);
+
+      fetch(`/api/filter-passengers?${params.toString()}`)
+        .then(res => res.json())
+        .then(data => {
+          console.log("Kết quả:", data);
+          // TODO: xử lý render dữ liệu ra giao diện
+        })
+        .catch(err => {
+          console.error("Lỗi khi fetch dữ liệu:", err);
+        });
+    }
+
+    // Gán debounce
+    const debouncedFetch = debounce(fetchFilterData, 1000);
+
+    // Gán sự kiện cho input và select
+    document.querySelectorAll('#filterCustomerForm input, #filterCustomerForm select').forEach(el => {
+      el.addEventListener('input', debouncedFetch);
+      el.addEventListener('change', debouncedFetch);
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- CSS -->
 <style>
     .form-label {
         color: #495057;
