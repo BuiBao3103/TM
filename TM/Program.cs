@@ -10,6 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Add Session
+builder.Services.AddSession();
+
+// Add Middleware
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
 // Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -37,6 +43,12 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Thêm Session để lusu đăng nhập
+app.UseSession();
+
+// Thêm middleware kiểm tra đăng nhập
+app.UseMiddleware<AuthMiddleWare>();
 app.UseRouting();
 
 app.UseAuthorization();
