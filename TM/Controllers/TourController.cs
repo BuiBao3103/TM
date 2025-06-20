@@ -14,17 +14,6 @@ using Hangfire;
 
 namespace TM.Controllers
 {
-    public enum PassengerGender
-    {
-        [Display(Name = "Nam")]
-        Male,
-
-        [Display(Name = "Nữ")]
-        Female,
-
-        [Display(Name = "Khác")]
-        Other
-    }
     public class TourController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -315,57 +304,17 @@ namespace TM.Controllers
         public async Task<IActionResult> AddTourPassenger(TourPassengerViewModel viewModel)
         {
 
-            if (viewModel.Code.IsNullOrEmpty())
-            {
-                ModelState.AddModelError("Code", "Mã không được để trống.");
-                return View(viewModel);
-            }
-
-            if (viewModel.FullName.IsNullOrEmpty())
-            {
-                ModelState.AddModelError("FullName", "Họ và tên không được để trống.");
-                return View(viewModel);
-            }
-
-            if (!Enum.TryParse<PassengerGender>(viewModel.Gender, out _))
-            {
-                ModelState.AddModelError("Gender", "Giới tính không hợp lệ.");
-                return View(viewModel);
-            }
-
-            if (!Regex.IsMatch(viewModel.Phone ?? "", @"^\d+$"))
-            {
-                ModelState.AddModelError("Phone", "Số điện thoại chỉ được chứa chữ số.");
-                return View(viewModel);
-            }
-
-            if (!Regex.IsMatch(viewModel.IdentityNumber ?? "", @"^\d+$"))
-            {
-                ModelState.AddModelError("IdentityNumber", "Số CCCD chỉ được chứa chữ số.");
-                return View(viewModel);
-            }
-
             if (ModelState.IsValid)
             {
 
-                bool emailExists = _context.Passengers.Any(p => p.Email == viewModel.Email);
-                if (emailExists)
-                {
-                    ModelState.AddModelError("Email", "Email này đã tồn tại.");
-                    return View(viewModel);
-                }
-
-                bool phoneExists = _context.Passengers.Any(p => p.Phone == viewModel.Phone);
-                if (phoneExists)
-                {
-                    ModelState.AddModelError("Phone", "Số điện thoại này đã tồn tại.");
-                    return View(viewModel);
-                }
-
-                bool identityNumberExists = _context.Passengers.Any(p => p.IdentityNumber == viewModel.IdentityNumber);
+                bool identityNumberExists = _context.Passengers.Any(p => p.IdentityNumber == viewModel.IdentityNumber && p.TourId == viewModel.TourId);
                 if (identityNumberExists)
                 {
-                    ModelState.AddModelError("IdentityNumber", "Số điện thoại này đã tồn tại.");
+                    ModelState.AddModelError("IdentityNumber", "Số CCCD này đã tồn tại trong tour.");
+                }
+
+                if (!ModelState.IsValid)
+                {
                     return View(viewModel);
                 }
 

@@ -117,7 +117,7 @@
                                         <div class="col-md-4">
                                             <div class="mb-3">
                                                 <label asp-for="SuggestPrice" class="form-label fw-semibold">
-                                                    <i class="fas fa-tag me-1"></i>Giá đề xuất
+                                                    <i class="fa-solid fa-money-bill me-1"></i> Giá đề xuất
                                                 </label>
                                                 <div class="input-group">
                                                     <input asp-for="SuggestPrice" type="number" step="1000" class="form-control" />
@@ -129,7 +129,7 @@
                                         <div class="col-md-4">
                                             <div class="mb-3">
                                                 <label asp-for="DiscountPrice" class="form-label fw-semibold">
-                                                    <i class="fas fa-percent me-1"></i>Giá giảm
+                                                    <i class="fas fa-tag me-1"></i>Giá giảm
                                                 </label>
                                                 <div class="input-group">
                                                     <input asp-for="DiscountPrice" type="number" step="1000" class="form-control" />
@@ -206,7 +206,7 @@
                                                 </label>
                                                 <div class="input-group">
                                                     <input asp-for="HoldTime" type="number" class="form-control" min="0" />
-                                                    <span class="input-group-text">phút</span>
+                                                    <span class="input-group-text">Giờ</span>
                                                 </div>
                                                 <span asp-validation-for="HoldTime" class="text-danger small"></span>
                                             </div>
@@ -469,36 +469,33 @@
                                                 }
                                             </td>
                                             <td>
-                                                @if (item.DepartureFlightInfo == null || item.DepartureFlightInfo =="")
-                                                {
-                                                    <span class="badge bg-danger">Chưa có</span>
-                                                }
-                                                else if (item.DepartureFlightInfo != null && item.ArrivalFlightInfo != null && item.DepartureFlightInfo != "" && item.DepartureFlightInfo != "")
+                                                @if (item.DepartureFlightInfo != null)
                                                 {
                                                     <span class="badge bg-success">Đã có</span>
                                                 }
-                                                else if (item.DepartureFlightInfo != null && item.DepartureFlightInfo != "" && item.ArrivalFlightInfo == null)
-                                                {
-                                                    <span class="badge bg-warning">Chưa có chuyến về</span>
-                                                }
                                                 else
                                                 {
-                                                    <span class="badge bg-warning">Chưa có chuyến đi</span>
+                                                    <span class="badge bg-danger">Chưa có</span>
                                                 }
-                                              
                                             </td>
                                             <td>
-                                                @if (item.Status == "Paid")
+                                                @switch (item.Status)
                                                 {
-                                                    <span class="badge bg-success">Đã xác nhận</span>
-                                                }
-                                                else if (item.Status == "Reserved")
-                                                {
-                                                    <span class="badge bg-warning">Chờ xác nhận</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-danger">Đã hủy</span>
+                                                    case "Paid":
+                                                        <span class="badge bg-success">Thanh toán đầy đủ</span>
+                                                        break;
+                                                    case "Reserved":
+                                                        <span class="badge bg-warning">Đang giữ chỗ</span>
+                                                        break;
+                                                    case "Cancel":
+                                                        <span class="badge bg-danger">Đã hủy</span>
+                                                        break;
+                                                     case "Confirmed":
+                                                        <span class="badge bg-primary">Đã cọc</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-secondary">Không xác định</span>
+                                                        break;
                                                 }
                                             </td>
                                             <td class="text-center">
