@@ -365,7 +365,7 @@
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="id" value="@item.Id" />
                                                         <input type="hidden" name="tourId" value="@Model.Id" />
-                                                        <button type="submit" class="btn btn-outline-danger btn-sm" 
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm"
                                                                 onclick="return confirm('Bạn có chắc chắn muốn xóa phụ phí này?');">
                                                             <i class="fas fa-trash me-1"></i>Xóa
                                                         </button>
@@ -417,7 +417,10 @@
                                     <tr>
                                         <th>Họ tên</th>
                                         <th>Số điện thoại</th>
-                                        <th>Email</th>
+                                        <th>Giá đề xuất</th>
+                                        <th>Đã trả</th>
+                                        <th>Passport</th>
+                                        <th>Vé máy bay</th>
                                         <th>Trạng thái</th>
                                         <th class="text-center">Thao tác</th>
                                     </tr>
@@ -428,7 +431,32 @@
                                         <tr>
                                             <td>@item.FullName</td>
                                             <td>@item.Phone</td>
-                                            <td>@item.Email</td>
+                                            <td>
+                                                <span class="">@string.Format("{0:N0}₫", item.AssignedPrice)</span>
+                                            </td>
+                                            <td>
+                                                <span class="">@string.Format("{0:N0}₫", item.CustomerPaid)</span>
+                                            </td>
+                                            <td>
+                                                @if (item.PassportNum != null)
+                                                {
+                                                    <span class="badge bg-success">Đã có</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">Chưa có</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (item.DepartureFlightInfo != null)
+                                                {
+                                                    <span class="badge bg-success">Đã có</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">Chưa có</span>
+                                                }
+                                            </td>
                                             <td>
                                                 @if (item.Status == "Paid")
                                                 {
@@ -445,7 +473,7 @@
                                             </td>
                                             <td class="text-center">
                                                 <div class="btn-group">
-                                                    <a asp-action="EditPassenger" asp-route-id="@item.Id" 
+                                                    <a asp-action="EditPassenger" asp-route-id="@item.Id"
                                                        class="btn btn-outline-primary btn-sm">
                                                         <i class="fas fa-edit me-1"></i>Sửa
                                                     </a>

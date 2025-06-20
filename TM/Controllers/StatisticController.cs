@@ -34,8 +34,9 @@ namespace TM.Controllers
             ViewBag.ToDate = toDate?.ToString("yyyy-MM-dd");
             ViewBag.IncludeRevenue = includeRevenue;
 
-            // Áp dụng bộ lọc với Include Navigation Properties
+            // Áp dụng bộ lọc với Include Navigation Properties 
             var filteredTours = ApplyFilters(_context.Tours
+                //.Where(t => t.Status == "Đã hoàn thành") // Chỉ lấy tour đã hoàn thành
                 .Include(t => t.Location)
                  .ThenInclude(l => l.Country)
                 .Include(t => t.Passengers)
