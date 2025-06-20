@@ -6,7 +6,7 @@
         public int TotalTours { get; set; }
         public int TotalPassengers { get; set; }
         public decimal TotalRevenue { get; set; }
-        public bool IncludeRevenue { get; set; } 
+        public bool IncludeRevenue { get; set; }
 
         // Filtering properties
         public string? SelectedCountry { get; set; }
@@ -51,6 +51,6 @@
         public int PassengerCount { get; set; } // Thêm số hành khách
     }
 
-   
+
 
 }
