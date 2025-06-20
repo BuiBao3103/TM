@@ -21,7 +21,7 @@ namespace TM.Models.ViewModels
     {
         Reserved,
         Confirm,
-        Paid
+        Paid,
         Cancel
     }
 
