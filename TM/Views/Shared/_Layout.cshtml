@@ -35,6 +35,24 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Statistic" asp-action="Index">Statistics</a>
                         </li>
                     </ul>
+
+                    @if (Context.Session.GetString("Username") != null)
+                    {
+                        <ul class="navbar-nav ms-auto align-items-center">
+                            <li class="nav-item me-2 d-flex align-items-center">
+                                <a asp-controller="Account" asp-action="Profile" class="nav-link p-0 text-decoration-none text-dark">
+                                    <i class="fas fa-user text-secondary me-1"></i>@Context.Session.GetString("Username")
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm align-middle">
+                                        Đăng xuất
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    }
                 </div>
             </div>
         </nav>
