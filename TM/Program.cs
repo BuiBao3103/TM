@@ -1,8 +1,8 @@
+using Hangfire;
+using Hangfire.MemoryStorage;
 using Microsoft.EntityFrameworkCore;
 using TM.Mapper;
 using TM.Models;
-using Hangfire;
-using Hangfire.MemoryStorage;
 using TM.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +22,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(TourProfile));
+builder.Services.AddAutoMapper(typeof(TourPassengerProfile));
+builder.Services.AddAutoMapper(typeof(TourSurchargeProfile));
 
 // Thêm cấu hình Hangfire
 builder.Services.AddHangfire(config =>

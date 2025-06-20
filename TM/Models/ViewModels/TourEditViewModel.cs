@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace TM.Models.ViewModels
@@ -50,4 +49,4 @@ namespace TM.Models.ViewModels
         public DateTime? CreatedAt { get; set; }
         public DateTime? ModifiedAt { get; set; }
     }
-} 
+}

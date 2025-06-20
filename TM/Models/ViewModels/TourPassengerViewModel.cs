@@ -1,6 +1,4 @@
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
 
 namespace TM.Models.ViewModels
 {
@@ -20,9 +18,9 @@ namespace TM.Models.ViewModels
     public enum PassengerStatus
     {
         Reserved,
-        Confirm,
+        Confirmed,
         Paid,
-        Cancel
+        Cancelled
     }
 
     public class TourPassengerViewModel
@@ -101,7 +99,7 @@ namespace TM.Models.ViewModels
         {
             if (value == null) return false;
 
-            return Enum.TryParse(typeof(PassengerGender), value.ToString(), ignoreCase: true, out _);
+            return System.Enum.TryParse(typeof(PassengerGender), value.ToString(), ignoreCase: true, out _);
         }
     }
 
@@ -111,7 +109,7 @@ namespace TM.Models.ViewModels
         {
             if (value == null) return false;
 
-            return Enum.TryParse(typeof(PassengerStatus), value.ToString(), ignoreCase: true, out _);
+            return System.Enum.TryParse(typeof(PassengerStatus), value.ToString(), ignoreCase: true, out _);
         }
     }
 }

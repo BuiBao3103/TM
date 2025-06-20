@@ -6,7 +6,7 @@
         public int TotalTours { get; set; }
         public int TotalPassengers { get; set; }
         public decimal TotalRevenue { get; set; }
-        public bool IncludeRevenue { get; set; } 
+        public bool IncludeRevenue { get; set; }
 
         // Filtering properties
         public string? SelectedCountry { get; set; }
@@ -45,11 +45,12 @@
     public class TourCountByLocationDto
     {
         public string LocationName { get; set; }
+        public string CountryName { get; set; }
         public int TourCount { get; set; }
         public decimal Revenue { get; set; } // Thêm doanh thu
         public int PassengerCount { get; set; } // Thêm số hành khách
     }
 
-   
+
 
 }

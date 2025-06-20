@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TM.Models;
 using TM.Models.Entities;
 using TM.Models.ViewModels;
@@ -46,7 +45,7 @@ namespace TM.Controllers
 
                 _appDbContext.Add(surcharge);
                 await _appDbContext.SaveChangesAsync();
-                return Redirect("/Tour/Edit/" + viewModel.TourId+"#surcharge-list");
+                return Redirect("/Tour/Edit/" + viewModel.TourId + "#surcharge-list");
             }
 
             // Nếu model không hợp lệ, lấy lại tên tour để hiển thị
@@ -75,7 +74,8 @@ namespace TM.Controllers
                 var suchargeViewModel = new TourSurchargeUpdateViewModel { Id = id, Name = oldSucharge.Name, Amount = oldSucharge.Amount };
 
                 return View("UpdateSurcharge", suchargeViewModel);
-            } catch (Exception)
+            }
+            catch (Exception)
             {
                 ViewBag.ErrorMessage = "Đã xảy ra lỗi.";
                 return View("UpdateSurcharge");
@@ -106,7 +106,8 @@ namespace TM.Controllers
 
                 TempData["SuccessMessage"] = "Cập nhật thành công.";
                 return Redirect("/Tour/Edit/" + oldSuchange.TourId);
-            } catch (Exception)
+            }
+            catch (Exception)
             {
                 ViewBag.ErrorMessage = "Đã xảy ra lỗi.";
                 return View("UpdateSurcharge", tourSurchangeUpdate);
@@ -132,7 +133,8 @@ namespace TM.Controllers
 
                 TempData["SuccessMessage"] = "Xóa thành công.";
                 return Redirect($"/Tour/Edit/{oldSuchange.TourId}");
-            } catch (Exception)
+            }
+            catch (Exception)
             {
                 TempData["ErrorMessage"] = "Đã xảy ra lỗi khi thao tác với dữ liệu!";
                 return Redirect($"/Tour/Edit/{tourId}");

@@ -7,7 +7,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm border-0">
-                <div class="p-3 rounded-top bg-primary text-white">
+                <div class="card p-3 shadow-sm text-white">
                     <h3 class="card-title mb-0">
                         <i class="fas fa-chart-bar me-2"></i>
                         Thống kê và Báo cáo
@@ -16,12 +16,8 @@
                 <div class="card-body p-4">
                     <!-- Bộ lọc -->
                     <div class="bg-light rounded p-4 mb-4 border">
-                        <h5 class="text-secondary mb-3">
-                            <i class="fas fa-filter me-2"></i>
-                            Bộ lọc dữ liệu
-                        </h5>
                         <form method="get" id="filterForm" class="row g-3">
-                            <div class="col-lg-3 col-md-6">
+                            <div class="col-lg-2 col-md-6">
                                 <label for="selectedCountry" class="form-label fw-semibold">
                                     <i class="fas fa-globe me-1"></i>Quốc gia
                                 </label>
@@ -35,7 +31,7 @@
                                 </select>
                             </div>
 
-                            <div class="col-lg-3 col-md-6">
+                            <div class="col-lg-2 col-md-6">
                                 <label for="selectedLocation" class="form-label fw-semibold">
                                     <i class="fas fa-map-marker-alt me-1"></i>Địa điểm
                                 </label>
@@ -49,7 +45,7 @@
                                 </select>
                             </div>
 
-                            <div class="col-lg-3 col-md-6">
+                            <div class="col-lg-2 col-md-6">
                                 <label for="fromDate" class="form-label fw-semibold">
                                     <i class="fas fa-calendar-alt me-1"></i>Từ ngày
                                 </label>
@@ -57,7 +53,7 @@
                                        value="@ViewBag.FromDate" />
                             </div>
 
-                            <div class="col-lg-3 col-md-6">
+                            <div class="col-lg-2 col-md-6">
                                 <label for="toDate" class="form-label fw-semibold">
                                     <i class="fas fa-calendar-alt me-1"></i>Đến ngày
                                 </label>
@@ -65,15 +61,16 @@
                                        value="@ViewBag.ToDate" />
                             </div>
 
-                            <div class="col-12">
-                                <div class="d-flex flex-wrap gap-2 mt-3">
-                                    <button type="submit" class="btn btn-primary px-4">
+                            <div class="col-lg-2 col-md-6 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary px-4 w-100">
                                         <i class="fas fa-search me-2"></i>Tìm kiếm
                                     </button>
-                                    <button type="button" class="btn btn-outline-secondary px-4" onclick="clearFilters()">
+                            </div>
+
+                            <div class="col-lg-2 col-md-6 d-flex align-items-end">
+                                    <button type="button" class="btn btn-outline-secondary w-100" onclick="clearFilters()">
                                         <i class="fas fa-eraser me-2"></i>Xóa bộ lọc
                                     </button>
-                                </div>
                             </div>
                         </form>
                     </div>
@@ -152,7 +149,7 @@
                     <!-- Thống kê theo quốc gia và địa điểm -->
                     <div class="row g-4">
                         <!-- Tours theo quốc gia -->
-                        <div class="col-lg-6">
+                        <div class="col-lg-5">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-header bg-white border-bottom">
                                     <h5 class="card-title mb-0 text-white">
@@ -165,6 +162,7 @@
                                         <table class="table table-hover mb-0">
                                             <thead class="table-light">
                                                 <tr>
+                                                    <th class="px-4 py-3 fw-semibold text-center">STT</th>
                                                     <th class="px-4 py-3 fw-semibold">Quốc gia</th>
                                                     <th class="px-4 py-3 fw-semibold text-center">Số Tour</th>
                                                     <th class="px-4 py-3 fw-semibold text-center">Số khách</th>
@@ -174,20 +172,21 @@
                                             <tbody>
                                                 @if (Model?.ToursByCountry != null)
                                                 {
-                                                    @foreach (var item in Model.ToursByCountry.OrderByDescending(x => x.TourCount))
+                                                    @foreach (var item in Model.ToursByCountry.OrderByDescending(x => x.TourCount).Select((value, index) => new { value, index }))
                                                     {
                                                         <tr>
+                                                            <td class="px-4 py-3 text-center">@(@item.index + 1)</td>
                                                             <td class="px-4 py-3">
-                                                                <span class="fw-semibold text-dark">@item.CountryName</span>
+                                                                <span class="fw-semibold text-dark">@item.value.CountryName</span>
                                                             </td>
                                                             <td class="px-4 py-3 text-center">
-                                                                <span class="badge bg-primary rounded-pill">@item.TourCount</span>
+                                                                <span class="badge bg-primary rounded-pill">@item.value.TourCount</span>
                                                             </td>
                                                             <td class="px-4 py-3 text-center">
-                                                                <span class="badge bg-info rounded-pill">@item.PassengerCount</span>
+                                                                <span class="badge bg-info rounded-pill">@item.value.PassengerCount</span>
                                                             </td>
                                                             <td class="px-4 py-3 text-end">
-                                                                <span class="fw-bold text-success">@item.Revenue.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                                                                <span class="fw-bold text-success">@item.value.Revenue.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
                                                             </td>
                                                         </tr>
                                                     }
@@ -209,7 +208,7 @@
                         </div>
 
                         <!-- Tours theo địa điểm -->
-                        <div class="col-lg-6">
+                        <div class="col-lg-7">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-header bg-white border-bottom">
                                     <h5 class="card-title mb-0 text-white">
@@ -222,7 +221,9 @@
                                         <table class="table table-hover mb-0">
                                             <thead class="table-light">
                                                 <tr>
+                                                    <th class="px-4 py-3 fw-semibold text-center">STT</th>
                                                     <th class="px-4 py-3 fw-semibold">Địa điểm</th>
+                                                    <th class="px-4 py-3 fw-semibold">Quốc gia</th>
                                                     <th class="px-4 py-3 fw-semibold text-center">Số Tour</th>
                                                     <th class="px-4 py-3 fw-semibold text-center">Số khách</th>
                                                     <th class="px-4 py-3 fw-semibold text-end">Doanh thu</th>
@@ -231,23 +232,28 @@
                                             <tbody>
                                                 @if (Model?.ToursByLocation != null)
                                                 {
-                                                    @foreach (var item in Model.ToursByLocation.OrderByDescending(x => x.TourCount))
+                                                    @foreach (var item in Model.ToursByLocation.OrderByDescending(x => x.TourCount).Select((value, index) => new { value, index }))
                                                     {
                                                         <tr>
+                                                            <td class="px-4 py-3 text-center">@(@item.index + 1)</td>
                                                             <td class="px-4 py-3">
-                                                                <span class="fw-semibold text-dark">@item.LocationName</span>
+                                                                <span class="fw-semibold text-dark">@item.value.LocationName</span>
+                                                            </td>
+                                                            <td class="px-4 py-3">
+                                                                <span class="fw-semibold text-dark">@item.value.CountryName</span>
                                                             </td>
                                                             <td class="px-4 py-3 text-center">
-                                                                <span class="badge bg-primary rounded-pill">@item.TourCount</span>
+                                                                <span class="badge bg-primary rounded-pill">@item.value.TourCount</span>
                                                             </td>
                                                             <td class="px-4 py-3 text-center">
-                                                                <span class="badge bg-info text-white rounded-pill">@item.PassengerCount</span>
+                                                                <span class="badge bg-info text-white rounded-pill">@item.value.PassengerCount</span>
                                                             </td>
                                                             <td class="px-4 py-3 text-end">
-                                                                <span class="fw-bold text-success">@item.Revenue.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                                                                <span class="fw-bold text-success">@item.value.Revenue.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
                                                             </td>
                                                         </tr>
                                                     }
+
                                                 }
                                                 else
                                                 {
@@ -312,74 +318,74 @@
         @if (Model.RevenueByDate.Any())
         {
             <text>
-                            var ctx = document.getElementById('revenueChart').getContext('2d');
-                            var revenueChart = new Chart(ctx, {
-                                type: 'line',
-                                data: {
-                                    labels: [@Html.Raw(string.Join(",", Model.RevenueByDate.Select(r => "'" + r.Date.ToString("dd/MM") + "'")))],
-                                    datasets: [{
-                                        label: 'Doanh thu (VNĐ)',
-                                        data: [@string.Join(",", Model.RevenueByDate.Select(r => r.Revenue))],
-                                        borderColor: '#6366f1',
-                                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                                        borderWidth: 3,
-                                        fill: true,
-                                        tension: 0.4,
-                                        pointBackgroundColor: '#6366f1',
-                                        pointBorderColor: '#ffffff',
-                                        pointBorderWidth: 2,
-                                        pointRadius: 5,
-                                        pointHoverRadius: 8
-                                    }]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    plugins: {
-                                        legend: {
-                                            display: true,
-                                            position: 'top',
-                                            labels: {
-                                                usePointStyle: true,
-                                                padding: 20
-                                            }
-                                        }
+                                var ctx = document.getElementById('revenueChart').getContext('2d');
+                                var revenueChart = new Chart(ctx, {
+                                    type: 'line',
+                                    data: {
+                                        labels: [@Html.Raw(string.Join(",", Model.RevenueByDate.Select(r => "'" + r.Date.ToString("dd/MM") + "'")))],
+                                        datasets: [{
+                                            label: 'Doanh thu (VNĐ)',
+                                            data: [@string.Join(",", Model.RevenueByDate.Select(r => r.Revenue))],
+                                            borderColor: '#6366f1',
+                                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                                            borderWidth: 3,
+                                            fill: true,
+                                            tension: 0.4,
+                                            pointBackgroundColor: '#6366f1',
+                                            pointBorderColor: '#ffffff',
+                                            pointBorderWidth: 2,
+                                            pointRadius: 5,
+                                            pointHoverRadius: 8
+                                        }]
                                     },
-                                    scales: {
-                                        x: {
-                                            grid: {
-                                                display: false
-                                            },
-                                            ticks: {
-                                                font: {
-                                                    weight: 'bold'
+                                    options: {
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        plugins: {
+                                            legend: {
+                                                display: true,
+                                                position: 'top',
+                                                labels: {
+                                                    usePointStyle: true,
+                                                    padding: 20
                                                 }
                                             }
                                         },
-                                        y: {
-                                            beginAtZero: true,
-                                            grid: {
-                                                color: 'rgba(0,0,0,0.1)'
-                                            },
-                                            ticks: {
-                                                callback: function(value) {
-                                                    return new Intl.NumberFormat('vi-VN', {
-                                                        style: 'currency',
-                                                        currency: 'VND'
-                                                    }).format(value);
+                                        scales: {
+                                            x: {
+                                                grid: {
+                                                    display: false
                                                 },
-                                                font: {
-                                                    weight: 'bold'
+                                                ticks: {
+                                                    font: {
+                                                        weight: 'bold'
+                                                    }
+                                                }
+                                            },
+                                            y: {
+                                                beginAtZero: true,
+                                                grid: {
+                                                    color: 'rgba(0,0,0,0.1)'
+                                                },
+                                                ticks: {
+                                                    callback: function(value) {
+                                                        return new Intl.NumberFormat('vi-VN', {
+                                                            style: 'currency',
+                                                            currency: 'VND'
+                                                        }).format(value);
+                                                    },
+                                                    font: {
+                                                        weight: 'bold'
+                                                    }
                                                 }
                                             }
+                                        },
+                                        interaction: {
+                                            intersect: false,
+                                            mode: 'index'
                                         }
-                                    },
-                                    interaction: {
-                                        intersect: false,
-                                        mode: 'index'
                                     }
-                                }
-                            });
+                                });
             </text>
         }
 

@@ -13,8 +13,10 @@ public class TourPassengerProfile : Profile
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.ModifiedAt, opt => opt.Ignore())
             .ForMember(dest => dest.DeleteAt, opt => opt.Ignore());
-               //     .ForMember(dest => dest.TourId, opt => opt.MapFrom(src =>
-               //src.TourId));
+        //     .ForMember(dest => dest.TourId, opt => opt.MapFrom(src =>
+        //src.TourId));
 
+        CreateMap<TM.Models.ViewModels.PassengerEditViewModel, Passenger>();
+        CreateMap<Passenger, TM.Models.ViewModels.PassengerEditViewModel>();
     }
 }

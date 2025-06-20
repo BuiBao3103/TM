@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using TM.Models;
 using TM.Models.Entities;
 using TM.Models.ViewModels;
+using Hangfire;
+using TM.Enum;
 
 namespace TM.Controllers
 {
@@ -151,6 +153,20 @@ namespace TM.Controllers
 
                 _context.Tours.Add(tour);
                 await _context.SaveChangesAsync();
+
+                if (tour.FullPayDeadline.HasValue)
+                {
+                    var delay = tour.FullPayDeadline.Value - DateTime.Now;
+
+                    if (delay > TimeSpan.Zero)
+                    {
+                        _backgroundJobClient.Schedule<TM.Services.PassengerStatusChecker>(
+                            checker => checker.CheckHoldTime(tour.Id),
+                            delay
+                        );
+                    }
+                }
+
 
                 return RedirectToAction(nameof(Index));
             }
@@ -341,14 +357,19 @@ namespace TM.Controllers
 
                 await _context.SaveChangesAsync();
 
-                // Nếu trạng thái là Reserved thì đặt lịch kiểm tra sau 2 tiếng
-                if (passenger.Status == "Reserved")
+                // Fix for CS1503: Argument 1: cannot convert from 'int?' to 'int'
+                // The issue occurs because `tourUpdate.HoldTime` is of type `int?` (nullable int), but `TimeSpan.FromHours` expects a non-nullable `int`.
+                // To fix this, we need to ensure that `tourUpdate.HoldTime` is not null before passing it to `TimeSpan.FromHours`.
+
+                if (passenger.Status == TM.Enum.PassengerStatus.Reserved.ToString() && tourUpdate.IsAutoHoldTime == true && tourUpdate.HoldTime.HasValue)
                 {
                     _backgroundJobClient.Schedule<TM.Services.PassengerStatusChecker>(
-                        checker => checker.CheckAndCancelPassenger(passenger.Id, viewModel.TourId),
-                        TimeSpan.FromSeconds(5)
+                        checker => checker.CheckHoldTime(passenger.Id),
+                        TimeSpan.FromHours(tourUpdate.HoldTime.Value)
+                        //TimeSpan.FromSeconds(3)
                     );
                 }
+
                 return Redirect("/Tour/Edit/" + viewModel.TourId);
             }
 
@@ -417,56 +438,43 @@ namespace TM.Controllers
             {
                 return NotFound();
             }
-            var viewModel = new PassengerViewModel
-            {
-                Id = passenger.Id,
-                FullName = passenger.FullName,
-                Code = passenger.Code,
-                DateOfBirth = passenger.DateOfBirth,
-                Gender = passenger.Gender,
-                IdentityNumber = passenger.IdentityNumber ?? "",
-                Phone = passenger.Phone,
-                Email = passenger.Email,
-                Address = passenger.Address,
-                TourId = passenger.TourId,
-                AssignedPrice = passenger.AssignedPrice,
-                CustomerPaid = passenger.AssignedPrice,
-                Status = passenger.Status,
-            };
+            var viewModel = _mapper.Map<TM.Models.ViewModels.PassengerEditViewModel>(passenger);
             ViewData["Title"] = "Sửa thông tin khách hàng";
-
-            return View(viewModel); 
+            return View(viewModel);
         }
+
         [HttpPost]
-        public IActionResult UpdatePassenger(PassengerViewModel model)
+        [ValidateAntiForgeryToken]
+        public IActionResult EditPassenger(TM.Models.ViewModels.PassengerEditViewModel model)
         {
             if (!ModelState.IsValid)
-            {  
-                return View("EditPassenger", model); 
+            {
+                return View(model);
             }
-            if (!Regex.IsMatch(model.Phone ?? "", @"^\d+$"))
+            if (!string.IsNullOrEmpty(model.Phone) && !Regex.IsMatch(model.Phone, @"^\d+$"))
             {
                 ModelState.AddModelError("Phone", "Số điện thoại chỉ được chứa chữ số.");
                 return View(model);
             }
-
-            if (!Regex.IsMatch(model.IdentityNumber ?? "", @"^\d+$"))
+            if (!string.IsNullOrEmpty(model.IdentityNumber) && !Regex.IsMatch(model.IdentityNumber, @"^\d+$"))
             {
                 ModelState.AddModelError("IdentityNumber", "Số CCCD chỉ được chứa chữ số.");
                 return View(model);
             }
-
-            bool emailExists = _context.Passengers.Any(p => p.Email == model.Email);
-            if (emailExists)
+            // Kiểm tra trùng email/phone/identity trong cùng tour (trừ chính mình)
+            if (!string.IsNullOrEmpty(model.Email) && _context.Passengers.Any(p => p.Email == model.Email && p.Id != model.Id && p.TourId == model.TourId))
             {
-                ModelState.AddModelError("Email", "Email này đã tồn tại.");
+                ModelState.AddModelError("Email", "Email này đã tồn tại trong tour.");
                 return View(model);
             }
-
-            bool phoneExists = _context.Passengers.Any(p => p.Phone == model.Phone);
-            if (phoneExists)
+            if (!string.IsNullOrEmpty(model.Phone) && _context.Passengers.Any(p => p.Phone == model.Phone && p.Id != model.Id && p.TourId == model.TourId))
             {
-                ModelState.AddModelError("Phone", "Số điện thoại này đã tồn tại.");
+                ModelState.AddModelError("Phone", "Số điện thoại này đã tồn tại trong tour.");
+                return View(model);
+            }
+            if (!string.IsNullOrEmpty(model.IdentityNumber) && _context.Passengers.Any(p => p.IdentityNumber == model.IdentityNumber && p.Id != model.Id && p.TourId == model.TourId))
+            {
+                ModelState.AddModelError("IdentityNumber", "Số CCCD này đã tồn tại trong tour.");
                 return View(model);
             }
             var passenger = _context.Passengers.Find(model.Id);
@@ -474,20 +482,9 @@ namespace TM.Controllers
             {
                 return NotFound();
             }
-            passenger.FullName = model.FullName;
-            passenger.Code = model.Code;
-            passenger.DateOfBirth = model.DateOfBirth;
-            passenger.Gender = model.Gender;
-            passenger.IdentityNumber = model.IdentityNumber;
-            passenger.Phone = model.Phone;
-            passenger.Email = model.Email;
-            passenger.Address = model.Address;
-            passenger.TourId = model.TourId;
-            passenger.AssignedPrice = model.AssignedPrice;
-            passenger.CustomerPaid = model.CustomerPaid;
-            passenger.Status = model.Status;
-
+            _mapper.Map(model, passenger);
             _context.SaveChanges();
+            TempData["SuccessMessage"] = "Cập nhật hành khách thành công!";
             return RedirectToAction("Edit", new { id = model.TourId });
         }
 

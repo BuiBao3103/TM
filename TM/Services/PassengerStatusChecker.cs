@@ -1,6 +1,5 @@
-﻿using TM.Models;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
+﻿using TM.Enum;
+using TM.Models;
 
 namespace TM.Services
 {
@@ -12,16 +11,32 @@ namespace TM.Services
             _context = context;
         }
 
-        public void CheckAndCancelPassenger(int passengerId, int TourId)
+        public void CheckHoldTime(int passengerId)
         {
-            var passenger = _context.Passengers.FirstOrDefault(p => p.Id == passengerId);
-            if (passenger != null && passenger.Status == "Reserved")
+            var passenger = _context.Passengers.Find(passengerId);
+            if (passenger != null && passenger.Status == PassengerStatus.Reserved.ToString())
             {
-                passenger.Status = "Cancelation";
-                //var tour = _context.Tours.Find(TourId);
-                //if (tour != null) {
+                passenger.Status = PassengerStatus.Cancelled.ToString();
                 _context.SaveChanges();
             }
         }
+
+        public void CheckFullpayDeadline(int tourId)
+        {
+            var passengers = _context.Passengers
+                .Where(p => p.TourId == tourId && p.Status == PassengerStatus.Confirmed.ToString())
+                .ToList();
+
+            foreach (var passenger in passengers)
+            {
+                passenger.Status = PassengerStatus.Cancelled.ToString();
+            }
+
+            if (passengers.Count != 0)
+            {
+                _context.SaveChanges();
+            }
+        }
+
     }
 }
