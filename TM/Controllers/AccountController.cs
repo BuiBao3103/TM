@@ -39,10 +39,49 @@ namespace TM.Controllers
             return RedirectToAction("Index", "Tour");
         }
 
+        [HttpPost]
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
-            return RedirectToAction("Login");
+            return RedirectToAction("Login", "Account");
         }
+
+
+
+        // user profile
+        public IActionResult Profile()
+        {
+            var username = HttpContext.Session.GetString("Username");
+            if (string.IsNullOrEmpty(username))
+                return RedirectToAction("Login");
+
+            var user = _context.Accounts.FirstOrDefault(a => a.Username == username);
+            if (user == null)
+                return RedirectToAction("Login");
+
+            return View(user);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ChangePassword(string OldPassword, string NewPassword)
+        {
+            var username = HttpContext.Session.GetString("Username");
+            if (string.IsNullOrEmpty(username)) return RedirectToAction("Login", "Account");
+
+            var account = _context.Accounts.FirstOrDefault(a => a.Username == username);
+            if (account == null || account.Password != OldPassword)
+            {
+                TempData["ChangePassStatus"] = "error";
+                return RedirectToAction("Profile");
+            }
+
+            account.Password = NewPassword;
+            _context.SaveChanges();
+
+            TempData["ChangePassStatus"] = "success";
+            return RedirectToAction("Profile");
+        }
+
     }
 }
