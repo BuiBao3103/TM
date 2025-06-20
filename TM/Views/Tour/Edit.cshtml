@@ -1,4 +1,4 @@
-@model TM.Models.Entities.Tour
+@model TM.Models.ViewModels.TourEditViewModel
 @using TM.Models.ViewModels
 
 @{
@@ -276,6 +276,27 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+
+                                <!-- Thông tin trạng thái -->
+                                <div class="mb-4">
+                                    <h6 class="text-primary border-bottom pb-2 mb-3 fw-bold">
+                                        <i class="fas fa-info-circle me-2"></i>Thông tin trạng thái
+                                    </h6>
+
+                                    <div class="mb-3">
+                                        <label asp-for="Status" class="form-label fw-semibold">
+                                            <i class="fas fa-info-circle me-1"></i>Trạng thái
+                                        </label>
+                                        <select asp-for="Status" class="form-select">
+                                            <option value="Available">Hoạt động</option>
+                                            <option value="Ready">Sẵn sàng</option>
+                                            <option value="Cancelled">Đã hủy</option>
+                                            <option value="Completed">Hoàn tất</option>
+
+                                        </select>
+                                        <span asp-validation-for="Status" class="text-danger small"></span>
                                     </div>
                                 </div>
                             </div>

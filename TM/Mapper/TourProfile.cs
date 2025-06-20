@@ -10,6 +10,8 @@ namespace TM.Mapper
         {
             CreateMap<TourInfoViewModel, Tour>();
             CreateMap<Tour, TourInfoViewModel>();
+            CreateMap<TM.Models.ViewModels.TourEditViewModel, Tour>();
+            CreateMap<Tour, TM.Models.ViewModels.TourEditViewModel>();
         }
     }
 }
