@@ -44,20 +44,25 @@ namespace TM.Controllers
 
             // Tính toán thống kê
             var totalTours = filteredTours.Count();
-            var totalPassengers = filteredTours.SelectMany(t => t.Passengers).Count();
+            var totalPassengers = filteredTours.SelectMany(t => t.Passengers)
+                                               .Where(t => t.Status == "Confirmed")
+                                               .Count();
 
-            var totalRevenue = includeRevenue ?
-                filteredTours.SelectMany(t => t.Passengers).Sum(p => p.CustomerPaid ?? 0) : 0;
+
+            var totalRevenue = includeRevenue ? filteredTours                                              
+                                                    .SelectMany(t => t.Passengers)
+                                                    .Where(t => t.Status == "Confirmed")
+                                                    .Sum(p => p.AssignedPrice ?? 0)
+                                                : 0;
 
             // Doanh thu theo ngày (chỉ khi includeRevenue = true)
             var revenueByDate = includeRevenue ?
                 filteredTours
-                    .Where(t => t.CreatedAt != null)
                     .GroupBy(t => t.CreatedAt.Value.Date)
                     .Select(g => new TourRevenueByDateDto
                     {
                         Date = g.Key,
-                        Revenue = g.SelectMany(t => t.Passengers).Sum(p => p.CustomerPaid ?? 0)
+                        Revenue = g.SelectMany(t => t.Passengers).Where(t => t.Status == "Confirmed").Sum(p => p.CustomerPaid ?? 0)
                     })
                     .OrderBy(g => g.Date)
                     .ToList() : new List<TourRevenueByDateDto>();
@@ -70,8 +75,8 @@ namespace TM.Controllers
                 {
                     CountryName = g.Key,
                     TourCount = g.Count(),
-                    PassengerCount = g.SelectMany(t => t.Passengers).Count(),
-                    Revenue = includeRevenue ? g.SelectMany(t => t.Passengers).Sum(p => p.CustomerPaid ?? 0) : 0
+                    PassengerCount = g.SelectMany(t => t.Passengers).Where(t => t.Status == "Confirmed").Count(),
+                    Revenue = includeRevenue ? g.SelectMany(t => t.Passengers).Where(t => t.Status == "Confirmed").Sum(p => p.CustomerPaid ?? 0) : 0
                 }).ToList();
 
             // Thống kê tour theo địa điểm
@@ -82,8 +87,8 @@ namespace TM.Controllers
                 {
                     LocationName = g.Key,
                     TourCount = g.Count(),
-                    PassengerCount = g.SelectMany(t => t.Passengers).Count(),
-                    Revenue = includeRevenue ? g.SelectMany(t => t.Passengers).Sum(p => p.CustomerPaid ?? 0) : 0
+                    PassengerCount = g.SelectMany(t => t.Passengers).Where(t => t.Status == "Confirmed").Count(),
+                    Revenue = includeRevenue ? g.SelectMany(t => t.Passengers).Where(t => t.Status == "Confirmed").Sum(p => p.CustomerPaid ?? 0) : 0
                 }).ToList();
 
             var model = new StatisticViewModel
