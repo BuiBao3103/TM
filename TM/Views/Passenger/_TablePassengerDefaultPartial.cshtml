@@ -1,0 +1,98 @@
+﻿@using TM.Models.ViewModels
+@model List<PassengerViewModel>
+
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Họ tên</th>
+                <th>Số điện thoại</th>
+                <th>Giá đề xuất</th>
+                <th>Đã trả</th>
+                <th>Phải trả</th>
+                <th>Passport</th>
+                <th>Vé máy bay</th>
+                <th>Trạng thái</th>
+                <th class="text-center">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.FullName</td>
+                    <td>@item.Phone</td>
+                    <td>
+                        <span class="">@string.Format("{0:N0}₫", item.AssignedPrice)</span>
+                    </td>
+                    <td>
+                        <span class="">@string.Format("{0:N0}₫", item.CustomerPaid)</span>
+                    </td>
+                    <td>
+                        <span class="">@string.Format("{0:N0}₫", item.AssignedPrice - item.CustomerPaid)</span>
+                    </td>
+                    <td>
+                        @if (item.PassportNum != null)
+                        {
+                            <span class="badge bg-success">Đã có</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Chưa có</span>
+                        }
+                    </td>
+                    <td>
+                        @if (item.DepartureFlightInfo != null)
+                        {
+                            <span class="badge bg-success">Đã có</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Chưa có</span>
+                        }
+                    </td>
+                    <td>
+                        @switch (item.Status)
+                        {
+                            case "Paid":
+                                <span class="badge bg-success">Thanh toán đầy đủ</span>
+                                break;
+                            case "Reserved":
+                                <span class="badge bg-warning">Đang giữ chỗ</span>
+                                break;
+                            case "Cancelled":
+                                <span class="badge bg-danger">Đã hủy</span>
+                                break;
+                            case "Confirmed":
+                                <span class="badge bg-primary">Đã cọc</span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary">Không xác định</span>
+                                break;
+                        }
+                    </td>
+                    <td class="text-center">
+                        <div>
+                            <a asp-action="EditPassenger" asp-route-id="@item.Id"
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-edit me-1"></i>Sửa
+                            </a>
+                            <form asp-action="DeletePassenger" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="button" class="btn btn-outline-danger btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#confirmDeleteModal"
+                                        data-id="@item.Id"
+                                        data-name="@item.FullName">
+                                    <i class="fas fa-trash me-1"></i>Xóa
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
