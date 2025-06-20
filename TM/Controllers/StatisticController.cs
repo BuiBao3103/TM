@@ -48,17 +48,16 @@ namespace TM.Controllers
                                                .Where(t => t.Status == "Confirmed")
                                                .Count();
 
-
             var totalRevenue = includeRevenue ? filteredTours
                                                     .SelectMany(t => t.Passengers)
                                                     .Where(t => t.Status == "Confirmed")
                                                     .Sum(p => p.CustomerPaid ?? 0)
                                                 : 0;
 
-            // Doanh thu theo ngày (chỉ khi includeRevenue = true)
+            // Doanh thu theo ngày kết thúc tour (chỉ khi includeRevenue = true)
             var revenueByDate = includeRevenue ?
                 filteredTours
-                    .GroupBy(t => t.CreatedAt.Value.Date)
+                    .GroupBy(t => t.EndDate.Date)
                     .Select(g => new TourRevenueByDateDto
                     {
                         Date = g.Key,
@@ -81,18 +80,17 @@ namespace TM.Controllers
                 .OrderByDescending(x => x.Revenue)
                 .ToList();
 
-
             var toursByLocation = filteredTours.Where(t => t.Location != null && t.Location.Country != null)
                                                 .GroupBy(t => new { t.Location.LocationName, t.Location.Country.Name })
                                                 .Select(g => new TourCountByLocationDto
                                                 {
-                                                     LocationName = g.Key.LocationName,
-                                                     CountryName = g.Key.Name,
+                                                    LocationName = g.Key.LocationName,
+                                                    CountryName = g.Key.Name,
                                                     TourCount = g.Count(),
                                                     PassengerCount = g.SelectMany(t => t.Passengers)
                                                                     .Where(p => p.Status == "Confirmed")
                                                                      .Count(),
-                                                     Revenue = includeRevenue
+                                                    Revenue = includeRevenue
                                                                         ? g.SelectMany(t => t.Passengers)
                                                                             .Where(p => p.Status == "Confirmed")
                                                                             .Sum(p => p.CustomerPaid ?? 0)
@@ -100,7 +98,6 @@ namespace TM.Controllers
                                                 })
                                                   .OrderByDescending(x => x.Revenue)
                                                    .ToList();
-
 
             var model = new StatisticViewModel
             {
@@ -134,17 +131,17 @@ namespace TM.Controllers
                     t.Location.LocationName == selectedLocation);
             }
 
-            // Lọc theo khoảng thời gian
+            // Lọc theo khoảng thời gian (sử dụng ngày kết thúc tour)
             if (fromDate.HasValue)
             {
-                query = query.Where(t => t.CreatedAt >= fromDate.Value);
+                query = query.Where(t => t.EndDate >= fromDate.Value);
             }
 
             if (toDate.HasValue)
             {
                 // Thêm 1 ngày để bao gồm cả ngày kết thúc
                 var endDate = toDate.Value.AddDays(1);
-                query = query.Where(t => t.CreatedAt < endDate);
+                query = query.Where(t => t.EndDate < endDate);
             }
 
             return query;
