@@ -235,14 +235,14 @@
                             }
                             <br />
 
-                            <strong>Chỗ trống:</strong>
+                            <strong>Số chỗ:</strong>
                             @if (item.AvailableSeats == 0)
                             {
                                 <span class="badge bg-danger">Hết chỗ</span>
                             }
                             else
                             {
-                                <span class="badge bg-success">@item.AvailableSeats chỗ</span>
+                                <span class="badge bg-success">@(item.TotalSeats-item.AvailableSeats) / @item.TotalSeats chỗ</span>
                             }
                             <br />
 
