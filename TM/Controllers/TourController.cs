@@ -185,6 +185,7 @@ namespace TM.Controllers
         }
 
 
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -202,7 +203,6 @@ namespace TM.Controllers
                 return NotFound();
             }
 
-            // Query locations với country info
             var locations = _context.Locations
                 .Include(l => l.Country)
                 .ToList()
@@ -216,59 +216,52 @@ namespace TM.Controllers
 
             ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText");
 
-            // Map surcharges và passengers sang ViewModel
+            var model = _mapper.Map<TM.Models.ViewModels.TourEditViewModel>(tour);
             ViewData["Surcharges"] = _mapper.Map<IEnumerable<TourSurchargeViewModel>>(tour.TourSurcharges);
             ViewData["Passengers"] = tour.Passengers;
 
-            return View(tour);
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Tour tour)
+        public async Task<IActionResult> Edit(int id, TM.Models.ViewModels.TourEditViewModel model)
         {
-            if (id != tour.Id)
+            if (id != model.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    tour.ModifiedAt = DateTime.Now;
-                    _context.Update(tour);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TourExists(tour.Id))
+                var locations = _context.Locations
+                    .Include(l => l.Country)
+                    .ToList()
+                    .Select(l => new
                     {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                        Id = l.Id,
+                        DisplayText = $"{l.LocationName} - {l.Country.Name}"
+                    })
+                    .OrderBy(l => l.DisplayText)
+                    .ToList();
+                ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText", model.LocationId);
+                return View(model);
             }
 
-            // Nếu model không hợp lệ, load lại locations cho dropdown
-            var locations = _context.Locations
-                .Include(l => l.Country)
-                .ToList()
-                .Select(l => new
-                {
-                    Id = l.Id,
-                    DisplayText = $"{l.LocationName} - {l.Country.Name}"
-                })
-                .OrderBy(l => l.DisplayText)
-                .ToList();
+            var tour = await _context.Tours.FindAsync(id);
+            if (tour == null)
+            {
+                return NotFound();
+            }
 
-            ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText");
+            _mapper.Map(model, tour);
+            tour.ModifiedAt = DateTime.Now;
+            _context.Update(tour);
+            await _context.SaveChangesAsync();
 
-            return View(tour);
+            TempData["SuccessMessage"] = "Sửa thành công";
+
+            return RedirectToAction("Edit");
         }
 
         private bool TourExists(int id)
