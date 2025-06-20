@@ -521,17 +521,56 @@ namespace TM.Controllers
         }
 
 
-        // Create country
+        // modify country
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CreateCountry(Country country)
+        public IActionResult SaveCountry(Country model)
         {
-            if (ModelState.IsValid)
+            if (model.Id > 0)
             {
-                _context.Countries.Add(country);
+                // tìm nếu tồn tại => update
+                var c = _context.Countries.Find(model.Id);
+                if (c != null)
+                {
+                    c.Name = model.Name;
+                    c.Code = model.Code;
+                }
+            }
+            else
+            {
+                // tìm nếu không tồn tại => create
+                _context.Countries.Add(model);
+            }
+
+            _context.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SaveLocation(Location model)
+        {
+            if (!ModelState.IsValid)
+                return RedirectToAction("Index");
+
+            if (model.Id > 0)
+            {
+                // tìm nếu tồn tại => update
+                var existing = _context.Locations.FirstOrDefault(l => l.Id == model.Id);
+                if (existing != null)
+                {
+                    existing.LocationName = model.LocationName;
+                    _context.SaveChanges();
+                }
+            }
+            else
+            {
+                // tìm nếu không tồn tại => create
+                _context.Locations.Add(model);
                 _context.SaveChanges();
             }
-            return RedirectToAction("Index", "Tour");
+
+            return RedirectToAction("Index");
         }
     }
 }

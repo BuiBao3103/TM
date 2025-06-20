@@ -15,42 +15,56 @@
         min-width: 120px;
         text-align: center;
     }
-    .expandable-container {
-        max-height: 160px;
-        overflow: hidden;
-        position: relative;
-        transition: max-height 0.3s ease-in-out;
+    .modal-header {
+        background-color: #0d6efd;
+        color: white;
     }
-    .expandable-container.expanded {
-        max-height: 1000px;
+    .modal-title {
+        font-weight: 600;
     }
-    .expand-toggle {
-        background: none;
-        border: none;
-        color: #0d6efd;
-        cursor: pointer;
-        padding: 0.25rem 0;
+    .modal-content {
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     }
-
-    .horizontal-scroll-wrapper {
-        overflow-x: auto;
-        overflow-y: hidden;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch;
+    .modal-body label {
+        font-weight: 500;
+    }
+    .modal-footer {
+        border-top: 1px solid #dee2e6;
     }
 
-    .scroll-content {
-        display: inline-block;
+    .modal-body .list-group {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-bottom: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+    }
+    .modal-body .list-group-item:nth-child(odd) {
+        background-color: #f8f9fa;
+    }
+    .modal-body .list-group-item:nth-child(even) {
+        background-color: #ffffff;
+    }
+    .modal-body .list-group-item + .list-group-item {
+        border-top: 1px solid #dee2e6;
     }
 
-    .scroll-content > * {
-        display: inline-block;
-        vertical-align: top;
-        margin-right: 0.5rem;
-        max-width: 120px;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        white-space: nowrap;
+    .country-item, .location-item {
+        padding: 0.5rem 1rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .country-item:nth-child(odd), .location-item:nth-child(odd) {
+        background-color: #f8f9fa;
+    }
+    .country-item:nth-child(even), .location-item:nth-child(even) {
+        background-color: #ffffff;
+    }
+    #countryList, #locationList {
+        max-height: 300px;
+        overflow-y: auto;
+        border-radius: 0.5rem;
+        border: 1px solid #dee2e6;
     }
 </style>
 
@@ -65,11 +79,13 @@
 
 <!-- ===== HORIZONTAL COUNTRY LIST ===== -->
 <h5 class="mt-3">Quốc gia</h5>
-<button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addCountryModal">
-    <i class="bi bi-plus-lg me-1"></i>Thêm quốc gia
-</button>
-<div id="countryContainer" class="horizontal-scroll-wrapper mb-3 border-bottom pb-2">
-    <div class="scroll-content">
+<div class="pb-2">
+    <button class="btn btn-warning btn-sm " data-bs-toggle="modal" data-bs-target="#manageCountryModal">
+        <i class="bi bi-gear me-1"></i> Quản lý quốc gia
+    </button>
+</div>
+
+<div id="countryContainer" class="d-flex flex-wrap gap-2 mb-3 pb-3 border-bottom pb-2">
         <!-- Search button -->
         <a class="btn btn-sm btn-outline-dark btn-fixed-width"
            data-bs-toggle="modal"
@@ -91,18 +107,17 @@
         @foreach (var country in Model.Countries)
         {
             var isActive = country.Id == Model.SelectedCountryId;
-            <a href="@Url.Action("Index", "Tour", new {
-                countryId = country.Id,
-                locationId = (int?)null,
-                name = Model.Name,
-                startDate = Model.StartDate?.ToString("yyyy-MM-dd"),
-                endDate = Model.EndDate?.ToString("yyyy-MM-dd")
-            })" class="btn btn-sm btn-fixed-width @(isActive ? "btn-primary" : "btn-outline-primary")">
-                @country.Name
-            </a>
+             <a href="@Url.Action("Index", "Tour", new {
+                    countryId = country.Id,
+                    locationId = (int?)null,
+                    name = Model.Name,
+                    startDate = Model.StartDate?.ToString("yyyy-MM-dd"),
+                    endDate = Model.EndDate?.ToString("yyyy-MM-dd")
+                })" class="btn btn-sm btn-fixed-width @(isActive ? "btn-primary" : "btn-outline-primary")">
+                    @country.Name
+                </a>
         }
     
-    </div>
 </div>
 
 
@@ -110,8 +125,11 @@
 @if (Model.Locations.Any())
 {
     <h5>Địa điểm</h5>
-    <div id="locationContainer" class="horizontal-scroll-wrapper mb-3 border-bottom pb-2">
-        <div class="scroll-content">
+    <button class="btn btn-outline-secondary btn-sm mb-3"
+        data-bs-toggle="modal" data-bs-target="#manageLocationModal">
+        <i class="bi bi-gear me-1"></i> Quản lý địa điểm
+    </button>
+    <div id="locationContainer" class="d-flex flex-wrap gap-2 mb-3 pb-3 border-bottom pb-2">
             <!-- Search button -->
             <a class="btn btn-sm btn-outline-dark btn-fixed-width"
                data-bs-toggle="modal"
@@ -133,6 +151,8 @@
             @foreach (var loc in Model.Locations)
             {
                 var isActive = loc.Id == Model.SelectedLocationId;
+                <div>
+                
                 <a href="@Url.Action("Index", "Tour", new {
                     countryId = Model.SelectedCountryId,
                     locationId = loc.Id,
@@ -142,8 +162,10 @@
                 })" class="btn btn-sm btn-fixed-width @(isActive ? "btn-secondary" : "btn-outline-secondary")">
                     @loc.LocationName
                 </a>
+
+                
+                </div>
             }
-        </div>
     </div>
 }
 
@@ -255,7 +277,7 @@ else
     <p><em>Không có tour nào phù hợp với bộ lọc hiện tại.</em></p>
 }
 
-<!-- Modal Country -->
+<!-- Modal tìm Country -->
 <div class="modal fade" id="countryModal" tabindex="-1" aria-labelledby="countryModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg">
     <div class="modal-content">
@@ -285,7 +307,7 @@ else
   </div>
 </div>
 
-<!-- Modal Location -->
+<!-- Modal tìm Location -->
 <div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
@@ -320,43 +342,139 @@ else
     </div>
 </div>
 
+<!-- Modal modify Location -->
+<div class="modal fade" id="manageLocationModal" tabindex="-1" aria-labelledby="manageLocationLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form asp-action="SaveLocation" method="post">
+        <div class="modal-header">
+          <h5 class="modal-title" id="manageLocationLabel">Quản lý địa điểm</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
 
-<!-- Modal add Country -->
-<div class="modal fade" id="addCountryModal" tabindex="-1" aria-labelledby="addCountryModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <form asp-action="CreateCountry" method="post" class="modal-content">
-      @Html.AntiForgeryToken()
-      <div class="modal-header">
-        <h5 class="modal-title">Thêm quốc gia</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label">Tên quốc gia</label>
-          <input type="text" name="Name" class="form-control" required />
+        <div class="modal-body">
+          <!-- Search -->
+          <div class="mb-3">
+            <input type="text" class="form-control" placeholder="Tìm địa điểm..." onkeyup="filterLocationList(this)">
+          </div>
+
+          <!-- Danh sách địa điểm -->
+          <div id="locationList" class="mb-4">
+            @foreach (var location in Model.Locations)
+            {
+                <div class="d-flex align-items-center justify-content-between mb-2 location-item">
+                    <span>@location.LocationName</span>
+                    <a class="btn btn-sm btn-link" onclick="populateLocationForm('@location.Id', '@location.LocationName')">
+                        <i class="bi bi-pencil-square me-1"></i>Sửa
+                    </a>
+                </div>
+            }
+          </div>
+
+          <!-- Form thêm / sửa -->
+          <h6 class="mb-2">Thêm / Cập nhật</h6>
+          <input type="hidden" name="Id" id="LocationId" />
+          <div class="mb-3">
+            <label class="form-label">Tên địa điểm</label>
+            <input type="text" class="form-control" name="LocationName" id="LocationName" required />
+          </div>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Mã quốc gia</label>
-          <input type="text" name="Code" class="form-control" required />
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Lưu</button>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary">Lưu</button>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
 </div>
 
+
+<!-- Modal modify Country -->
+<div class="modal fade" id="manageCountryModal" tabindex="-1" aria-labelledby="manageCountryLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form asp-action="SaveCountry" method="post">
+        <div class="modal-header">
+          <h5 class="modal-title" id="manageCountryLabel">Quản lý quốc gia</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Search -->
+          <div class="mb-3">
+            <input type="text" class="form-control" placeholder="Tìm quốc gia..." onkeyup="filterCountryList(this)">
+          </div>
+
+          <!-- Danh sách quốc gia -->
+          <div id="countryList" class="mb-4">
+            @foreach (var country in Model.Countries)
+            {
+                <div class="d-flex align-items-center justify-content-between mb-2 country-item">
+                    <span>@country.Name (@country.Code)</span>
+                    <a class="btn btn-sm btn-link" onclick="populateCountryForm('@country.Id', '@country.Name', '@country.Code')">
+                        <i class="bi bi-pencil-square me-1"></i>Sửa
+                    </a>
+                </div>
+            }
+          </div>
+
+          <!-- Form thêm / sửa -->
+          <h6 class="mb-2">Thêm / Cập nhật</h6>
+          <input type="hidden" name="Id" id="CountryId" />
+          <div class="mb-3">
+            <label class="form-label">Tên quốc gia</label>
+            <input type="text" class="form-control" name="Name" id="CountryName" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Mã quốc gia</label>
+            <input type="text" class="form-control" name="Code" id="CountryCode" required />
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
 <!-- Function cho các modal chỉnh sửa quốc gia -->
 <script>
-    document.getElementById('searchCountryInput').addEventListener('input', function () {
-        const input = this.value.toLowerCase();
-        const items = document.querySelectorAll('#countryList .list-group-item');
-        items.forEach(item => {
-            const text = item.textContent.toLowerCase();
-            item.style.display = text.includes(input) ? 'block' : 'none';
+    function populateCountryForm(id, name, code) {
+        document.getElementById("CountryId").value = id;
+        document.getElementById("CountryName").value = name;
+        document.getElementById("CountryCode").value = code;
+    }
+
+    function filterCountryList(input) {
+        const filter = input.value.toLowerCase();
+        document.querySelectorAll('#countryList .country-item').forEach(item => {
+            item.style.display = item.innerText.toLowerCase().includes(filter) ? '' : 'none';
         });
-    });
+    }
+
+    function populateLocationForm(id, name) {
+        document.getElementById('LocationId').value = id;
+        document.getElementById('LocationName').value = name;
+    }
+
+    function filterLocationList(input) {
+        const query = input.value.toLowerCase();
+        document.querySelectorAll('#locationList .location-item').forEach(item => {
+            const text = item.innerText.toLowerCase();
+            item.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+
+    function filterLocationList(input) {
+        const query = input.value.toLowerCase();
+        document.querySelectorAll('#locationList .location-item').forEach(item => {
+            const text = item.innerText.toLowerCase();
+            item.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
 
     function filterLocationList(input) {
         var filter = input.value.toLowerCase();
