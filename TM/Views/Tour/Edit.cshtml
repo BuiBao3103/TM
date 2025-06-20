@@ -1,5 +1,6 @@
 @model TM.Models.ViewModels.TourEditViewModel
 @using TM.Models.ViewModels
+@using TM.Enum
 
 @{
     ViewData["Title"] = "Chỉnh sửa Tour";
@@ -429,9 +430,17 @@
                     }
 
                 </div>
+
                 <div class="card-body" id="passenger-list">
+
                     @if (passengers != null && passengers.Any())
                     {
+                        <div class="input-group mb-2">
+                            <div class="input-group-text">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </div>
+                            <input type="text" class="form-control" placeholder="Tên, CCCD hoặc SĐT">
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead class="table-light">
@@ -440,6 +449,7 @@
                                         <th>Số điện thoại</th>
                                         <th>Giá đề xuất</th>
                                         <th>Đã trả</th>
+                                        <th>Phải trả</th>
                                         <th>Passport</th>
                                         <th>Vé máy bay</th>
                                         <th>Trạng thái</th>
@@ -457,6 +467,9 @@
                                             </td>
                                             <td>
                                                 <span class="">@string.Format("{0:N0}₫", item.CustomerPaid)</span>
+                                            </td>
+                                            <td>
+                                                <span class="">@string.Format("{0:N0}₫", item.AssignedPrice - item.CustomerPaid)</span>
                                             </td>
                                             <td>
                                                 @if (item.PassportNum != null)

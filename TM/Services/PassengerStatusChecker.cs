@@ -1,7 +1,5 @@
-﻿using TM.Models;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using TM.Enum;
+﻿using TM.Enum;
+using TM.Models;
 
 namespace TM.Services
 {
@@ -15,7 +13,7 @@ namespace TM.Services
 
         public void CheckHoldTime(int passengerId)
         {
-            var passenger =  _context.Passengers.Find(passengerId);
+            var passenger = _context.Passengers.Find(passengerId);
             if (passenger != null && passenger.Status == PassengerStatus.Reserved.ToString())
             {
                 passenger.Status = PassengerStatus.Cancelled.ToString();

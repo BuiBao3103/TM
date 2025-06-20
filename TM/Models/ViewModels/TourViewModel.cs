@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TM.Models.Entities;
+﻿using TM.Models.Entities;
 
 namespace TM.Models.ViewModels
 {
