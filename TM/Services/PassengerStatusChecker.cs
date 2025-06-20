@@ -17,9 +17,7 @@ namespace TM.Services
             var passenger = _context.Passengers.FirstOrDefault(p => p.Id == passengerId);
             if (passenger != null && passenger.Status == "Reserved")
             {
-                passenger.Status = "Cancelation";
-                //var tour = _context.Tours.Find(TourId);
-                //if (tour != null) {
+                passenger.Status = "Cancelled";
                 _context.SaveChanges();
             }
         }

@@ -388,14 +388,19 @@ namespace TM.Controllers
 
                 await _context.SaveChangesAsync();
 
-                // Nếu trạng thái là Reserved thì đặt lịch kiểm tra sau 2 tiếng
-                if (passenger.Status == "Reserved")
+                // Fix for CS1503: Argument 1: cannot convert from 'int?' to 'int'
+                // The issue occurs because `tourUpdate.HoldTime` is of type `int?` (nullable int), but `TimeSpan.FromHours` expects a non-nullable `int`.
+                // To fix this, we need to ensure that `tourUpdate.HoldTime` is not null before passing it to `TimeSpan.FromHours`.
+
+                if (passenger.Status == "Reserved" && tourUpdate.IsAutoHoldTime == true && tourUpdate.HoldTime.HasValue)
                 {
                     _backgroundJobClient.Schedule<TM.Services.PassengerStatusChecker>(
                         checker => checker.CheckAndCancelPassenger(passenger.Id, viewModel.TourId),
+                        //TimeSpan.FromHours(tourUpdate.HoldTime.Value)
                         TimeSpan.FromSeconds(5)
                     );
                 }
+
                 return Redirect("/Tour/Edit/" + viewModel.TourId);
             }
 
