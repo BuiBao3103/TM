@@ -1,4 +1,4 @@
-@model TM.Models.Entities.Tour
+@model TM.Models.ViewModels.TourEditViewModel
 @using TM.Models.ViewModels
 
 @{
@@ -117,7 +117,7 @@
                                         <div class="col-md-4">
                                             <div class="mb-3">
                                                 <label asp-for="SuggestPrice" class="form-label fw-semibold">
-                                                    <i class="fas fa-tag me-1"></i>Giá đề xuất
+                                                    <i class="fa-solid fa-money-bill me-1"></i> Giá đề xuất
                                                 </label>
                                                 <div class="input-group">
                                                     <input asp-for="SuggestPrice" type="number" step="1000" class="form-control" />
@@ -129,7 +129,7 @@
                                         <div class="col-md-4">
                                             <div class="mb-3">
                                                 <label asp-for="DiscountPrice" class="form-label fw-semibold">
-                                                    <i class="fas fa-percent me-1"></i>Giá giảm
+                                                    <i class="fas fa-tag me-1"></i>Giá giảm
                                                 </label>
                                                 <div class="input-group">
                                                     <input asp-for="DiscountPrice" type="number" step="1000" class="form-control" />
@@ -206,7 +206,7 @@
                                                 </label>
                                                 <div class="input-group">
                                                     <input asp-for="HoldTime" type="number" class="form-control" min="0" />
-                                                    <span class="input-group-text">phút</span>
+                                                    <span class="input-group-text">Giờ</span>
                                                 </div>
                                                 <span asp-validation-for="HoldTime" class="text-danger small"></span>
                                             </div>
@@ -276,6 +276,27 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+
+                                <!-- Thông tin trạng thái -->
+                                <div class="mb-4">
+                                    <h6 class="text-primary border-bottom pb-2 mb-3 fw-bold">
+                                        <i class="fas fa-info-circle me-2"></i>Thông tin trạng thái
+                                    </h6>
+
+                                    <div class="mb-3">
+                                        <label asp-for="Status" class="form-label fw-semibold">
+                                            <i class="fas fa-info-circle me-1"></i>Trạng thái
+                                        </label>
+                                        <select asp-for="Status" class="form-select">
+                                            <option value="Available">Hoạt động</option>
+                                            <option value="Ready">Sẵn sàng</option>
+                                            <option value="Cancelled">Đã hủy</option>
+                                            <option value="Completed">Hoàn tất</option>
+
+                                        </select>
+                                        <span asp-validation-for="Status" class="text-danger small"></span>
                                     </div>
                                 </div>
                             </div>
@@ -365,7 +386,7 @@
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="id" value="@item.Id" />
                                                         <input type="hidden" name="tourId" value="@Model.Id" />
-                                                        <button type="submit" class="btn btn-outline-danger btn-sm" 
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm"
                                                                 onclick="return confirm('Bạn có chắc chắn muốn xóa phụ phí này?');">
                                                             <i class="fas fa-trash me-1"></i>Xóa
                                                         </button>
@@ -417,7 +438,10 @@
                                     <tr>
                                         <th>Họ tên</th>
                                         <th>Số điện thoại</th>
-                                        <th>Email</th>
+                                        <th>Giá đề xuất</th>
+                                        <th>Đã trả</th>
+                                        <th>Passport</th>
+                                        <th>Vé máy bay</th>
                                         <th>Trạng thái</th>
                                         <th class="text-center">Thao tác</th>
                                     </tr>
@@ -428,24 +452,55 @@
                                         <tr>
                                             <td>@item.FullName</td>
                                             <td>@item.Phone</td>
-                                            <td>@item.Email</td>
                                             <td>
-                                                @if (item.Status == "Paid")
+                                                <span class="">@string.Format("{0:N0}₫", item.AssignedPrice)</span>
+                                            </td>
+                                            <td>
+                                                <span class="">@string.Format("{0:N0}₫", item.CustomerPaid)</span>
+                                            </td>
+                                            <td>
+                                                @if (item.PassportNum != null)
                                                 {
-                                                    <span class="badge bg-success">Đã xác nhận</span>
-                                                }
-                                                else if (item.Status == "Reserved")
-                                                {
-                                                    <span class="badge bg-warning">Chờ xác nhận</span>
+                                                    <span class="badge bg-success">Đã có</span>
                                                 }
                                                 else
                                                 {
-                                                    <span class="badge bg-danger">Đã hủy</span>
+                                                    <span class="badge bg-danger">Chưa có</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (item.DepartureFlightInfo != null)
+                                                {
+                                                    <span class="badge bg-success">Đã có</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">Chưa có</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @switch (item.Status)
+                                                {
+                                                    case "Paid":
+                                                        <span class="badge bg-success">Thanh toán đầy đủ</span>
+                                                        break;
+                                                    case "Reserved":
+                                                        <span class="badge bg-warning">Đang giữ chỗ</span>
+                                                        break;
+                                                    case "Cancel":
+                                                        <span class="badge bg-danger">Đã hủy</span>
+                                                        break;
+                                                     case "Confirmed":
+                                                        <span class="badge bg-primary">Đã cọc</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-secondary">Không xác định</span>
+                                                        break;
                                                 }
                                             </td>
                                             <td class="text-center">
                                                 <div class="btn-group">
-                                                    <a asp-action="EditPassenger" asp-route-id="@item.Id" 
+                                                    <a asp-action="EditPassenger" asp-route-id="@item.Id"
                                                        class="btn btn-outline-primary btn-sm">
                                                         <i class="fas fa-edit me-1"></i>Sửa
                                                     </a>

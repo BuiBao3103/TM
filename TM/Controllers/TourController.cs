@@ -174,6 +174,7 @@ namespace TM.Controllers
         }
 
 
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -191,7 +192,6 @@ namespace TM.Controllers
                 return NotFound();
             }
 
-            // Query locations với country info
             var locations = _context.Locations
                 .Include(l => l.Country)
                 .ToList()
@@ -205,59 +205,52 @@ namespace TM.Controllers
 
             ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText");
 
-            // Map surcharges và passengers sang ViewModel
+            var model = _mapper.Map<TM.Models.ViewModels.TourEditViewModel>(tour);
             ViewData["Surcharges"] = _mapper.Map<IEnumerable<TourSurchargeViewModel>>(tour.TourSurcharges);
             ViewData["Passengers"] = tour.Passengers;
 
-            return View(tour);
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Tour tour)
+        public async Task<IActionResult> Edit(int id, TM.Models.ViewModels.TourEditViewModel model)
         {
-            if (id != tour.Id)
+            if (id != model.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    tour.ModifiedAt = DateTime.Now;
-                    _context.Update(tour);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TourExists(tour.Id))
+                var locations = _context.Locations
+                    .Include(l => l.Country)
+                    .ToList()
+                    .Select(l => new
                     {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                        Id = l.Id,
+                        DisplayText = $"{l.LocationName} - {l.Country.Name}"
+                    })
+                    .OrderBy(l => l.DisplayText)
+                    .ToList();
+                ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText", model.LocationId);
+                return View(model);
             }
 
-            // Nếu model không hợp lệ, load lại locations cho dropdown
-            var locations = _context.Locations
-                .Include(l => l.Country)
-                .ToList()
-                .Select(l => new
-                {
-                    Id = l.Id,
-                    DisplayText = $"{l.LocationName} - {l.Country.Name}"
-                })
-                .OrderBy(l => l.DisplayText)
-                .ToList();
+            var tour = await _context.Tours.FindAsync(id);
+            if (tour == null)
+            {
+                return NotFound();
+            }
 
-            ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText");
+            _mapper.Map(model, tour);
+            tour.ModifiedAt = DateTime.Now;
+            _context.Update(tour);
+            await _context.SaveChangesAsync();
 
-            return View(tour);
+            TempData["SuccessMessage"] = "Sửa thành công";
+
+            return RedirectToAction("Edit");
         }
 
         private bool TourExists(int id)
@@ -479,6 +472,59 @@ namespace TM.Controllers
 
             _context.SaveChanges();
             return RedirectToAction("Edit", new { id = model.TourId });
+        }
+
+
+        // modify country
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SaveCountry(Country model)
+        {
+            if (model.Id > 0)
+            {
+                // tìm nếu tồn tại => update
+                var c = _context.Countries.Find(model.Id);
+                if (c != null)
+                {
+                    c.Name = model.Name;
+                    c.Code = model.Code;
+                }
+            }
+            else
+            {
+                // tìm nếu không tồn tại => create
+                _context.Countries.Add(model);
+            }
+
+            _context.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SaveLocation(Location model)
+        {
+            if (!ModelState.IsValid)
+                return RedirectToAction("Index");
+
+            if (model.Id > 0)
+            {
+                // tìm nếu tồn tại => update
+                var existing = _context.Locations.FirstOrDefault(l => l.Id == model.Id);
+                if (existing != null)
+                {
+                    existing.LocationName = model.LocationName;
+                    _context.SaveChanges();
+                }
+            }
+            else
+            {
+                // tìm nếu không tồn tại => create
+                _context.Locations.Add(model);
+                _context.SaveChanges();
+            }
+
+            return RedirectToAction("Index");
         }
     }
 }

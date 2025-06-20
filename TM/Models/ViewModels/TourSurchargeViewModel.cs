@@ -20,5 +20,5 @@ public class TourSurchargeViewModel
     public int TourId { get; set; }
 
     [Display(Name = "Tour")]
-    public string TourName { get; set; }
-} 
+    public string? TourName { get; set; }
+}

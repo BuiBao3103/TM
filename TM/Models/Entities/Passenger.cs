@@ -31,10 +31,6 @@ public partial class Passenger
 
     public string? PassportNum { get; set; }
 
-    public string? DepartureTicket { get; set; }
-
-    public string? ArrivalTicket { get; set; }
-
     public string Status { get; set; } = null!;
 
     public string? DepartureFlightInfo { get; set; }
