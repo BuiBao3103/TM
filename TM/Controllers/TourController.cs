@@ -356,7 +356,7 @@ namespace TM.Controllers
                 // The issue occurs because `tourUpdate.HoldTime` is of type `int?` (nullable int), but `TimeSpan.FromHours` expects a non-nullable `int`.
                 // To fix this, we need to ensure that `tourUpdate.HoldTime` is not null before passing it to `TimeSpan.FromHours`.
 
-                if (passenger.Status == PassengerStatus.Reserved.ToString() && tourUpdate.IsAutoHoldTime == true && tourUpdate.HoldTime.HasValue)
+                if (passenger.Status == TM.Enum.PassengerStatus.Reserved.ToString() && tourUpdate.IsAutoHoldTime == true && tourUpdate.HoldTime.HasValue)
                 {
                     _backgroundJobClient.Schedule<TM.Services.PassengerStatusChecker>(
                         checker => checker.CheckHoldTime(passenger.Id),

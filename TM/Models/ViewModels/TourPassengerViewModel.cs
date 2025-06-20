@@ -101,7 +101,7 @@ namespace TM.Models.ViewModels
         {
             if (value == null) return false;
 
-            return Enum.TryParse(typeof(PassengerGender), value.ToString(), ignoreCase: true, out _);
+            return System.Enum.TryParse(typeof(PassengerGender), value.ToString(), ignoreCase: true, out _);
         }
     }
 
@@ -111,7 +111,7 @@ namespace TM.Models.ViewModels
         {
             if (value == null) return false;
 
-            return Enum.TryParse(typeof(PassengerStatus), value.ToString(), ignoreCase: true, out _);
+            return System.Enum.TryParse(typeof(PassengerStatus), value.ToString(), ignoreCase: true, out _);
         }
     }
 }
