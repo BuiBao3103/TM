@@ -1,8 +1,11 @@
-﻿namespace TM.Services
+﻿using TM.Models;
+
+namespace TM.Services
 {
     public class AuthMiddleWare
     {
         private readonly RequestDelegate _next;
+
 
         public AuthMiddleWare(RequestDelegate next)
         {
@@ -12,6 +15,12 @@
         public async Task Invoke(HttpContext context)
         {
             var path = context.Request.Path;
+
+            if (path.StartsWithSegments("/Account/Login") && context.Session.IsAvailable)
+            {
+                context.Response.Redirect("/Tour/Index");
+                return;
+            }
 
             // Bỏ qua những route không cần kiểm tra
             if (path.StartsWithSegments("/Account/Login") || path.StartsWithSegments("/css") || path.StartsWithSegments("/js"))

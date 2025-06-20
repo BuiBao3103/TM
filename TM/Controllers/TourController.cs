@@ -301,6 +301,7 @@ namespace TM.Controllers
         // POST: Tour/AddTourPassenger
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequireAuthorize("Admin")]
         public async Task<IActionResult> AddTourPassenger(TourPassengerViewModel viewModel)
         {
 

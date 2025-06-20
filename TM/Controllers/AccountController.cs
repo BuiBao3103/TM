@@ -40,6 +40,11 @@ namespace TM.Controllers
             return RedirectToAction("Index", "Tour");
         }
 
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
