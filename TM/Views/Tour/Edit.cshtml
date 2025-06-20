@@ -430,17 +430,44 @@
                     }
 
                 </div>
-
+               
+                
                 <div class="card-body" id="passenger-list">
 
                     @if (passengers != null && passengers.Any())
-                    {
-                        <div class="input-group mb-2">
-                            <div class="input-group-text">
-                                <i class="fa-solid fa-magnifying-glass"></i>
+                    {   
+                        <form class="row g-3 mb-2">
+                            <div class="col-md-5">
+                                <div class="input-group">
+                                    <div class="input-group-text">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                    </div>  
+                                    <input type="text" class="form-control" placeholder=" Tìm theo Tên, CCCD hoặc SĐT">
+                                </div>
                             </div>
-                            <input type="text" class="form-control" placeholder="Tên, CCCD hoặc SĐT">
-                        </div>
+                            <div class="col-md-3">
+                                <div class="input-group">
+                                    <label class="input-group-text">Trạng thái</label>
+                                    <select class="form-select">
+                                        <option selected>Không lọc</option>
+                                        <option value="Paid">Thanh toán đầy đủ</option>
+                                        <option value="Reserved">Đang giữ chỗ</option>
+                                        <option value="Cancelled">Đã hủy</option>
+                                        <option value="Confirmed">Đã cọc</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <label class="input-group-text">Gom nhóm</label>
+                                    <select class="form-select">
+                                        <option selected>Không gom</option>
+                                        <option value="Paid">Gom theo chuyến bay đi</option>
+                                        <option value="Reserved">Gom theo chuyến bay về</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead class="table-light">
