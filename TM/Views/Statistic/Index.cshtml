@@ -1,0 +1,569 @@
+﻿@model TM.Models.ViewModels.StatisticViewModel
+@{
+    ViewData["Title"] = "Thống kê Tour";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="p-3 rounded-top bg-primary text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Thống kê và Báo cáo
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Bộ lọc -->
+                    <div class="bg-light rounded p-4 mb-4 border">
+                        <h5 class="text-secondary mb-3">
+                            <i class="fas fa-filter me-2"></i>
+                            Bộ lọc dữ liệu
+                        </h5>
+                        <form method="get" id="filterForm" class="row g-3">
+                            <div class="col-lg-3 col-md-6">
+                                <label for="selectedCountry" class="form-label fw-semibold">
+                                    <i class="fas fa-globe me-1"></i>Quốc gia
+                                </label>
+                                <select name="selectedCountry" id="selectedCountry" class="form-select">
+                                    @foreach (var country in ViewBag.Countries as List<SelectListItem>)
+                                    {
+                                        <option value="@country.Value" selected="@(country.Value == ViewBag.SelectedCountry)">
+                                            @country.Text
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-lg-3 col-md-6">
+                                <label for="selectedLocation" class="form-label fw-semibold">
+                                    <i class="fas fa-map-marker-alt me-1"></i>Địa điểm
+                                </label>
+                                <select name="selectedLocation" id="selectedLocation" class="form-select">
+                                    @foreach (var location in ViewBag.Locations as List<SelectListItem>)
+                                    {
+                                        <option value="@location.Value" selected="@(location.Value == ViewBag.SelectedLocation)">
+                                            @location.Text
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-lg-3 col-md-6">
+                                <label for="fromDate" class="form-label fw-semibold">
+                                    <i class="fas fa-calendar-alt me-1"></i>Từ ngày
+                                </label>
+                                <input type="date" name="fromDate" id="fromDate" class="form-control"
+                                       value="@ViewBag.FromDate" />
+                            </div>
+
+                            <div class="col-lg-3 col-md-6">
+                                <label for="toDate" class="form-label fw-semibold">
+                                    <i class="fas fa-calendar-alt me-1"></i>Đến ngày
+                                </label>
+                                <input type="date" name="toDate" id="toDate" class="form-control"
+                                       value="@ViewBag.ToDate" />
+                            </div>
+
+                            <div class="col-12">
+                                <div class="d-flex flex-wrap gap-2 mt-3">
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="fas fa-search me-2"></i>Tìm kiếm
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary px-4" onclick="clearFilters()">
+                                        <i class="fas fa-eraser me-2"></i>Xóa bộ lọc
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tổng quan thống kê -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-lg-4 col-md-6">
+                            <div class="card text-primary border-0 shadow-sm h-100 " style="background-color: #d5ebfd">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="card-subtitle mb-2 opacity-75">Tổng số Tour</h6>
+                                            <h2 class="card-title mb-0 fw-bold">@((Model?.TotalTours ?? 0).ToString("N0"))</h2>
+                                        </div>
+                                        <div class="display-6 opacity-50">
+                                            <i class="fas fa-route"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6">
+                            <div class="card text-danger border-0 shadow-sm h-100" style="background-color: #ffe4d4">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="card-subtitle mb-2 opacity-75">Tổng hành khách</h6>
+                                            <h2 class="card-title mb-0 fw-bold">@((Model?.TotalPassengers ?? 0).ToString("N0"))</h2>
+                                        </div>
+                                        <div class="display-6 opacity-50">
+                                            <i class="fas fa-users"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6">
+                            <div class="card text-warning border-0 shadow-sm h-100" style="background-color: #fff2ca">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="card-subtitle mb-2 opacity-75">Tổng doanh thu</h6>
+                                            <h2 class="card-title mb-0 fw-bold">@((Model?.TotalRevenue ?? 0).ToString("C0", new System.Globalization.CultureInfo("vi-VN")))</h2>
+                                        </div>
+                                        <div class="display-6 opacity-50">
+                                            <i class="fas fa-dollar-sign"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Biểu đồ doanh thu theo thời gian -->
+                    @if (Model?.RevenueByDate != null && Model.RevenueByDate.Any())
+                    {
+                        <div class="row mb-4 ">
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-header bg-white border-bottom">
+                                        <h5 class="card-title mb-0 text-dark">
+                                            <i class="fas fa-chart-line me-2 text-primary"></i>
+                                            Biểu đồ doanh thu theo ngày
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="revenueChart" style="height: 350px;"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Thống kê theo quốc gia và địa điểm -->
+                    <div class="row g-4">
+                        <!-- Tours theo quốc gia -->
+                        <div class="col-lg-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-white border-bottom">
+                                    <h5 class="card-title mb-0 text-dark">
+                                        <i class="fas fa-globe-asia me-2 text-info"></i>
+                                        Thống kê theo Quốc gia
+                                    </h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th class="px-4 py-3 fw-semibold">Quốc gia</th>
+                                                    <th class="px-4 py-3 fw-semibold text-center">Số Tour</th>
+                                                    <th class="px-4 py-3 fw-semibold text-center">Số khách</th>
+                                                    <th class="px-4 py-3 fw-semibold text-end">Doanh thu</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model?.ToursByCountry != null)
+                                                {
+                                                    @foreach (var item in Model.ToursByCountry.OrderByDescending(x => x.TourCount))
+                                                    {
+                                                        <tr>
+                                                            <td class="px-4 py-3">
+                                                                <span class="fw-semibold text-dark">@item.CountryName</span>
+                                                            </td>
+                                                            <td class="px-4 py-3 text-center">
+                                                                <span class="badge bg-primary rounded-pill">@item.TourCount</span>
+                                                            </td>
+                                                            <td class="px-4 py-3 text-center">
+                                                                <span class="badge bg-info rounded-pill">@item.PassengerCount</span>
+                                                            </td>
+                                                            <td class="px-4 py-3 text-end">
+                                                                <span class="fw-bold text-success">@item.Revenue.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <tr>
+                                                        <td colspan="4" class="text-center py-4 text-muted">
+                                                            <i class="fas fa-info-circle me-2"></i>
+                                                            Không có dữ liệu để hiển thị
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tours theo địa điểm -->
+                        <div class="col-lg-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-white border-bottom">
+                                    <h5 class="card-title mb-0 text-dark">
+                                        <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                                        Thống kê theo Địa điểm
+                                    </h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th class="px-4 py-3 fw-semibold">Địa điểm</th>
+                                                    <th class="px-4 py-3 fw-semibold text-center">Số Tour</th>
+                                                    <th class="px-4 py-3 fw-semibold text-center">Số khách</th>
+                                                    <th class="px-4 py-3 fw-semibold text-end">Doanh thu</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model?.ToursByLocation != null)
+                                                {
+                                                    @foreach (var item in Model.ToursByLocation.OrderByDescending(x => x.TourCount))
+                                                    {
+                                                        <tr>
+                                                            <td class="px-4 py-3">
+                                                                <span class="fw-semibold text-dark">@item.LocationName</span>
+                                                            </td>
+                                                            <td class="px-4 py-3 text-center">
+                                                                <span class="badge bg-success rounded-pill">@item.TourCount</span>
+                                                            </td>
+                                                            <td class="px-4 py-3 text-center">
+                                                                <span class="badge bg-warning text-dark rounded-pill">@item.PassengerCount</span>
+                                                            </td>
+                                                            <td class="px-4 py-3 text-end">
+                                                                <span class="fw-bold text-success">@item.Revenue.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <tr>
+                                                        <td colspan="4" class="text-center py-4 text-muted">
+                                                            <i class="fas fa-info-circle me-2"></i>
+                                                            Không có dữ liệu để hiển thị
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+         $(document).ready(function () {
+            var selectedCountry = $('#selectedCountry').val();
+            var selectedLocation = '@ViewBag.SelectedLocation';
+
+            if (selectedCountry) {
+                $.get('@Url.Action("GetLocationsByCountry")', { country: selectedCountry }, function (data) {
+                    var locationSelect = $('#selectedLocation');
+                    locationSelect.empty();
+                    locationSelect.append('<option value="">-- Tất cả địa điểm --</option>');
+
+                    $.each(data, function (index, item) {
+                        var isSelected = item.value === selectedLocation ? 'selected' : '';
+                        locationSelect.append('<option value="' + item.value + '" ' + isSelected + '>' + item.text + '</option>');
+                    });
+                });
+            }
+        });
+
+        // Tự động cập nhật location khi chọn country
+        $('#selectedCountry').change(function() {
+            var selectedCountry = $(this).val();
+
+            $.get('@Url.Action("GetLocationsByCountry")', { country: selectedCountry }, function(data) {
+                var locationSelect = $('#selectedLocation');
+                locationSelect.empty();
+                locationSelect.append('<option value="">-- Tất cả địa điểm --</option>');
+
+                $.each(data, function(index, item) {
+                    locationSelect.append('<option value="' + item.value + '">' + item.text + '</option>');
+                });
+            });
+        });
+
+        // Biểu đồ doanh thu
+        @if (Model.RevenueByDate.Any())
+        {
+            <text>
+                            var ctx = document.getElementById('revenueChart').getContext('2d');
+                            var revenueChart = new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: [@Html.Raw(string.Join(",", Model.RevenueByDate.Select(r => "'" + r.Date.ToString("dd/MM") + "'")))],
+                                    datasets: [{
+                                        label: 'Doanh thu (VNĐ)',
+                                        data: [@string.Join(",", Model.RevenueByDate.Select(r => r.Revenue))],
+                                        borderColor: '#6366f1',
+                                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                                        borderWidth: 3,
+                                        fill: true,
+                                        tension: 0.4,
+                                        pointBackgroundColor: '#6366f1',
+                                        pointBorderColor: '#ffffff',
+                                        pointBorderWidth: 2,
+                                        pointRadius: 5,
+                                        pointHoverRadius: 8
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            display: true,
+                                            position: 'top',
+                                            labels: {
+                                                usePointStyle: true,
+                                                padding: 20
+                                            }
+                                        }
+                                    },
+                                    scales: {
+                                        x: {
+                                            grid: {
+                                                display: false
+                                            },
+                                            ticks: {
+                                                font: {
+                                                    weight: 'bold'
+                                                }
+                                            }
+                                        },
+                                        y: {
+                                            beginAtZero: true,
+                                            grid: {
+                                                color: 'rgba(0,0,0,0.1)'
+                                            },
+                                            ticks: {
+                                                callback: function(value) {
+                                                    return new Intl.NumberFormat('vi-VN', {
+                                                        style: 'currency',
+                                                        currency: 'VND'
+                                                    }).format(value);
+                                                },
+                                                font: {
+                                                    weight: 'bold'
+                                                }
+                                            }
+                                        }
+                                    },
+                                    interaction: {
+                                        intersect: false,
+                                        mode: 'index'
+                                    }
+                                }
+                            });
+            </text>
+        }
+
+        // Xóa bộ lọc
+        function clearFilters() {
+            $('#selectedCountry').val('');
+            $('#selectedLocation').val('');
+            $('#fromDate').val('');
+            $('#toDate').val('');
+            $('#filterForm').submit();
+        }
+
+
+    </script>
+}
+
+@section Styles {
+    <style>
+        /* Filter Section */
+        .filter-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .filter-title {
+            color: #374151;
+            font-weight: 600;
+        }
+
+        /* Stats Cards */
+        .stats-card {
+            border-radius: 16px;
+            border: none;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+            .stats-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            }
+
+        .stats-card-purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+        }
+
+        .stats-card-pink {
+            background: linear-gradient(135deg, #ec4899 0%, #f97316 100%);
+        }
+
+        .stats-card-blue {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+
+        .stats-icon {
+            font-size: 2.5rem;
+            opacity: 0.3;
+        }
+
+        .text-white-75 {
+            color: rgba(255, 255, 255, 0.75) !important;
+        }
+
+        /* Cards */
+        .card {
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+            .card:hover {
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            }
+
+        .card-header {
+            border-radius: 12px 12px 0 0 !important;
+            background: white !important;
+            border-bottom: 2px solid #f1f5f9 !important;
+        }
+
+        /* Table */
+        .table-hover tbody tr:hover {
+            background-color: rgba(99, 102, 241, 0.05);
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+
+        .table thead th {
+            background-color: #f8fafc !important;
+            color: #374151;
+            font-weight: 600;
+            border: none;
+            padding: 16px !important;
+        }
+
+        .table tbody td {
+            border: none;
+            padding: 16px !important;
+            vertical-align: middle;
+        }
+
+        /* Badges */
+        .badge {
+            font-weight: 600;
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+        }
+
+        /* Forms */
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            transition: all 0.2s ease;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #6366f1;
+                box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            }
+
+        .form-label {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: 8px;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+            .btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .btn-outline-secondary {
+            border: 2px solid #e5e7eb;
+            color: #6b7280;
+        }
+
+            .btn-outline-secondary:hover {
+                background: #f9fafb;
+                color: #374151;
+            }
+
+        /* Shadows */
+        .shadow-sm {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+        }
+
+        /* Text Colors */
+        .text-success {
+            color: #059669 !important;
+        }
+
+        /* Responsive */
+        /* media (max-width: 768px) { */
+        /*     .stats-card */
+
+        /* { */
+        /*     margin-bottom: 1rem; */
+        /* } */
+
+        /* .filter-section { */
+        /*     padding: 16px; */
+        /* } */
+
+        /* } */
+    </style>
+}
