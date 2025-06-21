@@ -36,40 +36,53 @@
 
 <!-- Search customer -->
 <script>
-    // Debounce function
-    function debounce(func, delay) {
-      let timeoutId;
-      return function (...args) {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          func.apply(this, args);
-        }, delay);
-      };
-    }
+  // Debounce function
+  function debounce(func, delay) {
+    let timeoutId;
+    return function (...args) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func.apply(this, args);
+      }, delay);
+    };
+  }
 
-    // Fetch filter data
-    function fetchFilterData() {
-      const form = document.getElementById("filterCustomerForm");
-      const formData = new FormData(form);
-      const params = new URLSearchParams(formData);
+  // Fetch filter data
+  function fetchFilterData() {
+    const form = document.getElementById("filterCustomerForm");
+    const formData = new FormData(form);
+    const params = new URLSearchParams(formData);
 
-      fetch(`/passenger/filter?${params.toString()}`)
-        .then(res => res.text())
-        .then(html  => {
-          console.log("Kết quả:", html);
-          document.getElementById("container-passenger-table").innerHTML = html;
-        })
-        .catch(err => {
-          console.error("Lỗi khi fetch dữ liệu:", err);
-        });
-    }
+    fetch(`/passenger/filter?${params.toString()}`)
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("container-passenger-table").innerHTML = html;
+      })
+      .catch(err => {
+        console.error("Lỗi khi fetch dữ liệu:", err);
+      });
+  }
 
-    // Gán debounce
-    const debouncedFetch = debounce(fetchFilterData, 1000);
+  const debouncedFetch = debounce(fetchFilterData, 1000);
 
-    // Gán sự kiện cho input và select
-    document.querySelectorAll('#filterCustomerForm input, #filterCustomerForm select').forEach(el => {
-      el.addEventListener('input', debouncedFetch);
-      el.addEventListener('change', debouncedFetch);
+  // Gán sự kiện cho input và select
+  document.querySelectorAll('#filterCustomerForm input, #filterCustomerForm select').forEach(el => {
+    el.addEventListener('input', debouncedFetch);
+    el.addEventListener('change', debouncedFetch);
+  });
+
+  // Ngăn submit form
+  document.getElementById('filterCustomerForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    fetchFilterData(); // Gọi fetch ngay nếu submit
+  });
+
+  // Ngăn Enter gây submit
+  document.querySelectorAll('#filterCustomerForm input').forEach(el => {
+    el.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+      }
     });
+  });
 </script>

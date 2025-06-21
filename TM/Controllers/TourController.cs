@@ -37,7 +37,7 @@ namespace TM.Controllers
             int? countryId,
             int? locationId,
             int page = 1,
-            int pageSize = 10)
+            int pageSize = 12)
         {
             var countries = await _context.Countries.ToListAsync();
             var locations = new List<Location>();
@@ -49,42 +49,70 @@ namespace TM.Controllers
                     .ToListAsync();
             }
 
-            var query = _context.Tours
-                .Include(t => t.Location)
-                .ThenInclude(l => l.Country)
+            var queryTour = _context.Tours
                 .Where(t => t.DeleteAt == null)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(name))
             {
                 string lowerName = name.Trim().ToLower();
-                query = query.Where(t => t.Name.ToLower().Contains(lowerName));
+                queryTour = queryTour.Where(t => t.Name.ToLower().Contains(lowerName));
             }
 
             if (startDate.HasValue)
             {
-                query = query.Where(t => t.StartDate >= startDate.Value);
+                queryTour = queryTour.Where(t => t.StartDate >= startDate.Value);
             }
 
             if (endDate.HasValue)
             {
-                query = query.Where(t => t.EndDate <= endDate.Value);
+                queryTour = queryTour.Where(t => t.EndDate <= endDate.Value);
             }
 
             if (locationId.HasValue && locationId.Value != 0)
             {
-                query = query.Where(t => t.LocationId == locationId);
+                queryTour = queryTour.Where(t => t.LocationId == locationId);
             }
             else if (countryId.HasValue)
             {
-                query = query.Where(t => t.Location!.CountryId == countryId);
+                queryTour = queryTour.Where(t => t.Location!.CountryId == countryId);
             }
 
             // pagination
-            var totalRecords = await query.CountAsync();
+            queryTour = queryTour.OrderByDescending(t => t.Id);
+            var totalRecords = await queryTour.CountAsync();
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
             var skip = (page - 1) * pageSize;
-            var listTour = await query.Skip(skip).Take(pageSize).ToListAsync();
+            var listTour = await queryTour
+                .Skip(skip)
+                .Take(pageSize)
+                .Select(t => new TourWithPassengerStatsViewModel
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    LocationName = t.Location.LocationName,
+                    CountryName = t.Location.Country.Name,
+                    StartDate = t.StartDate,
+                    EndDate = t.EndDate,
+                    SuggestPrice = t.SuggestPrice,
+                    DiscountPrice = t.DiscountPrice,
+                    AvailableSeats = t.AvailableSeats,
+                    TotalSeats = t.TotalSeats,
+                    Status = t.Status,
+                    IsVisaRequired = t.IsVisaRequired,
+                    TotalCustomers = t.Passengers.Count(p => p.Status != "Cancelled" && p.DeleteAt == null),
+                    FullPayCustomers = t.Passengers.Count(p => p.Status != "Cancelled" && p.AssignedPrice <= p.CustomerPaid && p.DeleteAt == null),
+                    CustomerNoPassport = t.Passengers.Count(p => p.Status != "Cancelled" && (string.IsNullOrEmpty(p.PassportNum)) && p.DeleteAt == null),
+                    ReservedCustomer = t.Passengers.Count(p => p.Status == "Reserved" && p.DeleteAt == null),
+                    DepositedCustomer = t.Passengers.Count(p =>
+                        p.Status != "Cancelled" && p.CustomerPaid > 0 && p.CustomerPaid < p.AssignedPrice && p.DeleteAt == null),
+                    CustomerFullPayNotTicket = t.Passengers.Count(p =>
+                        p.Status != "Cancelled" &&
+                        p.AssignedPrice <= p.CustomerPaid &&
+                        (string.IsNullOrEmpty(p.DepartureFlightInfo) || string.IsNullOrEmpty(p.ArrivalFlightInfo)) &&
+                        p.DeleteAt == null)
+                })
+                .ToListAsync();
 
             // create pagin model
             var paginViewModel = new PaginationViewModel
@@ -108,6 +136,8 @@ namespace TM.Controllers
                 Tours = listTour,
                 Pagination = paginViewModel
             };
+
+
 
             return View(model);
         }

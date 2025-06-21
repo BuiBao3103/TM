@@ -85,7 +85,11 @@ else if(groupBy != null && Model.Count > 0)
                                                 }
                                             </td>
                                             <td>
-                                                @if (!string.IsNullOrEmpty(item.DepartureFlightInfo) && !string.IsNullOrEmpty(item.ArrivalFlightInfo))
+                                                @if (string.IsNullOrEmpty(item.DepartureFlightInfo) && string.IsNullOrEmpty(item.ArrivalFlightInfo))
+                                                {
+                                                    <span class="badge bg-danger">Chưa có</span>
+                                                }
+                                                else if (!string.IsNullOrEmpty(item.DepartureFlightInfo) && !string.IsNullOrEmpty(item.ArrivalFlightInfo))
                                                 {
                                                     <span class="badge bg-success">Đã có</span>
                                                 }
@@ -99,7 +103,7 @@ else if(groupBy != null && Model.Count > 0)
                                                 }
                                                 else
                                                 {
-                                                    <span class="badge bg-danger">Chưa có</span>
+                                                    <span class="badge bg-secondary">Không xác định</span>
                                                 }
                                             </td>
                                             <td>
@@ -195,7 +199,11 @@ else
                             }
                         </td>
                         <td>
-                            @if (!string.IsNullOrEmpty(item.DepartureFlightInfo) && !string.IsNullOrEmpty(item.ArrivalFlightInfo))
+                            @if (string.IsNullOrEmpty(item.DepartureFlightInfo) && string.IsNullOrEmpty(item.ArrivalFlightInfo))
+                            {
+                                <span class="badge bg-danger">Chưa có</span>
+                            }
+                            else if (!string.IsNullOrEmpty(item.DepartureFlightInfo) && !string.IsNullOrEmpty(item.ArrivalFlightInfo))
                             {
                                 <span class="badge bg-success">Đã có</span>
                             }
@@ -209,7 +217,7 @@ else
                             }
                             else
                             {
-                                <span class="badge bg-danger">Chưa có</span>
+                                <span class="badge bg-secondary">Không xác định</span>
                             }
                         </td>
                         <td>

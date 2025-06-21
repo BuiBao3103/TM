@@ -224,7 +224,7 @@
                             @item.StartDate.ToString("dd/MM/yyyy") - @item.EndDate.ToString("dd/MM/yyyy")
                         </h6>
                         <p class="card-text">
-                            <strong>Địa điểm:</strong> @item.Location?.LocationName <br />
+                            <strong>Địa điểm:</strong> @item.LocationName - @item.CountryName <br />
 
                             <strong>Giá:</strong>
                             @if (item.SuggestPrice == item.DiscountPrice || item.DiscountPrice == null)
@@ -250,9 +250,66 @@
                                 <span class="badge bg-success">@(item.TotalSeats-item.AvailableSeats) / @item.TotalSeats chỗ</span>
                             }
                             <br />
+                            <strong>Trạng thái:</strong> 
+                            @switch (item.Status)
+                            {
+                              case "Available":  
+                                  <span class="badge bg-primary">Hoạt động</span>; 
+                                  break;
+                              case "Ready":  
+                                  <span class="badge bg-success">Sẵn sàng</span>; 
+                                  break;
+                              case "Cancelled":
+                                  <span class="badge bg-danger">Đã hủy</span>; 
+                                  break;
+                              case "Completed": 
+                                  <span class="badge bg-secondary">Hoàn thành</span>; 
+                                  break;
+                              default: 
+                                  <span class="badge bg-warning">Không xác định</span>; 
+                                  break;
+                            }
+                            <br />
 
-                            <strong>Chuyến đi:</strong> @item.DepartureFlightInfo <br />
-                            <strong>Chuyến về:</strong> @item.ArrivalFlightInfo
+                            <strong>Yêu cầu visa:</strong> 
+                            @if(item.IsVisaRequired == true)
+                            {
+                                <span class="badge bg-success">
+                                    <i class="fa-solid fa-check me-1"></i> Có
+                                </span>
+                            }
+                            else
+                            {
+                                 <span class="badge bg-secondary">
+                                    <i class="fa-solid fa-xmark me-1"></i> Không
+                                </span>
+                            }
+                            <br />
+
+                            <strong>Số KH đang giữ chỗ:</strong> 
+                            <span class="badge bg-light text-dark" style="background-color: #ae9dff5c !important">
+                                @item.DepositedCustomer / @item.ReservedCustomer đã cọc
+                            </span>
+                            <br />
+
+                            <strong>KH chưa có passport:</strong>
+                            <span class="badge bg-light text-dark" style="background-color: #ae9dff5c !important">
+                                @item.CustomerNoPassport khách hàng
+                            </span>
+                            <br />
+
+                            <strong>Số KH đã thanh toán đủ:</strong> 
+                            <span class="badge bg-light text-dark" style="background-color: #ae9dff5c !important">
+                                @item.FullPayCustomers / @item.TotalCustomers khách hàng
+                            </span>
+                            <br /> 
+
+                            <strong>Số KH đã thanh toán chưa đủ vé:</strong>
+                            <span class="badge bg-light text-dark" style="background-color: #ae9dff5c !important">
+                                @item.CustomerFullPayNotTicket khách hàng
+                            </span>
+                            <br />
+                            
                         </p>
                     </div>
                     <div class="card-footer text-end bg-white border-0">
