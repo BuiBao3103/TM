@@ -341,6 +341,7 @@ namespace TM.Controllers
         {
             // Check duplicate identity/passport/code in tour
             _validator.ValidateDuplicatePassengerFields(
+                viewModel.Id,
                 viewModel.TourId,
                 viewModel.IdentityNumber,
                 viewModel.Code,
@@ -444,6 +445,7 @@ namespace TM.Controllers
         {
             // Check duplicate identity/passport/code in tour
             _validator.ValidateDuplicatePassengerFields(
+                viewModel.Id,
                 viewModel.TourId,
                 viewModel.IdentityNumber,
                 viewModel.Code,
