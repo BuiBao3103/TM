@@ -18,5 +18,6 @@ public class TourPassengerProfile : Profile
 
         CreateMap<PassengerEditViewModel, Passenger>();
         CreateMap<Passenger, PassengerEditViewModel>();
+        CreateMap<Passenger, PassengerViewModel>();
     }
 }

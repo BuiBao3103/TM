@@ -219,9 +219,9 @@ namespace TM.Controllers
 
             ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText");
 
-            var model = _mapper.Map<TM.Models.ViewModels.TourEditViewModel>(tour);
+            var model = _mapper.Map<TourEditViewModel>(tour);
             ViewData["Surcharges"] = _mapper.Map<IEnumerable<TourSurchargeViewModel>>(tour.TourSurcharges);
-            ViewData["Passengers"] = tour.Passengers;
+            ViewData["Passengers"] = _mapper.Map<List<PassengerViewModel>>(tour.Passengers);
 
             return View(model);
         }

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using TM.Enum;
 using TM.Models;
 using TM.Models.Entities;
 using TM.Models.ViewModels;
@@ -18,12 +17,32 @@ namespace TM.Controllers
             _mapper = mapper;
         }
 
+        [RequireAuthorize("Admin", "Sale")]
         [HttpGet("passenger/filter")]
-        public IActionResult Filter([FromBody] PassengerFilterViewModel viewModel)
+        public IActionResult Filter([FromQuery] PassengerFilterViewModel viewModel)
         {
+            try
+            {
+                var query = _context.Passengers
+                    .Where(p => p.DeleteAt == null && p.TourId == viewModel.TourId)
+                    .AsQueryable();
 
-            var query = _context.Passengers
-                .Select(p => new Passenger
+                // check keyword
+                if (!string.IsNullOrWhiteSpace(viewModel.Keyword))
+                {
+                    query = query.Where(p =>
+                        p.FullName.Contains(viewModel.Keyword) ||
+                        (p.IdentityNumber != null && p.IdentityNumber.Contains(viewModel.Keyword)) ||
+                        (p.Phone != null && p.Phone.Contains(viewModel.Keyword)));
+                }
+
+                // check status
+                if (!string.IsNullOrWhiteSpace(viewModel.Status))
+                {
+                    query = query.Where(p => p.Status == viewModel.Status);
+                }
+
+                var listPassenger = query.Select(p => new Passenger
                 {
                     Id = p.Id,
                     FullName = p.FullName,
@@ -33,42 +52,23 @@ namespace TM.Controllers
                     PassportNum = p.PassportNum,
                     DepartureFlightInfo = p.DepartureFlightInfo,
                     ArrivalFlightInfo = p.ArrivalFlightInfo,
-                    Status = p.Status,
-                })
-                .Where(p => p.DeleteAt == null && p.TourId == viewModel.TourId)
-                .AsQueryable();
+                    Status = p.Status
+                }).ToList();
 
-            // check keyword
-            if (!string.IsNullOrWhiteSpace(viewModel.Keyword))
-            {
-                query = query.Where(p =>
-                    p.FullName.Contains(viewModel.Keyword) ||
-                    (p.IdentityNumber != null && p.IdentityNumber.Contains(viewModel.Keyword)) ||
-                    (p.Phone != null && p.Phone.Contains(viewModel.Keyword)));
-            }
+                var listPassengerViewModel = _mapper.Map<List<PassengerViewModel>>(listPassenger);
 
-            // check status
-            if (!string.IsNullOrWhiteSpace(viewModel.Status))
-            {
-                query = query.Where(p => p.Status == viewModel.Status);
-            }
-
-            // check group
-            if (viewModel.PassengerGroup.HasValue)
-            {
-                if (viewModel.PassengerGroup == PassengerGroup.Go)
+                if (viewModel.PassengerGroup != null)
                 {
-                    query = query.OrderBy(p => p.DepartureFlightInfo);
+                    ViewData["GroupBy"] = viewModel.PassengerGroup;
+                    return PartialView("~/Views/Passenger/Shared/_TablePassengerGroupPartial.cshtml", listPassengerViewModel);
                 }
-                else
-                {
-                    query = query.OrderBy(p => p.ArrivalFlightInfo);
-                }
+
+                return PartialView("~/Views/Passenger/Shared/_TablePassengerGroupPartial.cshtml", listPassengerViewModel);
             }
-
-            var listPassenger = query.ToList();
-
-            return View();
+            catch (Exception ex)
+            {
+                return Content("Something went wrong in action \"Filter\" controller \"Passenger\" \n" + ex.Message);
+            }
         }
     }
 }
