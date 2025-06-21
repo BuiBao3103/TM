@@ -49,33 +49,78 @@ namespace TM.Controllers
                     .ToListAsync();
             }
 
-            var queryTour = _context.Tours
-                .Where(t => t.DeleteAt == null)
-                .AsQueryable();
-
+            var queryTour = from t in _context.Tours
+                            join l in _context.Locations on t.LocationId equals l.Id
+                            join c in _context.Countries on l.CountryId equals c.Id
+                            join p in _context.Passengers
+                                .Where(p => p.DeleteAt == null && (p.Status != "Cancelled" || p.Status == null))
+                                on t.Id equals p.TourId into passengerGroup
+                            from p in passengerGroup.DefaultIfEmpty()
+                            where t.DeleteAt == null
+                            group new { t, l, c, p } by new
+                            {
+                                t.Id,
+                                l.LocationName,
+                                CountryName = c.Name,
+                                TourName = t.Name,
+                                t.StartDate,
+                                t.EndDate,
+                                t.SuggestPrice,
+                                t.DiscountPrice,
+                                t.AvailableSeats,
+                                t.TotalSeats,
+                                t.Status,
+                                t.IsVisaRequired
+                            } into g
+                            select new TourWithPassengerStatsViewModel
+                            {
+                                Id = g.Key.Id,
+                                LocationName = g.Key.LocationName,
+                                CountryName = g.Key.CountryName,
+                                Name = g.Key.TourName,
+                                StartDate = g.Key.StartDate,
+                                EndDate = g.Key.EndDate,
+                                SuggestPrice = g.Key.SuggestPrice,
+                                DiscountPrice = g.Key.DiscountPrice,
+                                AvailableSeats = g.Key.AvailableSeats,
+                                TotalSeats = g.Key.TotalSeats,
+                                Status = g.Key.Status,
+                                IsVisaRequired = g.Key.IsVisaRequired,
+                                TotalCustomers = g.Count(x => x.p != null),
+                                FullPayCustomers = g.Count(x => x.p != null && x.p.AssignedPrice <= x.p.CustomerPaid),
+                                CustomerNoPassport = g.Count(x => x.p != null && string.IsNullOrEmpty(x.p.PassportNum)),
+                                ReservedCustomer = g.Count(x => x.p != null && x.p.Status == "Reserved"),
+                                DepositedCustomer = g.Count(x => x.p != null && x.p.CustomerPaid > 0 && x.p.CustomerPaid < x.p.AssignedPrice),
+                                CustomerFullPayNotTicket = g.Count(x => x.p != null && x.p.AssignedPrice <= x.p.CustomerPaid &&
+                                    (string.IsNullOrEmpty(x.p.DepartureFlightInfo) || string.IsNullOrEmpty(x.p.ArrivalFlightInfo)))
+                            };
+            // Áp dụng các điều kiện lọc
             if (!string.IsNullOrWhiteSpace(name))
             {
                 string lowerName = name.Trim().ToLower();
-                queryTour = queryTour.Where(t => t.Name.ToLower().Contains(lowerName));
+                queryTour = queryTour.Where(g => g.Name.ToLower().Contains(lowerName));
             }
 
             if (startDate.HasValue)
             {
-                queryTour = queryTour.Where(t => t.StartDate >= startDate.Value);
+                queryTour = queryTour.Where(g => g.StartDate >= startDate.Value);
             }
 
             if (endDate.HasValue)
             {
-                queryTour = queryTour.Where(t => t.EndDate <= endDate.Value);
+                queryTour = queryTour.Where(g => g.EndDate <= endDate.Value);
             }
 
             if (locationId.HasValue && locationId.Value != 0)
             {
-                queryTour = queryTour.Where(t => t.LocationId == locationId);
+                queryTour = queryTour.Where(g => g.Id == locationId.Value);
             }
             else if (countryId.HasValue)
             {
-                queryTour = queryTour.Where(t => t.Location!.CountryId == countryId);
+                queryTour = queryTour.Where(g => g.CountryName == _context.Countries
+                    .Where(c => c.Id == countryId.Value)
+                    .Select(c => c.Name)
+                    .FirstOrDefault());
             }
 
             // pagination
@@ -83,36 +128,7 @@ namespace TM.Controllers
             var totalRecords = await queryTour.CountAsync();
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
             var skip = (page - 1) * pageSize;
-            var listTour = await queryTour
-                .Skip(skip)
-                .Take(pageSize)
-                .Select(t => new TourWithPassengerStatsViewModel
-                {
-                    Id = t.Id,
-                    Name = t.Name,
-                    LocationName = t.Location.LocationName,
-                    CountryName = t.Location.Country.Name,
-                    StartDate = t.StartDate,
-                    EndDate = t.EndDate,
-                    SuggestPrice = t.SuggestPrice,
-                    DiscountPrice = t.DiscountPrice,
-                    AvailableSeats = t.AvailableSeats,
-                    TotalSeats = t.TotalSeats,
-                    Status = t.Status,
-                    IsVisaRequired = t.IsVisaRequired,
-                    TotalCustomers = t.Passengers.Count(p => p.Status != "Cancelled" && p.DeleteAt == null),
-                    FullPayCustomers = t.Passengers.Count(p => p.Status != "Cancelled" && p.AssignedPrice <= p.CustomerPaid && p.DeleteAt == null),
-                    CustomerNoPassport = t.Passengers.Count(p => p.Status != "Cancelled" && (string.IsNullOrEmpty(p.PassportNum)) && p.DeleteAt == null),
-                    ReservedCustomer = t.Passengers.Count(p => p.Status == "Reserved" && p.DeleteAt == null),
-                    DepositedCustomer = t.Passengers.Count(p =>
-                        p.Status != "Cancelled" && p.CustomerPaid > 0 && p.CustomerPaid < p.AssignedPrice && p.DeleteAt == null),
-                    CustomerFullPayNotTicket = t.Passengers.Count(p =>
-                        p.Status != "Cancelled" &&
-                        p.AssignedPrice <= p.CustomerPaid &&
-                        (string.IsNullOrEmpty(p.DepartureFlightInfo) || string.IsNullOrEmpty(p.ArrivalFlightInfo)) &&
-                        p.DeleteAt == null)
-                })
-                .ToListAsync();
+            var listTour = await queryTour.Skip(skip).Take(pageSize).ToListAsync();
 
             // create pagin model
             var paginViewModel = new PaginationViewModel
@@ -136,8 +152,6 @@ namespace TM.Controllers
                 Tours = listTour,
                 Pagination = paginViewModel
             };
-
-
 
             return View(model);
         }
