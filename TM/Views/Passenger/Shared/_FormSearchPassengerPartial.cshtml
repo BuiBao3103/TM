@@ -1,0 +1,75 @@
+﻿@model int
+
+<form id="filterCustomerForm" class="row g-3 mb-2">
+    <input type="hidden" name="TourId" value="@Model"/>
+    <div class="col-md-5">
+        <div class="input-group">
+            <div class="input-group-text">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <input type="text" class="form-control" placeholder=" Tìm theo Tên, CCCD hoặc SĐT" name="keyword">
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="input-group">
+            <label class="input-group-text">Trạng thái</label>
+            <select class="form-select" name="status">
+                <option value="">Không lọc</option>
+                <option value="Paid">Thanh toán đầy đủ</option>
+                <option value="Reserved">Đang giữ chỗ</option>
+                <option value="Cancelled">Đã hủy</option>
+                <option value="Confirmed">Đã cọc</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="input-group">
+            <label class="input-group-text">Gom nhóm</label>
+            <select class="form-select" name="PassengerGroup">
+                <option value="">Không gom nhóm</option>
+                <option value="1">Gom theo chuyến bay đi</option>
+                <option value="2">Gom theo chuyến bay về</option>
+            </select>
+        </div>
+    </div>
+</form>
+
+<!-- Search customer -->
+<script>
+    // Debounce function
+    function debounce(func, delay) {
+      let timeoutId;
+      return function (...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          func.apply(this, args);
+        }, delay);
+      };
+    }
+
+    // Fetch filter data
+    function fetchFilterData() {
+      const form = document.getElementById("filterCustomerForm");
+      const formData = new FormData(form);
+      const params = new URLSearchParams(formData);
+
+      fetch(`/passenger/filter?${params.toString()}`)
+        .then(res => res.text())
+        .then(html  => {
+          console.log("Kết quả:", html);
+          document.getElementById("container-passenger-table").innerHTML = html;
+        })
+        .catch(err => {
+          console.error("Lỗi khi fetch dữ liệu:", err);
+        });
+    }
+
+    // Gán debounce
+    const debouncedFetch = debounce(fetchFilterData, 1000);
+
+    // Gán sự kiện cho input và select
+    document.querySelectorAll('#filterCustomerForm input, #filterCustomerForm select').forEach(el => {
+      el.addEventListener('input', debouncedFetch);
+      el.addEventListener('change', debouncedFetch);
+    });
+</script>

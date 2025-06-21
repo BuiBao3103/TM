@@ -18,17 +18,17 @@ namespace TM.Controllers
         }
 
         [RequireAuthorize("Admin", "Sale")]
-        public async Task<IActionResult> CreateSurcharge(int id)
+        public async Task<IActionResult> CreateSurcharge([FromQuery] int tourId)
         {
-            var tour = await _appDbContext.Tours.FindAsync(id);
+            var tour = await _appDbContext.Tours.FindAsync(tourId);
             if (tour == null)
             {
-                return NotFound();
+                return Redirect("/Tour");
             }
 
             var viewModel = new TourSurchargeViewModel
             {
-                TourId = id,
+                TourId = tourId,
                 TourName = tour.Name
             };
 

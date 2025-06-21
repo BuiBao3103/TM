@@ -271,6 +271,14 @@
             </div>
         }
     </div>
+
+
+
+
+    @await Html.PartialAsync("_Pagination", new TM.Models.ViewModels.PaginationViewModel{CurrentPage = 1, TotalPages=20, PageSize=10, TotalItems=195, ActionName=""})
+
+
+
 }
 else
 {

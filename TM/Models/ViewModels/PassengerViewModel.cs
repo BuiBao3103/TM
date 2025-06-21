@@ -62,4 +62,10 @@ public class PassengerViewModel
     // Optional: Tên tour cho hiển thị (nếu cần)
     [Display(Name = "Tên Tour")]
     public string? TourName { get; set; }
+
+    public string? PassportNum { get; set; }
+
+    public string? DepartureFlightInfo { get; set; }
+
+    public string? ArrivalFlightInfo { get; set; }
 }
