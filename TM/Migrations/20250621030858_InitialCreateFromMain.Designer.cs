@@ -12,8 +12,8 @@ using TM.Models;
 namespace TM.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250619180329_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250621030858_InitialCreateFromMain")]
+    partial class InitialCreateFromMain
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -161,11 +161,6 @@ namespace TM.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<string>("ArrivalTicket")
-                        .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
-
                     b.Property<decimal?>("AssignedPrice")
                         .HasColumnType("decimal(18, 0)");
 
@@ -192,11 +187,6 @@ namespace TM.Migrations
                     b.Property<string>("DepartureFlightInfo")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("DepartureTicket")
-                        .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(100)
@@ -225,9 +215,9 @@ namespace TM.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("PassportNum")
-                        .HasMaxLength(9)
+                        .HasMaxLength(8)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(9)");
+                        .HasColumnType("varchar(8)");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(15)

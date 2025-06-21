@@ -212,9 +212,9 @@ namespace TM.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("PassportNum")
-                        .HasMaxLength(9)
+                        .HasMaxLength(8)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(9)");
+                        .HasColumnType("varchar(8)");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(15)
