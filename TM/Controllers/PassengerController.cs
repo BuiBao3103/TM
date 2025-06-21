@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using TM.Models;
 using TM.Models.Entities;
 using TM.Models.ViewModels;
@@ -19,7 +21,7 @@ namespace TM.Controllers
 
         [RequireAuthorize("Admin", "Sale")]
         [HttpGet("passenger/filter")]
-        public IActionResult Filter([FromQuery] PassengerFilterViewModel viewModel)
+        public async Task<IActionResult> Filter([FromQuery] PassengerFilterViewModel viewModel)
         {
             try
             {
@@ -42,7 +44,7 @@ namespace TM.Controllers
                     query = query.Where(p => p.Status == viewModel.Status);
                 }
 
-                var listPassenger = query.Select(p => new Passenger
+                var listPassenger = await query.Select(p => new Passenger
                 {
                     Id = p.Id,
                     FullName = p.FullName,
@@ -53,7 +55,7 @@ namespace TM.Controllers
                     DepartureFlightInfo = p.DepartureFlightInfo,
                     ArrivalFlightInfo = p.ArrivalFlightInfo,
                     Status = p.Status
-                }).ToList();
+                }).ToListAsync();
 
                 var listPassengerViewModel = _mapper.Map<List<PassengerViewModel>>(listPassenger);
 

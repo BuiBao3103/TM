@@ -15,5 +15,7 @@ namespace TM.Models.ViewModels
         public DateTime? EndDate { get; set; }
 
         public List<Tour> Tours { get; set; } = new();
+
+        public required PaginationViewModel Pagination { get; set; }
     }
 }

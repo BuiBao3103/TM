@@ -35,10 +35,12 @@ namespace TM.Controllers
             DateTime? startDate,
             DateTime? endDate,
             int? countryId,
-            int? locationId)
+            int? locationId,
+            int page = 1,
+            int pageSize = 10)
         {
-            List<Country>? countries = await _context.Countries.ToListAsync();
-            List<Location>? locations = new List<Location>();
+            var countries = await _context.Countries.ToListAsync();
+            var locations = new List<Location>();
 
             if (countryId.HasValue)
             {
@@ -47,9 +49,10 @@ namespace TM.Controllers
                     .ToListAsync();
             }
 
-            IQueryable<Tour> query = _context.Tours
+            var query = _context.Tours
                 .Include(t => t.Location)
                 .ThenInclude(l => l.Country)
+                .Where(t => t.DeleteAt == null)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(name))
@@ -59,17 +62,39 @@ namespace TM.Controllers
             }
 
             if (startDate.HasValue)
+            {
                 query = query.Where(t => t.StartDate >= startDate.Value);
+            }
 
             if (endDate.HasValue)
+            {
                 query = query.Where(t => t.EndDate <= endDate.Value);
+            }
 
             if (locationId.HasValue && locationId.Value != 0)
+            {
                 query = query.Where(t => t.LocationId == locationId);
+            }
             else if (countryId.HasValue)
+            {
                 query = query.Where(t => t.Location!.CountryId == countryId);
+            }
 
-            query = query.Where(t => t.DeleteAt == null);
+            // pagination
+            var totalRecords = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+            var skip = (page - 1) * pageSize;
+            var listTour = await query.Skip(skip).Take(pageSize).ToListAsync();
+
+            // create pagin model
+            var paginViewModel = new PaginationViewModel
+            {
+                CurrentPage = page,
+                TotalPages = totalPages,
+                PageSize = pageSize,
+                TotalItems = totalRecords,
+                ActionName = ""
+            };
 
             TourViewModel model = new TourViewModel
             {
@@ -80,7 +105,8 @@ namespace TM.Controllers
                 Name = name,
                 StartDate = startDate,
                 EndDate = endDate,
-                Tours = await query.ToListAsync()
+                Tours = listTour,
+                Pagination = paginViewModel
             };
 
             return View(model);

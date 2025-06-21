@@ -208,6 +208,11 @@
 <!-- ========== DANH SÁCH TOUR ========== -->
 @if (Model.Tours.Any())
 {
+    <div class="mb-3 text-muted fw-semibold">
+        <i class="fas fa-list-ul text-primary me-2"></i>
+        Tổng cộng <span class="text-primary">@Model.Pagination.TotalItems.ToString("N0")</span> tour được tìm thấy.
+    </div>
+
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         @foreach (var item in Model.Tours)
         {
@@ -271,14 +276,9 @@
             </div>
         }
     </div>
-
-
-
-
-    @await Html.PartialAsync("_Pagination", new TM.Models.ViewModels.PaginationViewModel{CurrentPage = 1, TotalPages=20, PageSize=10, TotalItems=195, ActionName=""})
-
-
-
+    <!-- Pagination -->
+    @await Html.PartialAsync("_Pagination", Model.Pagination)
+    <!-- End Pagination -->
 }
 else
 {
