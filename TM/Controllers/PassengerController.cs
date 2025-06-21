@@ -67,7 +67,7 @@ namespace TM.Controllers
             }
             catch (Exception ex)
             {
-                return Content("Something went wrong in action \"Filter\" controller \"Passenger\" \n" + ex.Message);
+                return PartialView("~/Views/Passenger/Shared/_ErrorSearchPartial.cshtml", "Lỗi rồi, bọ siêu khổng lồ!");
             }
         }
     }
