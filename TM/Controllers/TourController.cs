@@ -627,15 +627,32 @@ namespace TM.Controllers
         }
 
         // Countries/Locations handle section
-
+        // lưu country khi update/create
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuthorize("Admin")]
         public IActionResult SaveCountry(Country model)
         {
+            string newName = model.Name.Trim().ToLower();
+            string newCode = model.Code.Trim().ToUpper();
+
+            // validate if any country with the same name or code exists
+            bool nameExists = _context.Countries.Any(c => c.Name.ToLower() == newName && c.Id != model.Id);
+            bool codeExists = _context.Countries.Any(c => c.Code.ToUpper() == newCode && c.Id != model.Id);
+
+            if (nameExists)
+            {
+                TempData["ErrorMessage"] = "Tên quốc gia đã tồn tại!";
+                return RedirectToAction("Index");
+            }
+            if (codeExists)
+            {
+                TempData["ErrorMessage"] = "Mã quốc gia đã tồn tại!";
+                return RedirectToAction("Index");
+            }
+
             if (model.Id > 0)
             {
-                // Find if exists => update
                 var c = _context.Countries.Find(model.Id);
                 if (c != null)
                 {
@@ -645,14 +662,14 @@ namespace TM.Controllers
             }
             else
             {
-                // Find if not exists => create
                 _context.Countries.Add(model);
             }
-
             _context.SaveChanges();
+            TempData["SuccessMessage"] = "Lưu quốc gia thành công!";
             return RedirectToAction("Index");
         }
 
+        //// lưu location khi update/create
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuthorize("Admin")]
@@ -661,9 +678,19 @@ namespace TM.Controllers
             if (!ModelState.IsValid)
                 return RedirectToAction("Index");
 
+            string newName = model.LocationName.Trim().ToLower();
+
+
+            bool nameExists = _context.Locations.Any(l => l.LocationName.ToLower() == newName && l.CountryId == model.CountryId && l.Id != model.Id);
+
+            if (nameExists)
+            {
+                TempData["ErrorMessage"] = "Tên địa điểm đã tồn tại!";
+                return RedirectToAction("Index");
+            }
+
             if (model.Id > 0)
             {
-                // Find if exists => update
                 Location? existing = _context.Locations.FirstOrDefault(l => l.Id == model.Id);
                 if (existing != null)
                 {
@@ -673,12 +700,13 @@ namespace TM.Controllers
             }
             else
             {
-                // Find if not exists => create
                 _context.Locations.Add(model);
                 _context.SaveChanges();
             }
 
+            TempData["SuccessMessage"] = "Lưu địa điểm thành công!";
             return RedirectToAction("Index");
         }
+
     }
 }
