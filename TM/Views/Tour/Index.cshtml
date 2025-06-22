@@ -286,127 +286,127 @@
         @foreach (var item in Model.Tours)
         {
             <div class="col">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title text-primary fw-bold">@item.Name</h5>
-                        <h6 class="card-subtitle mb-3 text-muted">
-                            <i class="fa-solid fa-calendar-days me-1"></i>
-                            @item.StartDate.ToString("dd/MM/yyyy") - @item.EndDate.ToString("dd/MM/yyyy")
-                        </h6>
+    <div class="card shadow-sm h-100">
+        <div class="card-body">
+            <h5 class="card-title text-primary fw-bold">@item.Name</h5>
+            <h6 class="card-subtitle text-muted mb-4">
+                <i class="fa-solid fa-calendar-days me-1"></i>
+                @item.StartDate.ToString("dd/MM/yyyy") - @item.EndDate.ToString("dd/MM/yyyy")
+            </h6>
 
-                        <div class="mb-2">
-                            <strong>Địa điểm:</strong> @item.LocationName - @item.CountryName
-                        </div>
-
-                        <div class="mb-2">
-                            <strong>Giá:</strong>
-                            @if (item.SuggestPrice == item.DiscountPrice || item.DiscountPrice == null)
-                            {
-                                <span class="fw-bold text-dark">@string.Format("{0:N0}₫", item.SuggestPrice)</span>
-                            }
-                            else
-                            {
-                                <span class="fw-bold text-danger">@string.Format("{0:N0}₫", item.DiscountPrice)</span>
-                                <span class="text-muted text-decoration-line-through ms-2" style="font-size: 0.9em;">
-                                    @string.Format("{0:N0}₫", item.SuggestPrice)
-                                </span>
-                            }
-                        </div>
-
-                        <div class="mb-2">
-                            <strong>Số chỗ:</strong>
-                            @if (item.AvailableSeats == 0)
-                            {
-                                <span class="badge bg-danger">Hết chỗ</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-success">@(@item.TotalSeats - @item.AvailableSeats) / @item.TotalSeats chỗ</span>
-                            }
-                        </div>
-
-                        <div class="mb-2">
-                            <strong>Trạng thái:</strong>
-                            @switch (item.Status)
-                            {
-                                case "Available":
-                                    <span class="badge bg-primary"><i class="fa-solid fa-circle-check me-1"></i>Hoạt động</span>; break;
-                                case "Ready":
-                                    <span class="badge bg-success"><i class="fa-solid fa-hourglass-start me-1"></i>Sẵn sàng</span>; break;
-                                case "Cancelled":
-                                    <span class="badge bg-danger"><i class="fa-solid fa-ban me-1"></i>Đã hủy</span>; break;
-                                case "Completed":
-                                    <span class="badge bg-secondary"><i class="fa-solid fa-check-double me-1"></i>Hoàn thành</span>; break;
-                                default:
-                                    <span class="badge bg-warning"><i class="fa-solid fa-question me-1"></i>Không xác định</span>; break;
-                            }
-                        </div>
-
-                        <div class="mb-2">
-                            <strong>Yêu cầu visa:</strong>
-                            @if (item.IsVisaRequired == true)
-                            {
-                                <span class="badge bg-success">
-                                    <i class="fa-solid fa-check me-1"></i> Có
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">
-                                    <i class="fa-solid fa-xmark me-1"></i> Không
-                                </span>
-                            }
-                        </div>
-
-                        <div class="mb-2">
-                            <strong>Đang giữ chỗ:</strong>
-                            <span class="badge bg-light text-dark" style="background-color: #f0e9ff !important">
-                                <i class="fa-solid fa-user-clock me-1"></i> @item.DepositedCustomer khách, @item.ReservedCustomer đã cọc
-                            </span>
-                        </div>
-
-                        <div class="mb-2">
-                            <strong>Passport:</strong>
-                            <span class="badge bg-light text-dark" style="background-color: #f0e9ff !important">
-                               <i class="fa-solid fa-passport me-1"></i> @(item.TotalCustomers - item.CustomerNoPassport) / @item.TotalCustomers khách
-                            </span>
-                        </div>
-
-                        <div class="mb-2">
-                            <strong>Đã thanh toán đủ:</strong>
-                            <span class="badge bg-light text-dark" style="background-color: #e1f8e6 !important">
-                                <i class="fa-solid fa-money-bill-wave me-1"></i> @item.FullPayCustomers / @item.TotalCustomers khách
-                            </span>
-                        </div>
-
-                        <div class="mb-2">
-                            <strong>Di chuyển:</strong>
-                            <span class="badge bg-light text-dark" style="background-color: #fff3cd !important">
-                                <i class="fa-solid fa-plane-departure me-1"></i> @item.CustomerFullPayNotTicket khách hàng trả đủ chưa có vé
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="card-footer text-end bg-white border-0">
-                        <a class="btn btn-sm btn-outline-info me-1" asp-action="Details" asp-route-id="@item.Id" title="Chi tiết">
-                            <i class="bi bi-eye"></i>
-                        </a>
-                        <a class="btn btn-sm btn-outline-warning me-1" asp-action="Edit" asp-route-id="@item.Id" title="Chỉnh sửa">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <form asp-action="DeleteConfirmed" method="post" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@item.Id" />
-                            <button type="submit" class="btn btn-sm btn-outline-danger"
-                                    onclick="return confirm('Bạn có chắc chắn muốn xóa tour này không?');"
-                                    title="Xóa">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
+            <div class="mb-1">
+                <strong>Địa điểm:</strong> @item.LocationName - @item.CountryName
             </div>
-        }
+
+            <div class="mb-1">
+                <strong>Giá:</strong>
+                @if (item.SuggestPrice == item.DiscountPrice || item.DiscountPrice == null)
+                {
+                    <span class="fw-bold text-dark">@string.Format("{0:N0}₫", item.SuggestPrice)</span>
+                }
+                else
+                {
+                    <span class="fw-bold text-danger">@string.Format("{0:N0}₫", item.DiscountPrice)</span>
+                    <span class="text-muted text-decoration-line-through ms-2" style="font-size: 0.9em;">
+                        @string.Format("{0:N0}₫", item.SuggestPrice)
+                    </span>
+                }
+            </div>
+
+            <div class="mb-1">
+                <strong>Số chỗ:</strong>
+                @if (item.AvailableSeats == 0)
+                {
+                    <span class="badge bg-danger">Hết chỗ</span>
+                }
+                else
+                {
+                    <span class="badge bg-success">@(@item.TotalSeats - @item.AvailableSeats) / @item.TotalSeats chỗ</span>
+                }
+            </div>
+
+            <div class="mb-1">
+                <strong>Trạng thái:</strong>
+                @switch (item.Status)
+                {
+                    case "Available":
+                        <span class="badge bg-primary"><i class="fa-solid fa-circle-check me-1"></i>Hoạt động</span>; break;
+                    case "Ready":
+                        <span class="badge bg-success"><i class="fa-solid fa-hourglass-start me-1"></i>Sẵn sàng</span>; break;
+                    case "Cancelled":
+                        <span class="badge bg-danger"><i class="fa-solid fa-ban me-1"></i>Đã hủy</span>; break;
+                    case "Completed":
+                        <span class="badge bg-secondary"><i class="fa-solid fa-check-double me-1"></i>Hoàn thành</span>; break;
+                    default:
+                        <span class="badge bg-warning"><i class="fa-solid fa-question me-1"></i>Không xác định</span>; break;
+                }
+            </div>
+
+            <div class="mb-1">
+                <strong>Yêu cầu visa:</strong>
+                @if (item.IsVisaRequired == true)
+                {
+                    <span class="badge bg-success">
+                        <i class="fa-solid fa-check me-1"></i> Có
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">
+                        <i class="fa-solid fa-xmark me-1"></i> Không
+                    </span>
+                }
+            </div>
+
+            <div class="mb-1">
+                <strong>Đang giữ chỗ:</strong>
+                <span class="badge bg-light text-dark" style="background-color: #f0e9ff !important">
+                    <i class="fa-solid fa-user-clock me-1"></i> @item.DepositedCustomer khách, @item.ReservedCustomer đã cọc
+                </span>
+            </div>
+
+            <div class="mb-1">
+                <strong>Passport:</strong>
+                <span class="badge bg-light text-dark" style="background-color: #f0e9ff !important">
+                    <i class="fa-solid fa-passport me-1"></i> @(item.TotalCustomers - item.CustomerNoPassport) / @item.TotalCustomers khách
+                </span>
+            </div>
+
+            <div class="mb-1">
+                <strong>Đã thanh toán đủ:</strong>
+                <span class="badge bg-light text-dark" style="background-color: #e1f8e6 !important">
+                    <i class="fa-solid fa-money-bill-wave me-1"></i> @item.FullPayCustomers / @item.TotalCustomers khách
+                </span>
+            </div>
+
+            <div class="mb-1">
+                <strong>Di chuyển:</strong>
+                <span class="badge bg-light text-dark" style="background-color: #fff3cd !important">
+                    <i class="fa-solid fa-plane-departure me-1"></i> @item.CustomerFullPayNotTicket khách hàng trả đủ chưa có vé
+                </span>
+            </div>
+        </div>
+
+        <div class="card-footer text-end bg-white border-0">
+            <a class="btn btn-sm btn-outline-info me-1" asp-action="Details" asp-route-id="@item.Id" title="Chi tiết">
+                <i class="bi bi-eye"></i>
+            </a>
+            <a class="btn btn-sm btn-outline-warning me-1" asp-action="Edit" asp-route-id="@item.Id" title="Chỉnh sửa">
+                <i class="bi bi-pencil"></i>
+            </a>
+            <form asp-action="DeleteConfirmed" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@item.Id" />
+                <button type="submit" class="btn btn-sm btn-outline-danger"
+                        onclick="return confirm('Bạn có chắc chắn muốn xóa tour này không?');"
+                        title="Xóa">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+}
     </div>
     <!-- Pagination -->
     @await Html.PartialAsync("_Pagination", Model.Pagination)
