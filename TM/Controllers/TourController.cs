@@ -525,7 +525,8 @@ namespace TM.Controllers
             }
 
             TempData["SuccessMessage"] = "Thêm hành khách thành công!";
-            return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
+            TempData["Fragment"] = "#passenger-list";
+            return RedirectToAction("Edit", "Tour", new { id = passenger?.TourId });
         }
 
         [RequireAuthorize("Admin", "Sale")]
@@ -606,7 +607,8 @@ namespace TM.Controllers
             }
 
             TempData["SuccessMessage"] = "Cập nhật hành khách thành công!";
-            return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
+            TempData["Fragment"] = "#passenger-list";
+            return RedirectToAction("Edit", "Tour", new { id = passenger?.TourId });
         }
 
         [HttpPost]
