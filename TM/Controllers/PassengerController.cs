@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TM.Enum;
 using TM.Models;
 using TM.Models.Entities;
 using TM.Models.ViewModels;
@@ -38,9 +39,9 @@ namespace TM.Controllers
                 }
 
                 // check status
-                if (!string.IsNullOrWhiteSpace(viewModel.Status))
+                if (viewModel.Status != null)
                 {
-                    query = query.Where(p => p.Status == viewModel.Status);
+                    query = query.Where(p => viewModel.Status.Contains(p.Status));
                 }
 
                 var listPassenger = await query.Select(p => new Passenger
@@ -69,6 +70,26 @@ namespace TM.Controllers
             catch (Exception ex)
             {
                 return PartialView("~/Views/Passenger/Shared/_ErrorSearchPartial.cshtml", "Lỗi rồi, bọ siêu khổng lồ!");
+            }
+        }
+
+        [RequireAuthorize("Admin", "Sale")]
+        [HttpGet("passenger/quick-filter")]
+        public IActionResult QuickFilterFromListTour(
+            [FromQuery] PassengerGroup? groupBy,
+            [FromQuery] string[]? status,
+            [FromQuery] string tourId
+        )
+        {
+            try
+            {
+                TempData["groupByPassenger"] = groupBy;
+                TempData["status"] = status;
+                return RedirectToAction("Edit", "Tour", new { id = tourId });
+            }
+            catch (Exception ex)
+            {
+                return Redirect("/");
             }
         }
     }
