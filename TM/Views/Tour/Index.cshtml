@@ -1,6 +1,7 @@
 ﻿@using Azure.Core  
 @model TM.Models.ViewModels.TourViewModel
 @using Microsoft.AspNetCore.Http  
+@using TM.Controllers
 
 @{  
     ViewData["Title"] = "Danh sách Tour";  
@@ -83,7 +84,7 @@
 <!-- ================== PHẦN COUNTRY & LOCATION (horizontal) ================== -->
 
 <!-- ===== HORIZONTAL COUNTRY LIST ===== -->
-<div class="d-flex align-items-center gap-2 mt-3 mb-2">
+<div class="d-flex align-items-center gap-2 mt-3 mb-2 pb-2">
     <h5 class="mb-0">Quốc gia</h5>
     @if (Context.Session.GetString("Role") == "Admin")
     {
@@ -138,9 +139,9 @@
 
 
 <!-- ===== HORIZONTAL LOCATION LIST ===== -->
-@if (Model.Locations.Any())
+@if (Model.SelectedCountryId != null)
 {
-    <div class="d-flex align-items-center gap-2 mt-3 mb-2">
+    <div class="d-flex align-items-center gap-2 mt-3 mb-2 pb-2">
         <h5 class="mb-0">Địa điểm</h5>
         @if (Context.Session.IsInRole("Admin"))
         {
@@ -151,52 +152,56 @@
     </div>
 
     <div id="locationContainer" class="d-flex flex-wrap gap-2 mb-3 pb-3 border-bottom pb-2">
-            <!-- Search button -->
-            <a class="btn btn-sm btn-outline-dark btn-fixed-width"
-               data-bs-toggle="modal"
-               data-bs-target="#locationModal">
-               <i class="bi bi-search me-1"></i>Tìm kiếm
-            </a>
+        <!-- Search button -->
+        <a class="btn btn-sm btn-outline-dark btn-fixed-width"
+           data-bs-toggle="modal"
+           data-bs-target="#locationModal">
+           <i class="bi bi-search me-1"></i>Tìm kiếm
+        </a>
+        <!-- All button -->
+        <a href="@Url.Action("Index", "Tour", new {
+            countryId = Model.SelectedCountryId,
+            locationId = (int?)null,
+            name = Model.Name,
+            startDate = Model.StartDate?.ToString("yyyy-MM-dd"),
+            endDate = Model.EndDate?.ToString("yyyy-MM-dd"),
+            minPrice = Context.Request.Query["minPrice"],
+            maxPrice = Context.Request.Query["maxPrice"],
+            status = Context.Request.Query["status"],
+            isVisaRequired = Context.Request.Query["isVisaRequired"]
+        })" class="btn btn-sm btn-fixed-width @(Model.SelectedLocationId == null ? "btn-secondary" : "btn-outline-secondary")">
+            Tất cả
+        </a>
 
-            <!-- All button -->
-            <a href="@Url.Action("Index", "Tour", new {
-                countryId = Model.SelectedCountryId,
-                locationId = (int?)null,
-                name = Model.Name,
-                startDate = Model.StartDate?.ToString("yyyy-MM-dd"),
-                endDate = Model.EndDate?.ToString("yyyy-MM-dd"),
-                minPrice = Context.Request.Query["minPrice"],
-                maxPrice = Context.Request.Query["maxPrice"],
-                status = Context.Request.Query["status"],
-                isVisaRequired = Context.Request.Query["isVisaRequired"]
-            })" class="btn btn-sm btn-fixed-width @(Model.SelectedLocationId == null ? "btn-secondary" : "btn-outline-secondary")">
-                Tất cả
-            </a>
-
+        @if (Model.Locations.Any())
+        {
             @foreach (var loc in Model.Locations)
             {
                 var isActive = loc.Id == Model.SelectedLocationId;
                 <div>
-                
-                <a href="@Url.Action("Index", "Tour", new {
-                    countryId = Model.SelectedCountryId,
-                    locationId = loc.Id,
-                    name = Model.Name,
-                    startDate = Model.StartDate?.ToString("yyyy-MM-dd"),
-                    endDate = Model.EndDate?.ToString("yyyy-MM-dd"),
-                    minPrice = Context.Request.Query["minPrice"],
-                    maxPrice = Context.Request.Query["maxPrice"],
-                    status = Context.Request.Query["status"],
-                    isVisaRequired = Context.Request.Query["isVisaRequired"]
-                })" class="btn btn-sm btn-fixed-width @(isActive ? "btn-secondary" : "btn-outline-secondary")">
-                    @loc.LocationName
-                </a>
-
-                
+                    <a href="@Url.Action("Index", "Tour", new {
+                        countryId = Model.SelectedCountryId,
+                        locationId = loc.Id,
+                        name = Model.Name,
+                        startDate = Model.StartDate?.ToString("yyyy-MM-dd"),
+                        endDate = Model.EndDate?.ToString("yyyy-MM-dd"),
+                        minPrice = Context.Request.Query["minPrice"],
+                        maxPrice = Context.Request.Query["maxPrice"],
+                        status = Context.Request.Query["status"],
+                        isVisaRequired = Context.Request.Query["isVisaRequired"]
+                    })" class="btn btn-sm btn-fixed-width @(isActive ? "btn-secondary" : "btn-outline-secondary")">
+                        @loc.LocationName
+                    </a>
                 </div>
             }
+        }
+        else
+        {
+            <span class="text-muted">Chưa có địa điểm nào cho quốc gia này. Hãy thêm mới địa điểm.</span>
+        }
     </div>
 }
+
 
 
 
@@ -368,30 +373,38 @@
 
             <div class="mb-1">
                 <strong>Đang giữ chỗ:</strong>
-                <span class="badge bg-light text-dark" style="background-color: #f0e9ff !important">
+                <a href="passenger/quick-filter?tourId=@item.Id&status=Confirmed&status=Reserved">
+                <span class="badge bg-light text-dark" style="background-color: #f0e9ff !important; cursor: pointer">
                     <i class="fa-solid fa-user-clock me-1"></i> @item.DepositedCustomer khách, @item.ReservedCustomer đã cọc
                 </span>
+                </a>
             </div>
 
             <div class="mb-1">
                 <strong>Passport:</strong>
-                <span class="badge bg-light text-dark" style="background-color: #f0e9ff !important">
-                    <i class="fa-solid fa-passport me-1"></i> @(item.TotalCustomers - item.CustomerNoPassport) / @item.TotalCustomers khách
-                </span>
+                <a href="passenger/quick-filter?tourId=@item.Id&groupBy=3">
+                    <span class="badge bg-light text-dark" style="background-color: #f0e9ff !important; cursor: pointer">
+                        <i class="fa-solid fa-passport me-1"></i> @(item.TotalCustomers - item.CustomerNoPassport) / @item.TotalCustomers khách
+                    </span>
+                </a>
             </div>
 
             <div class="mb-1">
                 <strong>Đã thanh toán đủ:</strong>
-                <span class="badge bg-light text-dark" style="background-color: #e1f8e6 !important">
-                    <i class="fa-solid fa-money-bill-wave me-1"></i> @item.FullPayCustomers / @item.TotalCustomers khách
-                </span>
+                <a href="passenger/quick-filter?tourId=@item.Id&status=Paid&status=Confirmed&status=Reserved&groupBy=4">
+                    <span class="badge bg-light text-dark" style="background-color: #e1f8e6 !important; cursor: pointer">
+                        <i class="fa-solid fa-money-bill-wave me-1"></i> @item.FullPayCustomers / @item.TotalCustomers khách
+                    </span>
+                </a>
             </div>
 
             <div class="mb-1">
                 <strong>Di chuyển:</strong>
-                <span class="badge bg-light text-dark" style="background-color: #fff3cd !important">
-                    <i class="fa-solid fa-plane-departure me-1"></i> @item.CustomerFullPayNotTicket khách hàng trả đủ chưa có vé
-                </span>
+                <a href="passenger/quick-filter?tourId=@item.Id&status=Paid&groupBy=5">
+                    <span class="badge bg-light text-dark" style="background-color: #fff3cd !important; cursor: pointer">
+                        <i class="fa-solid fa-plane-departure me-1"></i> @item.CustomerFullPayNotTicket khách hàng trả đủ chưa có vé
+                    </span>
+                </a>
             </div>
         </div>
 
@@ -526,11 +539,11 @@ else
           <input type="hidden" name="Id" id="CountryId" />
           <div class="mb-3">
             <label class="form-label">Tên quốc gia</label>
-            <input type="text" class="form-control" name="Name" id="CountryName" required />
+            <input type="text" class="form-control" name="Name" id="CountryName" required maxlength="50" />
           </div>
           <div class="mb-3">
             <label class="form-label">Mã quốc gia</label>
-            <input type="text" class="form-control" name="Code" id="CountryCode" required />
+            <input type="text" class="form-control" name="Code" id="CountryCode" required maxlength="3" />
           </div>
         </div>
         <div class="modal-footer">
@@ -540,8 +553,6 @@ else
     </div>
   </div>
 </div>
-
-
 
 <!-- Modal modify Location -->
 <div class="modal fade" id="manageLocationModal" tabindex="-1" aria-labelledby="manageLocationLabel" aria-hidden="true">
@@ -571,7 +582,7 @@ else
           <input type="hidden" name="Id" id="LocationId" />
           <div class="mb-3">
             <label class="form-label">Tên địa điểm</label>
-            <input type="text" class="form-control" name="LocationName" id="LocationName" required />
+            <input type="text" class="form-control" name="LocationName" id="LocationName" required maxlength="50"/>
           </div>
         </div>
         <div class="modal-footer">
@@ -581,8 +592,6 @@ else
     </div>
   </div>
 </div>
-
-
 
 <!-- Function cho các modal chỉnh sửa quốc gia -->
 <script>
@@ -654,9 +663,8 @@ else
         
     }
 
-    // Function to clear all filters
+    // Hàm clean text nếu hủy giữa chừng
     function clearFilters() {
-        // Clear form inputs
         document.getElementById('name').value = '';
         document.getElementById('startDate').value = '';
         document.getElementById('endDate').value = '';
@@ -665,7 +673,6 @@ else
         document.getElementById('status').value = '';
         document.getElementById('isVisaRequired').value = '';
         
-        // Redirect to base URL without filters
         const baseUrl = '@Url.Action("Index", "Tour")';
         window.location.href = baseUrl;
     }
@@ -699,5 +706,24 @@ else
             });
         }
     });
+
+
+    //handle lỗi khi update/create country/location trùng
+    $(function() {
+            @if (ViewBag.CountryModalOpen == true)
+            {
+                <text>
+                var modal = new bootstrap.Modal(document.getElementById('manageCountryModal'));
+                modal.show();
+                </text>
+            }
+            @if (ViewBag.LocationModalOpen == true)
+            {
+                <text>
+                var modal = new bootstrap.Modal(document.getElementById('manageLocationModal'));
+                modal.show();
+                </text>
+            }
+        });
 </script>
 

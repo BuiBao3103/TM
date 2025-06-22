@@ -68,4 +68,7 @@ public class PassengerViewModel
     public string? DepartureFlightInfo { get; set; }
 
     public string? ArrivalFlightInfo { get; set; }
+
+    public int? ModifiedById { get; set; }
+
 }
