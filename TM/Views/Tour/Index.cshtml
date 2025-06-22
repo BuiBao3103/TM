@@ -83,15 +83,15 @@
 <!-- ================== PHẦN COUNTRY & LOCATION (horizontal) ================== -->
 
 <!-- ===== HORIZONTAL COUNTRY LIST ===== -->
-<h5 class="mt-3">Quốc gia</h5>
-@if (Context.Session.IsInRole("Admin"))
-{
-    <div class="pb-2">
+<div class="d-flex align-items-center gap-2 mt-3 mb-2">
+    <h5 class="mb-0">Quốc gia</h5>
+    @if (Context.Session.GetString("Role") == "Admin")
+    {
         <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#manageCountryModal">
-             <i class="bi bi-gear me-1"></i> Quản lý quốc gia
+            <i class="bi bi-gear me-1"></i> Quản lý quốc gia
         </button>
-    </div>
-}
+    }
+</div>
 
 <div id="countryContainer" class="d-flex flex-wrap gap-2 mb-3 pb-3 border-bottom pb-2">
         <!-- Search button -->
@@ -140,14 +140,16 @@
 <!-- ===== HORIZONTAL LOCATION LIST ===== -->
 @if (Model.Locations.Any())
 {
-    <h5>Địa điểm</h5>
-    @if (Context.Session.IsInRole("Admin"))
-    {
-        <button class="btn btn-outline-secondary btn-sm mb-3"
-            data-bs-toggle="modal" data-bs-target="#manageLocationModal">
-            <i class="bi bi-gear me-1"></i> Quản lý địa điểm
-        </button>
-    }
+    <div class="d-flex align-items-center gap-2 mt-3 mb-2">
+        <h5 class="mb-0">Địa điểm</h5>
+        @if (Context.Session.IsInRole("Admin"))
+        {
+            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#manageLocationModal">
+                <i class="bi bi-gear me-1"></i> Quản lý địa điểm
+            </button>
+        }
+    </div>
+
     <div id="locationContainer" class="d-flex flex-wrap gap-2 mb-3 pb-3 border-bottom pb-2">
             <!-- Search button -->
             <a class="btn btn-sm btn-outline-dark btn-fixed-width"
