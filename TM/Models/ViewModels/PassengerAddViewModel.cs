@@ -59,6 +59,9 @@ namespace TM.Models.ViewModels
         [RegularExpression("^[A-Za-z0-9]+$", ErrorMessage = "Số hộ chiếu chỉ được chứa chữ và số.")]
         public string? PassportNum { get; set; }
 
+        [Display(Name = "Ngày hết hạn hộ chiếu")]
+        public DateOnly? PassportExpiryDate { get; set; }
+
         [Display(Name = "Số điện thoại")]
         [RegularExpression(@"^\d+$", ErrorMessage = "Số điện thoại chỉ được chứa chữ số")]
         [StringLength(15, ErrorMessage = "Số điện thoại không được vượt quá 15 ký tự")]

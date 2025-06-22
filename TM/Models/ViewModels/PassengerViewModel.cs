@@ -65,6 +65,9 @@ public class PassengerViewModel
 
     public string? PassportNum { get; set; }
 
+    [Display(Name = "Ngày hết hạn hộ chiếu")]
+    public DateOnly? PassportExpiryDate { get; set; }
+
     public string? DepartureFlightInfo { get; set; }
 
     public string? ArrivalFlightInfo { get; set; }

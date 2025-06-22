@@ -39,6 +39,9 @@ namespace TM.Models.ViewModels
 
         public string? PassportNum { get; set; }
 
+        [Display(Name = "Ngày hết hạn hộ chiếu")]
+        public DateOnly? PassportExpiryDate { get; set; }
+
         [Display(Name = "Số điện thoại")]
         [RegularExpression(@"^\d+$", ErrorMessage = "Số điện thoại chỉ được chứa chữ số")]
         [StringLength(15, ErrorMessage = "Số điện thoại không được vượt quá 15 ký tự")]

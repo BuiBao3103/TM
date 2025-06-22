@@ -109,6 +109,14 @@
                                 </div>
 
                                 <div class="col-md-6 mb-3">
+                                    <label asp-for="PassportExpiryDate" class="form-label fw-semibold">
+                                        <i class="fas fa-calendar-alt me-1"></i>Ngày hết hạn hộ chiếu
+                                    </label>
+                                    <input asp-for="PassportExpiryDate" class="form-control" type="date" />
+                                    <span asp-validation-for="PassportExpiryDate" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
                                     <label asp-for="Address" class="form-label fw-semibold">
                                         <i class="fas fa-map-marker-alt me-1"></i>Địa chỉ
                                     </label>
@@ -209,12 +217,12 @@
 
                         <!-- Submit -->
                         <div class="text-end">
+                            <a href="@Url.Action("Edit", "Tour", new { id = Model.TourId })#passenger-list" class="btn btn-secondary ms-2">
+                                <i class="fas fa-arrow-left me-1"></i>Quay lại
+                            </a>
                             <button type="submit" class="btn btn-success">
                                 <i class="fas fa-save me-1"></i>Lưu hành khách
                             </button>
-                            <a href="@Url.Action("Edit", "Tour",new { id = Model.TourId })#passenger-list" class="btn btn-secondary ms-2">
-                                <i class="fas fa-arrow-left me-1"></i>Quay lại
-                            </a>
                         </div>
                     </form>
                 </div>

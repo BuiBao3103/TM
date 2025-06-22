@@ -52,6 +52,7 @@ namespace TM.Controllers
                     AssignedPrice = p.AssignedPrice,
                     CustomerPaid = p.CustomerPaid,
                     PassportNum = p.PassportNum,
+                    PassportExpiryDate = p.PassportExpiryDate,
                     DepartureFlightInfo = p.DepartureFlightInfo,
                     ArrivalFlightInfo = p.ArrivalFlightInfo,
                     Status = p.Status,

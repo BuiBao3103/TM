@@ -453,10 +453,17 @@ namespace TM.Controllers
                 ModelState
             );
 
+            Tour? tour = await _context.Tours.FindAsync(viewModel.TourId);
+
+            _validator.ValidatePassportExpiryDate(
+                viewModel.PassportExpiryDate,
+                tour,
+                ModelState
+            );
+
             // If model state is invalid, retrieve the tour name and return the view with the model
             if (!ModelState.IsValid)
             {
-                Tour? tour = await _context.Tours.FindAsync(viewModel.TourId);
                 if (tour != null)
                 {
                     viewModel.TourName = tour.Name;
@@ -563,12 +570,20 @@ namespace TM.Controllers
                 ModelState
             );
 
+            Passenger? passenger = _context.Passengers.Find(viewModel.Id);
+            Tour? tour = _context.Tours.Find(passenger?.TourId);
+
+            _validator.ValidatePassportExpiryDate(
+                viewModel.PassportExpiryDate,
+                tour,
+                ModelState
+            );
+
             if (!ModelState.IsValid)
             {
                 return View(viewModel);
             }
 
-            Passenger? passenger = _context.Passengers.Find(viewModel.Id);
             if (passenger == null)
             {
                 TempData["ErrorMessage"] = "Có lỗi xảy ra, dữ liệu không tồn tại.";
@@ -578,7 +593,6 @@ namespace TM.Controllers
             _mapper.Map(viewModel, passenger);
             _context.SaveChanges();
 
-            Tour? tour = _context.Tours.Find(passenger?.TourId);
 
             if (tour != null)
             {
