@@ -23,6 +23,26 @@
         groupedPassengers = Model
             .GroupBy(p => string.IsNullOrWhiteSpace(p.PassportNum) ? "Chưa có thông tin" : "Đã có thông tin")
             .ToList();
+    }           
+    else if (groupBy == PassengerGroup.PaymentStatus)
+    {
+        groupedPassengers = Model
+            .GroupBy(p => p.CustomerPaid == 0 
+                ? "Chưa thanh toán" 
+                : p.CustomerPaid >= p.AssignedPrice 
+                    ? "Đã thanh toán đủ" 
+                    : "Đã cọc"
+            )
+            .ToList();
+    }
+    else if (groupBy == PassengerGroup.GoAndReturn)
+    {
+        groupedPassengers = Model
+            .GroupBy(p => string.IsNullOrWhiteSpace(p.DepartureFlightInfo) || string.IsNullOrWhiteSpace(p.ArrivalFlightInfo) 
+                ? "Chưa đủ vé di chuyển" 
+                : "Đã đủ"
+            )
+            .ToList();
     }
 }
 

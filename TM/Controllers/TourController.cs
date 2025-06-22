@@ -148,7 +148,7 @@ namespace TM.Controllers
             }
 
             // pagination
-            queryTour = queryTour.OrderByDescending(t => t.Id);
+            queryTour = queryTour.OrderBy(t => t.Id);
             var totalRecords = await queryTour.CountAsync();
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
             var skip = (page - 1) * pageSize;
