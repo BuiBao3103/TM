@@ -9,6 +9,7 @@ public partial class Location
     public int CountryId { get; set; }
 
     public string? Description { get; set; }
+    public string? Code { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 

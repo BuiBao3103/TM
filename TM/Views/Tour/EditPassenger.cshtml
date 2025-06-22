@@ -108,21 +108,86 @@
                             <h6 class="text-primary border-bottom pb-2 mb-3 fw-bold">
                                 <i class="fas fa-plane-departure me-2"></i>Thông tin Tour
                             </h6>
+                            <!-- Chuyến bay đi -->
+                            <h6 class="pb-2 mb-3 fw-bold">
+                                <i class="fas fa-plane-departure me-2"></i>Chuyến bay đi
+                            </h6>
                             <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label asp-for="DepartureFlightInfo" class="form-label fw-semibold">
-                                        <i class="fas fa-plane-departure me-1"></i>Chuyến bay đi
-                                    </label>
-                                    <input asp-for="DepartureFlightInfo" class="form-control" />
-                                    <span asp-validation-for="DepartureFlightInfo" class="text-danger small"></span>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">
+                                            <i class="fas fa-barcode me-1"></i>Mã chuyến bay đi
+                                        </label>
+                                        <input type="text" class="form-control departure-flight-code" placeholder="VD: VN192" />
+                                    </div>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label asp-for="ArrivalFlightInfo" class="form-label fw-semibold">
-                                        <i class="fas fa-plane-arrival me-1"></i>Chuyến bay về
-                                    </label>
-                                    <input asp-for="ArrivalFlightInfo" class="form-control" />
-                                    <span asp-validation-for="ArrivalFlightInfo" class="text-danger small"></span>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">
+                                            <i class="fas fa-sign-out-alt me-1"></i>Mã địa điểm khởi hành
+                                        </label>
+                                        <input type="text" class="form-control departure-from" placeholder="VD: SGN" />
+                                    </div>
                                 </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">
+                                            <i class="fas fa-sign-in-alt me-1"></i>Mã địa điểm đến
+                                        </label>
+                                        <input type="text" class="form-control departure-to" placeholder="VD: HAN" />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">
+                                            <i class="fas fa-clock me-1"></i>Thời gian khởi hành
+                                        </label>
+                                        <input type="time" class="form-control departure-time" placeholder="VD: 19:25" />
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="mb-3">
+                                <!-- Chuyến bay về -->
+                                <h6 class=" pb-2 mb-3 fw-bold">
+                                    <i class="fas fa-plane-arrival me-2"></i>Chuyến bay về
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">
+                                                <i class="fas fa-barcode me-1"></i>Mã chuyến bay về
+                                            </label>
+                                            <input type="text" class="form-control arrival-flight-code" placeholder="VD: VN192" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">
+                                                <i class="fas fa-sign-out-alt me-1"></i>Mã địa điểm khởi hành
+                                            </label>
+                                            <input type="text" class="form-control arrival-from" placeholder="VD: SGN" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">
+                                                <i class="fas fa-sign-in-alt me-1"></i>Mã địa điểm đến
+                                            </label>
+                                            <input type="text" class="form-control arrival-to" placeholder="VD: HAN" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">
+                                                <i class="fas fa-clock me-1"></i>Thời gian khởi hành
+                                            </label>
+                                            <input type="time" class="form-control arrival-time" placeholder="VD: 19:29" />
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                         <!-- Thông tin thanh toán -->
@@ -172,7 +237,9 @@
                             </div>
                         </div>
                         <div class="text-end pt-3">
-                            <button type="submit" class="btn btn-success">
+                            <button type="submit" class="btn btn-success" id="confirmButton">
+                                <input type="hidden" asp-for="DepartureFlightInfo" id="departureFlightInfo" />
+                                <input type="hidden" asp-for="ArrivalFlightInfo" id="arrivalFlightInfo" />
                                 <i class="fas fa-save me-1"></i>Lưu thay đổi
                             </button>
                             <a href="@Url.Action("Edit", "Tour", new { id = Model.TourId })#passenger-list" class="btn btn-secondary ms-2">
@@ -189,6 +256,64 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // rã dữ liệu
+        function populateFlightFields() {
+            // rã DepartureFlightInfo
+            let departureInfo = '@(Model.DepartureFlightInfo)' || '';
+            departureInfo = departureInfo.trim();
+            if (departureInfo) {
+                const [code,from, to, time] = departureInfo.split('//').map(part => part.trim());
+                document.querySelector('.departure-flight-code').value = code || '';
+                document.querySelector('.departure-from').value = from || '';
+                document.querySelector('.departure-to').value = to || '';
+                document.querySelector('.departure-time').value = time || '';
+            }
+
+            // rã ArrivalFlightInfo
+            let arrivalInfo = '@(Model.ArrivalFlightInfo)' || '';
+            arrivalInfo = arrivalInfo.trim();
+            if (arrivalInfo) {
+                const [code,from, to, time] = arrivalInfo.split('//').map(part => part.trim());
+                document.querySelector('.arrival-flight-code').value = code || '';
+                document.querySelector('.arrival-from').value = from || '';
+                document.querySelector('.arrival-to').value = to || '';
+                document.querySelector('.arrival-time').value = time || '';
+            }
+        }
+
+        // rã dữ liệu khi tải trang
+        populateFlightFields();
+
+
+
+        // gộp dữ liệu khi gửi form
+       document.getElementById('confirmButton').addEventListener('click', function () {
+            const departureFlightCode = document.querySelector('.departure-flight-code').value.trim();
+            const departureFrom = document.querySelector('.departure-from').value.trim();
+            const departureTo = document.querySelector('.departure-to').value.trim();
+            const departureTime = document.querySelector('.departure-time').value;
+            const flightCode = document.querySelector('.arrival-flight-code').value.trim();
+            const from = document.querySelector('.arrival-from').value.trim();
+            const to = document.querySelector('.arrival-to').value.trim();
+            const time = document.querySelector('.arrival-time').value;
+            if (flightCode && from && to && time || departureFlightCode && departureFrom && departureTo && departureTime) {
+                const arrivalInfo = `${flightCode}//${from}//${to}//${time}`;
+                const departureinfo = `${departureFlightCode}//${departureFrom}//${departureTo}//${departureTime}`
+                document.getElementById('departureFlightInfo').value = departureinfo;
+                 document.getElementById('arrivalFlightInfo').value = arrivalInfo;
+                console.log('Departure Flight Info:', departureinfo);
+                   console.log('Arrival Flight Info:', arrivalInfo);
+            } else {
+                alert('Vui lòng điền đầy đủ thông tin chuyến bay đi.');
+            }
+        });
+    });
+</script>
 
 <style>
     .form-label {
