@@ -15,40 +15,35 @@
         public DateTime? ToDate { get; set; }
 
         // Statistics data
-        public List<TourRevenueByDateDto> RevenueByDate { get; set; } = new();
-        public List<TourCountByCountryDto> ToursByCountry { get; set; } = new();
-        public List<TourCountByLocationDto> ToursByLocation { get; set; } = new();
+        public List<TourRevenueByDateViewModel> RevenueByDate { get; set; } = new();
+        public List<TourCountByCountryViewModel> ToursByCountry { get; set; } = new();
+        public List<TourCountByLocationViewModel> ToursByLocation { get; set; } = new();
 
-        // Additional statistics
-        public Dictionary<string, decimal> MonthlyRevenue { get; set; } = new();
-        public Dictionary<string, int> QuarterlyTours { get; set; } = new();
     }
 
-    // TourRevenueByDateDto.cs
-    public class TourRevenueByDateDto
+    public class TourRevenueByDateViewModel
     {
         public DateTime Date { get; set; }
-        public decimal Revenue { get; set; }
-        public int TourCount { get; set; } // Thêm số lượng tour
+        public decimal? Revenue { get; set; }
+        public int? TourCount { get; set; }
+        public int? PassengerCount { get; set; }
     }
 
-    // TourCountByCountryDto.cs
-    public class TourCountByCountryDto
+    public class TourCountByCountryViewModel
     {
         public string CountryName { get; set; }
         public int TourCount { get; set; }
-        public decimal Revenue { get; set; } // Thêm doanh thu
-        public int PassengerCount { get; set; } // Thêm số hành khách
+        public decimal Revenue { get; set; } 
+        public int PassengerCount { get; set; } 
     }
 
-    // TourCountByLocationDto.cs
-    public class TourCountByLocationDto
+    public class TourCountByLocationViewModel
     {
         public string LocationName { get; set; }
         public string CountryName { get; set; }
         public int TourCount { get; set; }
-        public decimal Revenue { get; set; } // Thêm doanh thu
-        public int PassengerCount { get; set; } // Thêm số hành khách
+        public decimal Revenue { get; set; } 
+        public int PassengerCount { get; set; }
     }
 
 
