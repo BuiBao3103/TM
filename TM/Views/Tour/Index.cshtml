@@ -226,16 +226,20 @@
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
                         <h5 class="card-title text-primary fw-bold">@item.Name</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">
+                        <h6 class="card-subtitle mb-3 text-muted">
+                            <i class="fa-solid fa-calendar-days me-1"></i>
                             @item.StartDate.ToString("dd/MM/yyyy") - @item.EndDate.ToString("dd/MM/yyyy")
                         </h6>
-                        <p class="card-text">
-                            <strong>Địa điểm:</strong> @item.LocationName - @item.CountryName <br />
 
+                        <div class="mb-2">
+                            <strong>Địa điểm:</strong> @item.LocationName - @item.CountryName
+                        </div>
+
+                        <div class="mb-2">
                             <strong>Giá:</strong>
                             @if (item.SuggestPrice == item.DiscountPrice || item.DiscountPrice == null)
                             {
-                                <span class="fw-bold">@string.Format("{0:N0}₫", item.SuggestPrice)</span>
+                                <span class="fw-bold text-dark">@string.Format("{0:N0}₫", item.SuggestPrice)</span>
                             }
                             else
                             {
@@ -244,8 +248,9 @@
                                     @string.Format("{0:N0}₫", item.SuggestPrice)
                                 </span>
                             }
-                            <br />
+                        </div>
 
+                        <div class="mb-2">
                             <strong>Số chỗ:</strong>
                             @if (item.AvailableSeats == 0)
                             {
@@ -253,32 +258,30 @@
                             }
                             else
                             {
-                                <span class="badge bg-success">@(item.TotalSeats-item.AvailableSeats) / @item.TotalSeats chỗ</span>
+                                <span class="badge bg-success">@(@item.TotalSeats - @item.AvailableSeats) / @item.TotalSeats chỗ</span>
                             }
-                            <br />
-                            <strong>Trạng thái:</strong> 
+                        </div>
+
+                        <div class="mb-2">
+                            <strong>Trạng thái:</strong>
                             @switch (item.Status)
                             {
-                              case "Available":  
-                                  <span class="badge bg-primary">Hoạt động</span>; 
-                                  break;
-                              case "Ready":  
-                                  <span class="badge bg-success">Sẵn sàng</span>; 
-                                  break;
-                              case "Cancelled":
-                                  <span class="badge bg-danger">Đã hủy</span>; 
-                                  break;
-                              case "Completed": 
-                                  <span class="badge bg-secondary">Hoàn thành</span>; 
-                                  break;
-                              default: 
-                                  <span class="badge bg-warning">Không xác định</span>; 
-                                  break;
+                                case "Available":
+                                    <span class="badge bg-primary"><i class="fa-solid fa-circle-check me-1"></i>Hoạt động</span>; break;
+                                case "Ready":
+                                    <span class="badge bg-success"><i class="fa-solid fa-hourglass-start me-1"></i>Sẵn sàng</span>; break;
+                                case "Cancelled":
+                                    <span class="badge bg-danger"><i class="fa-solid fa-ban me-1"></i>Đã hủy</span>; break;
+                                case "Completed":
+                                    <span class="badge bg-secondary"><i class="fa-solid fa-check-double me-1"></i>Hoàn thành</span>; break;
+                                default:
+                                    <span class="badge bg-warning"><i class="fa-solid fa-question me-1"></i>Không xác định</span>; break;
                             }
-                            <br />
+                        </div>
 
-                            <strong>Yêu cầu visa:</strong> 
-                            @if(item.IsVisaRequired == true)
+                        <div class="mb-2">
+                            <strong>Yêu cầu visa:</strong>
+                            @if (item.IsVisaRequired == true)
                             {
                                 <span class="badge bg-success">
                                     <i class="fa-solid fa-check me-1"></i> Có
@@ -286,38 +289,41 @@
                             }
                             else
                             {
-                                 <span class="badge bg-secondary">
+                                <span class="badge bg-secondary">
                                     <i class="fa-solid fa-xmark me-1"></i> Không
                                 </span>
                             }
-                            <br />
+                        </div>
 
-                            <strong>Số KH đang giữ chỗ:</strong> 
-                            <span class="badge bg-light text-dark" style="background-color: #ae9dff5c !important">
-                                @item.DepositedCustomer / @item.ReservedCustomer đã cọc
+                        <div class="mb-2">
+                            <strong>Đang giữ chỗ:</strong>
+                            <span class="badge bg-light text-dark" style="background-color: #f0e9ff !important">
+                                <i class="fa-solid fa-user-clock me-1"></i> @item.DepositedCustomer khách, @item.ReservedCustomer đã cọc
                             </span>
-                            <br />
+                        </div>
 
-                            <strong>KH chưa có passport:</strong>
-                            <span class="badge bg-light text-dark" style="background-color: #ae9dff5c !important">
-                                @item.CustomerNoPassport / @item.TotalCustomers khách hàng
+                        <div class="mb-2">
+                            <strong>Passport:</strong>
+                            <span class="badge bg-light text-dark" style="background-color: #f0e9ff !important">
+                               <i class="fa-solid fa-passport me-1"></i> @(item.TotalCustomers - item.CustomerNoPassport) / @item.TotalCustomers khách
                             </span>
-                            <br />
+                        </div>
 
-                            <strong>Số KH đã thanh toán đủ:</strong> 
-                            <span class="badge bg-light text-dark" style="background-color: #ae9dff5c !important">
-                                @item.FullPayCustomers / @item.TotalCustomers khách hàng
+                        <div class="mb-2">
+                            <strong>Đã thanh toán đủ:</strong>
+                            <span class="badge bg-light text-dark" style="background-color: #e1f8e6 !important">
+                                <i class="fa-solid fa-money-bill-wave me-1"></i> @item.FullPayCustomers / @item.TotalCustomers khách
                             </span>
-                            <br /> 
+                        </div>
 
-                            <strong>Số KH đã thanh toán chưa đủ vé:</strong>
-                            <span class="badge bg-light text-dark" style="background-color: #ae9dff5c !important">
-                                @item.CustomerFullPayNotTicket khách hàng
+                        <div class="mb-2">
+                            <strong>Di chuyển:</strong>
+                            <span class="badge bg-light text-dark" style="background-color: #fff3cd !important">
+                                <i class="fa-solid fa-plane-departure me-1"></i> @item.CustomerFullPayNotTicket khách hàng trả đủ chưa có vé
                             </span>
-                            <br />
-                            
-                        </p>
+                        </div>
                     </div>
+
                     <div class="card-footer text-end bg-white border-0">
                         <a class="btn btn-sm btn-outline-info me-1" asp-action="Details" asp-route-id="@item.Id" title="Chi tiết">
                             <i class="bi bi-eye"></i>
