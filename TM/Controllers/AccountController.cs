@@ -119,5 +119,16 @@ namespace TM.Controllers
         {
             return session?.GetString("Role") == role;
         }
+
+        public static bool IsValidRole(this ISession session, List<string> roles, string modifiedById)
+        {
+            String? userRole = session?.GetString("Role");
+
+            if (userRole == "Admin" && roles.Contains(userRole))
+                return true;
+
+            String? authId = session?.GetString("AuthId");
+            return roles.Contains(userRole) && authId == modifiedById;
+        }
     }
 }

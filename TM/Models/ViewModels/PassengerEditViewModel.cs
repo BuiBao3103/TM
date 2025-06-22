@@ -57,14 +57,15 @@ namespace TM.Models.ViewModels
         [Required(ErrorMessage = "Tour là bắt buộc")]
         public int TourId { get; set; }
 
-        [Required(ErrorMessage = "Giá chào là bắt buộc")]
-        [Display(Name = "Giá chào")]
+        [Required(ErrorMessage = "Giá đè xuất  là bắt buộc")]
+        [Display(Name = "Giá đề xuất")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
         public decimal AssignedPrice { get; set; }
 
         [Required(ErrorMessage = "Số tiền khách trả là bắt buộc")]
         [Display(Name = "Khách đã trả")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
+        [CustomerPaidNotGreaterThanAssignedPrice("AssignedPrice", ErrorMessage = "Số tiền khách trả không được lớn hơn giá đã đề xuất")]
         public decimal CustomerPaid { get; set; }
 
         [StringLength(100, ErrorMessage = "Thông tin không được vượt quá 100 ký tự")]

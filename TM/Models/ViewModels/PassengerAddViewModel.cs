@@ -88,14 +88,15 @@ namespace TM.Models.ViewModels
         [StringLength(100, ErrorMessage = "Thông tin không được vượt quá 100 ký tự")]
         public string? ArrivalFlightInfo { get; set; }
 
-        [Required(ErrorMessage = "Giá chào là bắt buộc")]
-        [Display(Name = "Giá chào")]
+        [Required(ErrorMessage = "Giá đề xuất là bắt buộc")]
+        [Display(Name = "Giá đề xuất")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
         public decimal AssignedPrice { get; set; }
 
         [Required(ErrorMessage = "Số tiền khách trả là bắt buộc")]
         [Display(Name = "Khách đã trả")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
+        [CustomerPaidNotGreaterThanAssignedPrice("AssignedPrice", ErrorMessage = "Số tiền khách trả không được lớn hơn giá đã đề xuất")]
         public decimal CustomerPaid { get; set; }
 
         [Required(ErrorMessage = "Trạng thái khách hàng không được thiếu")]
@@ -122,6 +123,34 @@ namespace TM.Models.ViewModels
             if (value == null) return false;
 
             return System.Enum.TryParse(typeof(PassengerStatus), value.ToString(), ignoreCase: true, out _);
+        }
+    }
+
+    public class CustomerPaidNotGreaterThanAssignedPriceAttribute : ValidationAttribute
+    {
+        private readonly string _comparisonProperty;
+
+        public CustomerPaidNotGreaterThanAssignedPriceAttribute(string comparisonProperty)
+        {
+            _comparisonProperty = comparisonProperty;
+        }
+
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+        {
+            var currentValue = (decimal?)value;
+
+            var property = validationContext.ObjectType.GetProperty(_comparisonProperty);
+            if (property == null)
+                return new ValidationResult($"Unknown property: {_comparisonProperty}");
+
+            var comparisonValue = (decimal?)property.GetValue(validationContext.ObjectInstance);
+
+            if (currentValue != null && comparisonValue != null && currentValue > comparisonValue)
+            {
+                return new ValidationResult(ErrorMessage ?? $"Số tiền khách trả không được lớn hơn giá chào.");
+            }
+
+            return ValidationResult.Success;
         }
     }
 }

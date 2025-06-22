@@ -53,7 +53,8 @@ namespace TM.Controllers
                     PassportNum = p.PassportNum,
                     DepartureFlightInfo = p.DepartureFlightInfo,
                     ArrivalFlightInfo = p.ArrivalFlightInfo,
-                    Status = p.Status
+                    Status = p.Status,
+                    ModifiedById = p.ModifiedById,
                 }).ToListAsync();
 
                 var listPassengerViewModel = _mapper.Map<List<PassengerViewModel>>(listPassenger);
