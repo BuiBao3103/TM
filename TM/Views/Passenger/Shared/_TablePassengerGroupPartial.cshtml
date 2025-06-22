@@ -38,7 +38,10 @@
     else if (groupBy == PassengerGroup.GoAndReturn)
     {
         groupedPassengers = Model
-            .GroupBy(p => string.IsNullOrWhiteSpace(p.DepartureFlightInfo) || string.IsNullOrWhiteSpace(p.ArrivalFlightInfo) ? "Chưa đủ vé di chuyển" : "Đã đủ")
+            .GroupBy(p => string.IsNullOrWhiteSpace(p.DepartureFlightInfo) || string.IsNullOrWhiteSpace(p.ArrivalFlightInfo) 
+                ? "Chưa đủ vé di chuyển" 
+                : "Đã đủ"
+            )
             .ToList();
     }
 }
