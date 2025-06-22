@@ -78,4 +78,4 @@ namespace TM.Models.ViewModels
         [StatusValidation(ErrorMessage = "Trạng thái không hợp lệ")]
         public string Status { get; set; }
     }
-} 
+}

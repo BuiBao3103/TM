@@ -20,7 +20,7 @@ namespace TM.Services
             string? passportNum,
             ModelStateDictionary modelState)
         {
-            bool identityNumberExists = _context.Passengers.Any(p => p.IdentityNumber == identityNumber 
+            bool identityNumberExists = _context.Passengers.Any(p => p.IdentityNumber == identityNumber
                                                                 && p.TourId == tourId && p.Id != id);
             if (identityNumberExists)
             {
@@ -34,7 +34,7 @@ namespace TM.Services
             }
 
             bool passportExits = _context.Passengers.Any(p => p.PassportNum == passportNum && p.TourId == tourId && p.Id != id);
-            if (passportExits) 
+            if (passportExits)
             {
                 modelState.AddModelError("PassportNum", "Số hộ chiếu này đã tồn tại trong tour.");
             }

@@ -1,6 +1,4 @@
-﻿using TM.Models;
-
-namespace TM.Services
+﻿namespace TM.Services
 {
     public class AuthMiddleWare
     {

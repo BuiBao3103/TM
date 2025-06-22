@@ -36,6 +36,10 @@ namespace TM.Controllers
             DateTime? endDate,
             int? countryId,
             int? locationId,
+            decimal? minPrice,
+            decimal? maxPrice,
+            string? status,
+            bool? isVisaRequired,
             int page = 1,
             int pageSize = 12)
         {
@@ -123,6 +127,26 @@ namespace TM.Controllers
                     .FirstOrDefault());
             }
 
+            if (minPrice.HasValue)
+            {
+                queryTour = queryTour.Where(g => (g.DiscountPrice ?? g.SuggestPrice) >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                queryTour = queryTour.Where(g => (g.DiscountPrice ?? g.SuggestPrice) <= maxPrice.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                queryTour = queryTour.Where(g => g.Status == status);
+            }
+
+            if (isVisaRequired.HasValue)
+            {
+                queryTour = queryTour.Where(g => g.IsVisaRequired == isVisaRequired.Value);
+            }
+
             // pagination
             queryTour = queryTour.OrderByDescending(t => t.Id);
             var totalRecords = await queryTour.CountAsync();
@@ -149,6 +173,10 @@ namespace TM.Controllers
                 Name = name,
                 StartDate = startDate,
                 EndDate = endDate,
+                MinPrice = minPrice,
+                MaxPrice = maxPrice,
+                Status = status,
+                IsVisaRequired = isVisaRequired,
                 Tours = listTour,
                 Pagination = paginViewModel
             };

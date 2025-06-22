@@ -105,7 +105,11 @@
             locationId = (int?)null,
             name = Model.Name,
             startDate = Model.StartDate?.ToString("yyyy-MM-dd"),
-            endDate = Model.EndDate?.ToString("yyyy-MM-dd")
+            endDate = Model.EndDate?.ToString("yyyy-MM-dd"),
+            minPrice = Context.Request.Query["minPrice"],
+            maxPrice = Context.Request.Query["maxPrice"],
+            status = Context.Request.Query["status"],
+            isVisaRequired = Context.Request.Query["isVisaRequired"]
         })" class="btn btn-sm btn-fixed-width @(Model.SelectedCountryId == null ? "btn-primary" : "btn-outline-primary")">
             Tất cả
         </a>
@@ -118,7 +122,11 @@
                     locationId = (int?)null,
                     name = Model.Name,
                     startDate = Model.StartDate?.ToString("yyyy-MM-dd"),
-                    endDate = Model.EndDate?.ToString("yyyy-MM-dd")
+                    endDate = Model.EndDate?.ToString("yyyy-MM-dd"),
+                    minPrice = Context.Request.Query["minPrice"],
+                    maxPrice = Context.Request.Query["maxPrice"],
+                    status = Context.Request.Query["status"],
+                    isVisaRequired = Context.Request.Query["isVisaRequired"]
                 })" class="btn btn-sm btn-fixed-width @(isActive ? "btn-primary" : "btn-outline-primary")">
                     @country.Name
                 </a>
@@ -149,7 +157,11 @@
                 locationId = (int?)null,
                 name = Model.Name,
                 startDate = Model.StartDate?.ToString("yyyy-MM-dd"),
-                endDate = Model.EndDate?.ToString("yyyy-MM-dd")
+                endDate = Model.EndDate?.ToString("yyyy-MM-dd"),
+                minPrice = Context.Request.Query["minPrice"],
+                maxPrice = Context.Request.Query["maxPrice"],
+                status = Context.Request.Query["status"],
+                isVisaRequired = Context.Request.Query["isVisaRequired"]
             })" class="btn btn-sm btn-fixed-width @(Model.SelectedLocationId == null ? "btn-secondary" : "btn-outline-secondary")">
                 Tất cả
             </a>
@@ -164,7 +176,11 @@
                     locationId = loc.Id,
                     name = Model.Name,
                     startDate = Model.StartDate?.ToString("yyyy-MM-dd"),
-                    endDate = Model.EndDate?.ToString("yyyy-MM-dd")
+                    endDate = Model.EndDate?.ToString("yyyy-MM-dd"),
+                    minPrice = Context.Request.Query["minPrice"],
+                    maxPrice = Context.Request.Query["maxPrice"],
+                    status = Context.Request.Query["status"],
+                    isVisaRequired = Context.Request.Query["isVisaRequired"]
                 })" class="btn btn-sm btn-fixed-width @(isActive ? "btn-secondary" : "btn-outline-secondary")">
                     @loc.LocationName
                 </a>
@@ -197,15 +213,51 @@
         <input type="date" class="form-control" id="endDate" name="endDate"
                value="@Model.EndDate?.ToString("yyyy-MM-dd")" />
     </div>
-    <div class="col-md-2 d-flex align-items-end">
-        <button type="submit" class="btn btn-primary w-100">
-            <i class="bi bi-search"></i> Lọc Tour
-        </button>
+    <div class="col-md-2">
+        <label for="minPrice" class="form-label">Giá từ (₫)</label>
+        <input type="number" class="form-control" id="minPrice" name="minPrice" 
+               value="@Context.Request.Query["minPrice"]" min="0" />
     </div>
-    <div class="col-md-2 d-flex align-items-end">
-        <a asp-controller="Tour" asp-action="Create" class="btn btn-success w-100">
-            <i class="bi bi-plus-circle"></i> Tạo Tour
-        </a>
+    <div class="col-md-2">
+        <label for="maxPrice" class="form-label">Giá đến (₫)</label>
+        <input type="number" class="form-control" id="maxPrice" name="maxPrice" 
+               value="@Context.Request.Query["maxPrice"]" min="0" />
+    </div>
+    
+    <!-- Second row for additional filters -->
+    <div class="col-md-4">
+        <label for="status" class="form-label">Trạng thái</label>
+        <select class="form-select" id="status" name="status">
+            <option value="">Tất cả trạng thái</option>
+            <option value="Available" selected="@(Context.Request.Query["status"] == "Available" ? "selected" : null)">Hoạt động</option>
+            <option value="Ready" selected="@(Context.Request.Query["status"] == "Ready" ? "selected" : null)">Sẵn sàng</option>
+            <option value="Cancelled" selected="@(Context.Request.Query["status"] == "Cancelled" ? "selected" : null)">Đã hủy</option>
+            <option value="Completed" selected="@(Context.Request.Query["status"] == "Completed" ? "selected" : null)">Hoàn thành</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label for="isVisaRequired" class="form-label">Yêu cầu visa</label>
+        <select class="form-select" id="isVisaRequired" name="isVisaRequired">
+            <option value="">Tất cả</option>
+            <option value="true" selected="@(Context.Request.Query["isVisaRequired"] == "true" ? "selected" : null)">Có yêu cầu visa</option>
+            <option value="false" selected="@(Context.Request.Query["isVisaRequired"] == "false" ? "selected" : null)">Không yêu cầu visa</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <label class="form-label">&nbsp;</label>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-secondary" onclick="clearFilters()">
+                <i class="bi bi-arrow-clockwise"></i> Xóa bộ lọc
+            </button>
+        </div>
+    </div>
+    <div class="col-md-1">
+        <label class="form-label">&nbsp;</label>
+        <div class="d-flex gap-2">
+             <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-search"></i> Lọc
+            </button>
+        </div>
     </div>
 </form>
 
@@ -214,10 +266,21 @@
 <!-- ========== DANH SÁCH TOUR ========== -->
 @if (Model.Tours.Any())
 {
-    <div class="mb-3 text-muted fw-semibold">
+    
+<div class="d-flex justify-content-between align-items-center pb-3">
+    <div class="col-10">
+       <div class="text-muted fw-semibold">
         <i class="fas fa-list-ul text-primary me-2"></i>
         Tổng cộng <span class="text-primary">@Model.Pagination.TotalItems.ToString("N0")</span> tour được tìm thấy.
     </div>
+    </div>
+    <div class="col-2">
+        <a asp-controller="Tour" asp-action="Create" class="btn btn-success w-100">
+            <i class="bi bi-plus-circle"></i> Tạo Tour
+        </a>
+    </div>
+  </div>
+    
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         @foreach (var item in Model.Tours)
@@ -372,7 +435,11 @@ else
                   locationId = (int?)null,
                   name = Model.Name,
                   startDate = Model.StartDate?.ToString("yyyy-MM-dd"),
-                  endDate = Model.EndDate?.ToString("yyyy-MM-dd")
+                  endDate = Model.EndDate?.ToString("yyyy-MM-dd"),
+                  minPrice = Context.Request.Query["minPrice"],
+                  maxPrice = Context.Request.Query["maxPrice"],
+                  status = Context.Request.Query["status"],
+                  isVisaRequired = Context.Request.Query["isVisaRequired"]
               })"
               class="list-group-item list-group-item-action country-list-item">
                   @country.Name
@@ -408,7 +475,11 @@ else
                             locationId = loc.Id,
                             name = Model.Name,
                             startDate = Model.StartDate?.ToString("yyyy-MM-dd"),
-                            endDate = Model.EndDate?.ToString("yyyy-MM-dd")
+                            endDate = Model.EndDate?.ToString("yyyy-MM-dd"),
+                            minPrice = Context.Request.Query["minPrice"],
+                            maxPrice = Context.Request.Query["maxPrice"],
+                            status = Context.Request.Query["status"],
+                            isVisaRequired = Context.Request.Query["isVisaRequired"]
                         })" class="list-group-item list-group-item-action location-list-item">
                             @loc.LocationName
                         </a>
@@ -574,5 +645,51 @@ else
         });
         
     }
+
+    // Function to clear all filters
+    function clearFilters() {
+        // Clear form inputs
+        document.getElementById('name').value = '';
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+        document.getElementById('minPrice').value = '';
+        document.getElementById('maxPrice').value = '';
+        document.getElementById('status').value = '';
+        document.getElementById('isVisaRequired').value = '';
+        
+        // Redirect to base URL without filters
+        const baseUrl = '@Url.Action("Index", "Tour")';
+        window.location.href = baseUrl;
+    }
+
+    // Add input validation for price range
+    document.addEventListener('DOMContentLoaded', function() {
+        const minPriceInput = document.getElementById('minPrice');
+        const maxPriceInput = document.getElementById('maxPrice');
+        
+        if (minPriceInput && maxPriceInput) {
+            minPriceInput.addEventListener('input', function() {
+                const minValue = parseInt(this.value) || 0;
+                const maxValue = parseInt(maxPriceInput.value) || 0;
+                
+                if (maxValue > 0 && minValue > maxValue) {
+                    this.setCustomValidity('Giá từ không được lớn hơn giá đến');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+            
+            maxPriceInput.addEventListener('input', function() {
+                const maxValue = parseInt(this.value) || 0;
+                const minValue = parseInt(minPriceInput.value) || 0;
+                
+                if (minValue > 0 && maxValue > 0 && minValue > maxValue) {
+                    this.setCustomValidity('Giá đến không được nhỏ hơn giá từ');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+        }
+    });
 </script>
 
