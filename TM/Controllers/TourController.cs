@@ -274,9 +274,15 @@ namespace TM.Controllers
         }
 
         [RequireAuthorize("Admin", "Sale")]
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            Tour? tour = _context.Tours.Find(id);
+            var tour = await _context.Tours
+                .Include(t => t.Location)
+                    .ThenInclude(l => l.Country)
+                .Include(t => t.TourSurcharges.Where(s => s.DeleteAt == null))
+                .Include(t => t.Passengers.Where(p => p.DeleteAt == null))
+                .FirstOrDefaultAsync(t => t.Id == id);
+
             if (tour == null)
             {
                 return NotFound();

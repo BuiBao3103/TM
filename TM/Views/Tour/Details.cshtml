@@ -2,94 +2,237 @@
 @model Tour
 
 @{
-    ViewData["Title"] = "Chi tiết tour";
+    ViewData["Title"] = "Chi tiết tour - " + Model.Name;
 }
 
-<div class="container mt-4">
-    <header class="text-black p-3 mb-4">
-        <h1 class="h4">Chi tiết tour</h1>
-        <p class="mb-1">@Model.Code</p>
-        <p>Đi: @Model.StartDate.ToString("dd/MM/yyyy HH:mm") | Về: @Model.EndDate.ToString("dd/MM/yyyy HH:mm") | ĐGSTPB</p>
-    </header>
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-primary mb-1">
+                <i class="fas fa-info-circle me-2"></i>Chi Tiết Tour
+            </h2>
+            <p class="text-muted mb-0">@Model.Name (@Model.Code)</p>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>Chỉnh sửa
+            </a>
+        </div>
+    </div>
 
-    <div class="accordion" id="tourAccordion">
-       
+    <!-- Main Content -->
+    <div class="accordion" id="tourDetailsAccordion">
+        <!-- Thông tin chung -->
         <div class="accordion-item">
-            <h2 class="accordion-header" id="headingTourInfo">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTourInfo" aria-expanded="true" aria-controls="collapseTourInfo">
-                    <h3 class="h5 m-0">Thông tin vé</h3>
+            <h2 class="accordion-header" id="headingGeneral">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGeneral" aria-expanded="true" aria-controls="collapseGeneral">
+                    <i class="fas fa-globe-asia me-2"></i>Thông tin chung & Chỗ ngồi
                 </button>
             </h2>
-            <div id="collapseTourInfo" class="accordion-collapse collapse show" aria-labelledby="headingTourInfo" data-bs-parent="#tourAccordion">
+            <div id="collapseGeneral" class="accordion-collapse collapse show" aria-labelledby="headingGeneral">
                 <div class="accordion-body">
                     <div class="row">
-                        <div class="col-6">
-                            <div class="tour-details">
-                                <p><strong>Đã bán:</strong> @(Model.TotalSeats - Model.AvailableSeats)</p>
-                                <p><strong>@(Model.AvailableSeats == 0 ? "-> Hết Chỗ" : "Còn: " + Model.AvailableSeats)</strong></p>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="tour-prices">
-                                <ul class="list-unstyled">
-                                    <li><strong>Giá tổng:</strong> @Model.SuggestPrice.ToString("N0") VND // <strong>HH - Giá tổng:</strong> @Model.HhFee.ToString("N0") VND</li>
-                                    <li><strong>Giá đã giảm:</strong> @Model.DiscountPrice?.ToString("N0") VND </li>
-                                </ul>
-                            </div>
-                        </div>
+                        <div class="col-md-4"><strong>Trạng thái:</strong> <span class="badge bg-info">@Model.Status</span></div>
+                        <div class="col-md-4"><strong>Địa điểm:</strong> @Model.Location?.LocationName - @Model.Location?.Country?.Name</div>
+                        <div class="col-md-4"><strong>Điểm khởi hành:</strong> @Model.DepartureLocation</div>
+                        <div class="col-md-4 mt-3"><strong>Ngày đi:</strong> @Model.StartDate.ToString("dd/MM/yyyy HH:mm")</div>
+                        <div class="col-md-4 mt-3"><strong>Ngày về:</strong> @Model.EndDate.ToString("dd/MM/yyyy HH:mm")</div>
+                        <div class="col-md-4 mt-3"><strong>Tổng chỗ:</strong> @Model.TotalSeats</div>
+                        <div class="col-md-4 mt-3"><strong>Chỗ trống:</strong> @Model.AvailableSeats</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Accordion Item for Visa/Payment Information -->
+        <!-- Thông tin giá -->
         <div class="accordion-item">
-           
-            <h2 class="accordion-header" id="headingVisaPayment">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseVisaPayment" aria-expanded="false" aria-controls="collapseVisaPayment">
-                    <h3 class="h5 m-0">Thông tin tour</h3>
+            <h2 class="accordion-header" id="headingPrice">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrice" aria-expanded="false" aria-controls="collapsePrice">
+                    <i class="fas fa-dollar-sign me-2"></i>Thông tin giá
                 </button>
             </h2>
-            <div id="collapseVisaPayment" class="accordion-collapse collapse" aria-labelledby="headingVisaPayment" data-bs-parent="#tourAccordion">
+            <div id="collapsePrice" class="accordion-collapse collapse" aria-labelledby="headingPrice">
                 <div class="accordion-body">
-                    <form>
-
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label for="holdTime" class="form-label">Thời gian giữ chỗ</label>
-                                    <input type="text" class="form-control" id="holdTime" readonly value=@(Model.HoldTime + "H")>
-                                </div>
-                        </div>
-                        <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label for="visaDeadline" class="form-label">Deadline Visa</label>
-                                    <input type="text" class="form-control" id="visaDeadline" readonly value=@(Model.VisaDeadline)>
-                                </div>
-                        </div>
-                        <div class="col-md-3">
-                            
-                                <div class="mb-3">
-                                    <label for="FullPayDeadline" class="form-label">Deadline Full pay</label>
-                                    <input type="text" class="form-control" id="FullPayDeadline" readonly value=@(Model.FullPayDeadline)>
-                                </div>
-                        </div>
-                        <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label for="departureLocation" class="form-label">Điểm khởi hành</label>
-                                <select class="form-select" id="departureLocation">
-                                    <option value=@Model.DepartureLocation>@Model.DepartureLocation</option>
-                     
-                                </select>
-                                </div>
-                        </div>
-                            <div class="mb-3">
-                                <label for="additionalInfor" class="form-label">Thông tin bổ sung</label>
-                                <textarea class="form-control" id="additionalInfor" rows="3"></textarea>
-                            </div>
+                    <div class="row">
+                        <div class="col-md-4"><strong>Giá đề xuất:</strong> <span class="text-success fw-bold">@Model.SuggestPrice.ToString("N0") VNĐ</span></div>
+                        <div class="col-md-4"><strong>Giá giảm:</strong> <span class="text-warning fw-bold">@(Model.DiscountPrice?.ToString("N0") ?? "N/A") VNĐ</span></div>
+                        <div class="col-md-4"><strong>Phí HH:</strong> <span class="text-danger fw-bold">@Model.HhFee.ToString("N0") VNĐ</span></div>
                     </div>
-                    </form>
                 </div>
             </div>
+        </div>
+
+        <!-- Cài đặt -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingSettings">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSettings" aria-expanded="false" aria-controls="collapseSettings">
+                    <i class="fas fa-cog me-2"></i>Cài đặt & Hạn chót
+                </button>
+            </h2>
+            <div id="collapseSettings" class="accordion-collapse collapse" aria-labelledby="headingSettings">
+                <div class="accordion-body">
+                    <div class="row">
+                        <div class="col-md-3"><strong>Giữ chỗ tự động:</strong> @(Model.IsAutoHoldTime == true ? "Có" : "Không")</div>
+                        <div class="col-md-3"><strong>Thời gian giữ chỗ:</strong> @(Model.HoldTime?.ToString() ?? "N/A") giờ</div>
+                        <div class="col-md-3"><strong>Yêu cầu Visa:</strong> @(Model.IsVisaRequired == true ? "Có" : "Không")</div>
+                        <div class="col-md-3"><strong>Hạn chót Visa:</strong> @(Model.VisaDeadline?.ToString("dd/MM/yyyy") ?? "N/A")</div>
+                        <div class="col-md-3 mt-3"><strong>Hạn chót thanh toán:</strong> @(Model.FullPayDeadline?.ToString("dd/MM/yyyy") ?? "N/A")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thông tin chuyến bay -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingFlight">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFlight" aria-expanded="false" aria-controls="collapseFlight">
+                    <i class="fas fa-plane me-2"></i>Thông tin chuyến bay
+                </button>
+            </h2>
+            <div id="collapseFlight" class="accordion-collapse collapse" aria-labelledby="headingFlight">
+                <div class="accordion-body">
+                    <p><strong>Chuyến bay đi:</strong> @Model.DepartureFlightInfo</p>
+                    <p><strong>Chuyến bay về:</strong> @Model.ArrivalFlightInfo</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ghi chú -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingNotes">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNotes" aria-expanded="false" aria-controls="collapseNotes">
+                    <i class="fas fa-sticky-note me-2"></i>Ghi chú
+                </button>
+            </h2>
+            <div id="collapseNotes" class="accordion-collapse collapse" aria-labelledby="headingNotes">
+                <div class="accordion-body">
+                    <p><strong>Ghi chú phòng:</strong> @Model.RoomNote</p>
+                    <p><strong>Ghi chú chung:</strong> @Model.Note</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Surcharges Card -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="fas fa-receipt me-2"></i>Danh sách phụ phí</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.TourSurcharges.Any())
+            {
+                <table class="table table-sm table-hover">
+                    <thead><tr><th>Tên phụ phí</th><th class="text-end">Số tiền</th></tr></thead>
+                    <tbody>
+                        @foreach (var item in Model.TourSurcharges)
+                        {
+                            <tr><td>@item.Name</td><td class="text-end">@item.Amount.ToString("N0") VNĐ</td></tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="text-muted">Chưa có phụ phí nào.</p>
+            }
+        </div>
+    </div>
+
+    <!-- Passengers Card -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="fas fa-users me-2"></i>Danh sách hành khách</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.Passengers.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover table-striped">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Họ tên</th>
+                                <th>Số điện thoại</th>
+                                <th>Giới tính</th>
+                                <th class="text-end">Giá đề xuất</th>
+                                <th class="text-end">Đã trả</th>
+                                <th class="text-end">Phải trả</th>
+                                <th class="text-center">Passport</th>
+                                <th class="text-center">Vé máy bay</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Passengers)
+                            {
+                                <tr>
+                                    <td>@item.FullName</td>
+                                    <td>@item.Phone</td>
+                                    @if (@item.Gender == "Male")
+                                    {
+                                        <td>Nam</td>
+                                    }
+                                    else if (@item.Gender == "Female")
+                                    {
+                                        <td>Nữ</td>
+                                    }
+                                    else
+                                    {
+                                        <td>Khác</td>
+                                    }
+                                    <td class="text-end">@string.Format("{0:N0}", item.AssignedPrice) VNĐ</td>
+                                    <td class="text-end">@string.Format("{0:N0}", item.CustomerPaid) VNĐ</td>
+                                    <td class="text-end text-danger fw-bold">@string.Format("{0:N0}", (item.AssignedPrice - item.CustomerPaid)) VNĐ</td>
+                                    <td class="text-center">
+                                        @if (!string.IsNullOrEmpty(item.PassportNum))
+                                        {
+                                            <i class="fas fa-check-circle text-success" title="@item.PassportNum"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-times-circle text-danger"></i>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (!string.IsNullOrEmpty(item.DepartureFlightInfo) && !string.IsNullOrEmpty(item.ArrivalFlightInfo))
+                                        {
+                                            <i class="fas fa-check-circle text-success"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-times-circle text-danger"></i>
+                                        }
+                                    </td>
+                                    <td>
+                                        @{
+                                            var statusClass = "bg-secondary";
+                                            if (item.Status == "Paid") { statusClass = "bg-success"; }
+                                            else if (item.Status == "Confirmed") { statusClass = "bg-primary"; }
+                                            else if (item.Status == "Reserved") { statusClass = "bg-warning text-dark"; }
+                                            else if (item.Status == "Cancelled") { statusClass = "bg-danger"; }
+                                        }
+                                        <span class="badge @statusClass">@item.Status</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">Chưa có hành khách nào.</p>
+            }
+        </div>
     </div>
 </div>
+
+<style>
+    .accordion-button:not(.collapsed) {
+        color: #0d6efd;
+        background-color: #e7f1ff;
+    }
+</style>

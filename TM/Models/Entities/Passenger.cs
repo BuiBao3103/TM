@@ -27,6 +27,7 @@ public partial class Passenger
     public decimal? CustomerPaid { get; set; }
 
     public string? PassportNum { get; set; }
+    public  DateOnly? PassportExpiryDate { get; set; }
 
     public string Status { get; set; } = null!;
 

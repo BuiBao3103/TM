@@ -92,14 +92,14 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.Address).HasMaxLength(255);
             entity.Property(e => e.ArrivalFlightInfo).HasMaxLength(255);
-            entity.Property(e => e.AssignedPrice).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.AssignedPrice).HasColumnType("decimal(38, 0)");
             entity.Property(e => e.Code)
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.CustomerPaid).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.CustomerPaid).HasColumnType("decimal(38, 0)");
             entity.Property(e => e.DeleteAt).HasColumnType("datetime");
             entity.Property(e => e.DepartureFlightInfo).HasMaxLength(255);
             entity.Property(e => e.Email)
@@ -112,7 +112,7 @@ public partial class AppDbContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.PassportNum)
-                .HasMaxLength(8)
+                .HasMaxLength(9)
                 .IsUnicode(false);
             entity.Property(e => e.Phone)
                 .HasMaxLength(15)
@@ -147,10 +147,10 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.DepartureAssembleTime).HasColumnType("datetime");
             entity.Property(e => e.DepartureFlightInfo).HasMaxLength(255);
             entity.Property(e => e.DepartureLocation).HasMaxLength(100);
-            entity.Property(e => e.DiscountPrice).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.DiscountPrice).HasColumnType("decimal(38, 0)");
             entity.Property(e => e.EndDate).HasColumnType("datetime");
             entity.Property(e => e.FullPayDeadline).HasColumnType("datetime");
-            entity.Property(e => e.HhFee).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.HhFee).HasColumnType("decimal(38, 0)");
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.Note).HasMaxLength(255);
@@ -159,7 +159,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Status)
                 .HasMaxLength(255)
                 .HasDefaultValue("Available");
-            entity.Property(e => e.SuggestPrice).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.SuggestPrice).HasColumnType("decimal(38, 0)");
             entity.Property(e => e.VisaDeadline).HasColumnType("datetime");
 
             entity.HasOne(d => d.Location).WithMany(p => p.Tours)
@@ -177,7 +177,7 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("TourSurcharge");
 
-            entity.Property(e => e.Amount).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.Amount).HasColumnType("decimal(38, 0)");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
