@@ -542,6 +542,16 @@
         document.getElementById('deletePassengerId').value = passengerId;
         document.getElementById('passengerNamePlaceholder').textContent = passengerName;
     });
+
+    window.addEventListener("DOMContentLoaded", () => {
+            const fragment = '@TempData["Fragment"]';
+            if (fragment) {
+                const target = document.querySelector(fragment);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
 </script>
 
 

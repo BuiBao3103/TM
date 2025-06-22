@@ -53,7 +53,7 @@ namespace TM.Services
                 DateOnly requiredMinExpiry = startDate.AddMonths(6);
 
                 if (passportExpiryDate.Value < requiredMinExpiry){
-                    modelState.AddModelError("PassportExpiryDate", "Hộ chiếu phải còn hạn ít nhất 6 tháng tính từ ngày khởi hành.");
+                    modelState.AddModelError("PassportExpiryDate", "Hộ chiếu phải còn hạn ít nhất 6 tháng tính từ ngày khởi hành Tour.");
                 }
         }
     }
