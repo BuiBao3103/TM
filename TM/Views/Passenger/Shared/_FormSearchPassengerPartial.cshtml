@@ -1,4 +1,12 @@
-﻿@model int
+﻿@using TM.Enum
+@model int
+
+@{
+    var groupByPassenger = TempData["groupByPassenger"];
+    var status = TempData["status"] as string[];
+    var hasGroup = groupByPassenger != null;
+    var hasStatus = status != null && status.Length > 0;
+}
 
 <form id="filterCustomerForm" class="row g-3 mb-2">
     <input type="hidden" name="TourId" value="@Model"/>
@@ -7,25 +15,32 @@
             <div class="input-group-text">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </div>
-            <input type="text" class="form-control" placeholder=" Tìm theo Tên, CCCD hoặc SĐT" name="keyword">
+            <input type="text" class="form-control" placeholder="Tìm theo Tên, CCCD hoặc SĐT" name="keyword">
         </div>
     </div>
     <div class="col-md-3">
-        <div class="input-group">
-            <label class="input-group-text">Trạng thái</label>
-            <select class="form-select" name="status">
-                <option value="">Không lọc</option>
-                <option value="Paid">Thanh toán đầy đủ</option>
-                <option value="Reserved">Đang giữ chỗ</option>
-                <option value="Cancelled">Đã hủy</option>
-                <option value="Confirmed">Đã cọc</option>
+        <div class="input-group d-flex align-items-center" style="flex-wrap: nowrap; max-width: 100%; overflow: hidden;">
+            <label class="input-group-text flex-shrink-0" style="white-space: nowrap; flex-basis: auto; padding: 0.38rem 0.5rem; margin-right: 1px;">Trạng thái</label>
+            <select class="selectpicker"
+                    name="status"
+                    id="status-passenger"
+                    multiple
+                    data-width="100%"
+                    data-dropup-auto="false"
+                    data-dropdown-align-right="auto"
+                    data-container="body"
+                    style="border-top-left-radius: 0; border-bottom-left-radius: 0; min-width: 0; flex: 1 1 auto;">
+                <option value="Paid" data-content="<span class='badge bg-success'>Thanh toán đầy đủ</span>">Thanh toán đầy đủ</option>
+                <option value="Reserved" data-content="<span class='badge bg-warning text-dark'>Đang giữ chỗ</span>">Đang giữ chỗ</option>
+                <option value="Cancelled" data-content="<span class='badge bg-danger'>Đã hủy</span>">Đã hủy</option>
+                <option value="Confirmed" data-content="<span class='badge bg-primary'>Đã cọc</span>">Đã cọc</option>
             </select>
         </div>
     </div>
     <div class="col-md-4">
         <div class="input-group">
             <label class="input-group-text">Gom nhóm</label>
-            <select class="form-select" name="PassengerGroup">
+            <select class="form-select" name="PassengerGroup" id="PassengerGroup">
                 <option value="">Không gom nhóm</option>
                 <option value="1">Gom theo chuyến bay đi</option>
                 <option value="2">Gom theo chuyến bay về</option>
@@ -36,6 +51,32 @@
         </div>
     </div>
 </form>
+
+<style>
+    /* Giới hạn chiều rộng của các mục đã chọn trong selectpicker */
+    .bootstrap-select .btn {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        background-color: var(--bs-body-bg);
+        border: var(--bs-border-width) solid var(--bs-border-color);
+    }
+
+    /* Đảm bảo dropdown hiển thị trên cùng */
+    .bootstrap-select .dropdown-menu {
+        z-index: 2000;
+    }
+
+    /* Tùy chỉnh chips (các mục đã chọn) để không tràn */
+    .bootstrap-select .filter-option-inner-inner {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow: hidden;
+    }
+</style>
+
 
 <!-- Search customer -->
 <script>
@@ -60,6 +101,10 @@
       .then(res => res.text())
       .then(html => {
         document.getElementById("container-passenger-table").innerHTML = html;
+          const target = document.getElementById("passenger-list");
+          if (target) {
+              target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
       })
       .catch(err => {
         console.error("Lỗi khi fetch dữ liệu:", err);
@@ -89,3 +134,30 @@
     });
   });
 </script>
+
+@if (hasGroup || hasStatus)
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            @* Set group if available *@
+            @if (hasGroup)
+            {
+                    <text>
+                        document.getElementById("PassengerGroup").value = "@groupByPassenger";
+                    </text>
+            }
+
+            @* Set status if available *@
+            @if (hasStatus)
+            {
+                    <text>
+                        var selectedStatus = @Html.Raw(Json.Serialize(status));
+                        $('#status-passenger').selectpicker('val', selectedStatus);
+                    </text>
+            }
+
+            // Only call fetchFilterData if one of them exists
+            fetchFilterData();
+        });
+    </script>
+}

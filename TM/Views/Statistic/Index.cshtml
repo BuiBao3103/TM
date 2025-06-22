@@ -7,11 +7,16 @@
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm border-0">
-                <div class="card p-3 shadow-sm text-white">
-                    <h3 class="card-title mb-0">
-                        <i class="fas fa-chart-bar me-2"></i>
-                        Thống kê và Báo cáo
-                    </h3>
+                <div class="p-3 rounded border text-white">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="text-primary mb-1">
+                                <i class="fa-regular fa-chart-bar me-2"></i>Thống kê Tour
+                            </h2>
+                             <p class="text-muted mb-0">Phân tích thống kê tour du lịch chi tiết</p> 
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body p-4">
                     <!-- Bộ lọc -->
@@ -78,11 +83,11 @@
                     <!-- Tổng quan thống kê -->
                     <div class="row g-4 mb-4">
                         <div class="col-lg-4 col-md-6">
-                            <div class="card text-primary border-0 shadow-sm h-100 " style="background-color: #d5ebfd">
+                            <div class="card text-danger border  h-100 " style="background-color: #ed9aa22e; border-color: #dc354540 !important">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h6 class="card-subtitle mb-2 opacity-75">Tổng số Tour</h6>
+                                            <h6 class="card-subtitle mb-2 ">Tổng số Tour</h6>
                                             <h2 class="card-title mb-0 fw-bold">@((Model?.TotalTours ?? 0).ToString("N0"))</h2>
                                         </div>
                                         <div class="display-6 opacity-50">
@@ -94,11 +99,11 @@
                         </div>
 
                         <div class="col-lg-4 col-md-6">
-                            <div class="card text-danger border-0 shadow-sm h-100" style="background-color: #ffe4d4">
+                            <div class="card text-warning border  h-100" style="background-color: #fff0c259; border-color: #ffdd78d4 !important">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h6 class="card-subtitle mb-2 opacity-75">Tổng hành khách</h6>
+                                            <h6 class="card-subtitle mb-2 ">Tổng hành khách</h6>
                                             <h2 class="card-title mb-0 fw-bold">@((Model?.TotalPassengers ?? 0).ToString("N0"))</h2>
                                         </div>
                                         <div class="display-6 opacity-50">
@@ -110,11 +115,11 @@
                         </div>
 
                         <div class="col-lg-4 col-md-6">
-                            <div class="card text-warning border-0 shadow-sm h-100" style="background-color: #fff2ca">
+                            <div class="card text-success border h-100" style="background-color: #05966917; border-color: #19875461 !important">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h6 class="card-subtitle mb-2 opacity-75">Tổng doanh thu</h6>
+                                            <h6 class="card-subtitle mb-2 ">Tổng doanh thu</h6>
                                             <h2 class="card-title mb-0 fw-bold">@((Model?.TotalRevenue ?? 0).ToString("C0", new System.Globalization.CultureInfo("vi-VN")))</h2>
                                         </div>
                                         <div class="display-6 opacity-50">
@@ -131,9 +136,9 @@
                     {
                         <div class="row mb-4 ">
                             <div class="col-12">
-                                <div class="card border-0 shadow-sm">
-                                    <div class="card-header bg-white border-bottom">
-                                        <h5 class="card-title mb-0 text-white">
+                                <div class="card border shadow-sm">
+                                    <div class="card-header bg-white py-3 border-bottom">
+                                        <h5 class="card-title mb-0 text-primary">
                                             <i class="fas fa-chart-line me-2 text-blue"></i>
                                             Biểu đồ doanh thu
                                         </h5>
@@ -150,10 +155,10 @@
                     <div class="row g-4">
                         <!-- Tours theo quốc gia -->
                         <div class="col-lg-5">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-header bg-white border-bottom">
-                                    <h5 class="card-title mb-0 text-white">
-                                        <i class="fas fa-globe-asia me-2 text-white"></i>
+                            <div class="card border shadow-sm h-100">
+                                <div class="card-header py-3 bg-white border-bottom">
+                                    <h5 class="card-title mb-0 text-primary">
+                                        <i class="fas fa-globe-asia me-2 text-primary"></i>
                                         Thống kê theo Quốc gia
                                     </h5>
                                 </div>
@@ -209,10 +214,10 @@
 
                         <!-- Tours theo địa điểm -->
                         <div class="col-lg-7">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-header bg-white border-bottom">
-                                    <h5 class="card-title mb-0 text-white">
-                                        <i class="fas fa-map-marker-alt me-2 text-white"></i>
+                            <div class="card border shadow-sm h-100">
+                                <div class="card-header py-3 bg-white border-bottom">
+                                    <h5 class="card-title mb-0 text-primary">
+                                        <i class="fas fa-map-marker-alt me-2 text-primary"></i>
                                         Thống kê theo Địa điểm
                                     </h5>
                                 </div>
@@ -465,7 +470,7 @@
 
         .card-header {
             border-radius: 12px 12px 0 0 !important;
-            background: #0d6efd !important;
+            background: white !important;
             border-bottom: 2px solid #f1f5f9 !important;
         }
 
