@@ -368,30 +368,38 @@
 
             <div class="mb-1">
                 <strong>Đang giữ chỗ:</strong>
-                <span class="badge bg-light text-dark" style="background-color: #f0e9ff !important">
+                <a href="passenger/quick-filter?tourId=@item.Id&status=Confirmed&status=Reserved">
+                <span class="badge bg-light text-dark" style="background-color: #f0e9ff !important; cursor: pointer">
                     <i class="fa-solid fa-user-clock me-1"></i> @item.DepositedCustomer khách, @item.ReservedCustomer đã cọc
                 </span>
+                </a>
             </div>
 
             <div class="mb-1">
                 <strong>Passport:</strong>
-                <span class="badge bg-light text-dark" style="background-color: #f0e9ff !important">
-                    <i class="fa-solid fa-passport me-1"></i> @(item.TotalCustomers - item.CustomerNoPassport) / @item.TotalCustomers khách
-                </span>
+                <a href="passenger/quick-filter?tourId=@item.Id&groupBy=3">
+                    <span class="badge bg-light text-dark" style="background-color: #f0e9ff !important; cursor: pointer">
+                        <i class="fa-solid fa-passport me-1"></i> @(item.TotalCustomers - item.CustomerNoPassport) / @item.TotalCustomers khách
+                    </span>
+                </a>
             </div>
 
             <div class="mb-1">
                 <strong>Đã thanh toán đủ:</strong>
-                <span class="badge bg-light text-dark" style="background-color: #e1f8e6 !important">
-                    <i class="fa-solid fa-money-bill-wave me-1"></i> @item.FullPayCustomers / @item.TotalCustomers khách
-                </span>
+                <a href="passenger/quick-filter?tourId=@item.Id&status=Paid&status=Confirmed&status=Reserved&groupBy=4">
+                    <span class="badge bg-light text-dark" style="background-color: #e1f8e6 !important; cursor: pointer">
+                        <i class="fa-solid fa-money-bill-wave me-1"></i> @item.FullPayCustomers / @item.TotalCustomers khách
+                    </span>
+                </a>
             </div>
 
             <div class="mb-1">
                 <strong>Di chuyển:</strong>
-                <span class="badge bg-light text-dark" style="background-color: #fff3cd !important">
-                    <i class="fa-solid fa-plane-departure me-1"></i> @item.CustomerFullPayNotTicket khách hàng trả đủ chưa có vé
-                </span>
+                <a href="passenger/quick-filter?tourId=@item.Id&status=Paid&groupBy=5">
+                    <span class="badge bg-light text-dark" style="background-color: #fff3cd !important; cursor: pointer">
+                        <i class="fa-solid fa-plane-departure me-1"></i> @item.CustomerFullPayNotTicket khách hàng trả đủ chưa có vé
+                    </span>
+                </a>
             </div>
         </div>
 
