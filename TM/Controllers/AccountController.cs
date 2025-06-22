@@ -113,4 +113,11 @@ namespace TM.Controllers
         }
     }
 
+    public static class RoleHelper
+    {
+        public static bool IsInRole(this ISession session, string role)
+        {
+            return session?.GetString("Role") == role;
+        }
+    }
 }
