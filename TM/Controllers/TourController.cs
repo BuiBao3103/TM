@@ -333,7 +333,7 @@ namespace TM.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuthorize("Admin", "Sale")]
-        public async Task<IActionResult> Edit(int id, TM.Models.ViewModels.TourEditViewModel model)
+        public async Task<IActionResult> Edit(int id, TourEditViewModel model)
         {
             if (id != model.Id)
             {
@@ -482,9 +482,15 @@ namespace TM.Controllers
 
             _context.Add(passenger);
 
+            await _context.SaveChangesAsync();
+
             // Update tour's available seats
             Tour? tourUpdate = await _context.Tours.FindAsync(viewModel.TourId);
-            int bookedSeatsAmount = _context.Passengers.Where(p => p.TourId == viewModel.TourId).ToList().Count;
+            int bookedSeatsAmount = _context.Passengers
+                .Where(p => p.TourId == viewModel.TourId
+                            && p.Status != Enum.PassengerStatus.Cancelled.ToString())
+                .ToList()
+                .Count;
 
             if (tourUpdate == null)
             {
@@ -502,9 +508,9 @@ namespace TM.Controllers
 
             await _context.SaveChangesAsync();
 
-            if (passenger.Status == TM.Enum.PassengerStatus.Reserved.ToString() && tourUpdate.IsAutoHoldTime == true && tourUpdate.HoldTime.HasValue)
+            if (passenger.Status == Enum.PassengerStatus.Reserved.ToString() && tourUpdate.IsAutoHoldTime == true && tourUpdate.HoldTime.HasValue)
             {
-                _backgroundJobClient.Schedule<TM.Services.PassengerStatusChecker>(
+                _backgroundJobClient.Schedule<PassengerStatusChecker>(
                     checker => checker.CheckHoldTime(passenger.Id),
                     TimeSpan.FromHours(tourUpdate.HoldTime.Value)
                 //TimeSpan.FromSeconds(3)
@@ -571,6 +577,20 @@ namespace TM.Controllers
 
             _mapper.Map(viewModel, passenger);
             _context.SaveChanges();
+
+            Tour? tour = _context.Tours.Find(passenger?.TourId);
+
+            if (tour != null)
+            {
+                int bookedSeatsAmount = _context.Passengers
+                .Where(p => p.TourId == viewModel.TourId
+                            && p.Status != Enum.PassengerStatus.Cancelled.ToString())
+                .ToList()
+                .Count;
+                tour.AvailableSeats = tour.TotalSeats - bookedSeatsAmount;
+                _context.SaveChanges();
+            }
+
             TempData["SuccessMessage"] = "Cập nhật hành khách thành công!";
             return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
         }
