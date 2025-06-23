@@ -13,6 +13,8 @@ builder.Services.AddControllersWithViews();
 // Add Session
 builder.Services.AddSession();
 
+builder.Services.AddControllersWithViews().AddNewtonsoftJson();
+
 // Add Middleware
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

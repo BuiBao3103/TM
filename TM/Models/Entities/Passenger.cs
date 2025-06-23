@@ -42,6 +42,10 @@ public partial class Passenger
     public int? ModifiedById { get; set; }
 
     public DateTime? DeleteAt { get; set; }
+
+    public decimal HhFee { get; set; }
+    public decimal DiscountPrice { get; set; }
+
     public int? CreatedById { get; set; }
     public virtual Account? CreatedBy { get; set; }
 
