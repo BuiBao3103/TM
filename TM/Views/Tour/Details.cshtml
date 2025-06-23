@@ -1,5 +1,5 @@
-﻿@using TM.Models.Entities
-@model Tour
+﻿@using TM.Models.ViewModels
+@model TourWithPassengerStatsViewModel
 
 @{
     ViewData["Title"] = "Chi tiết tour - " + Model.Name;
@@ -37,7 +37,7 @@
                 <div class="accordion-body">
                     <div class="row">
                         <div class="col-md-4"><strong>Trạng thái:</strong> <span class="badge bg-info">@Model.Status</span></div>
-                        <div class="col-md-4"><strong>Địa điểm:</strong> @Model.Location?.LocationName - @Model.Location?.Country?.Name</div>
+                        <div class="col-md-4"><strong>Địa điểm:</strong> @Model.LocationName - @Model.CountryName</div>
                         <div class="col-md-4"><strong>Điểm khởi hành:</strong> @Model.DepartureLocation</div>
                         <div class="col-md-4 mt-3"><strong>Ngày đi:</strong> @Model.StartDate.ToString("dd/MM/yyyy HH:mm")</div>
                         <div class="col-md-4 mt-3"><strong>Ngày về:</strong> @Model.EndDate.ToString("dd/MM/yyyy HH:mm")</div>

@@ -12,5 +12,7 @@ namespace TM.Models.ViewModels
         public int CustomerFullPayNotTicket { get; set; }
         public string? LocationName { get; set; }
         public string? CountryName { get; set; }
+        public decimal? TotalCustomerPaid { get; set; }
+        public decimal? TotalAssignedPrice { get; set; }
     }
 }

@@ -277,10 +277,6 @@
 
 <hr />
 
-<!-- ========== DANH SÁCH TOUR ========== -->
-@if (Model.Tours.Any())
-{
-    
 <div class="d-flex align-items-center pb-3">
     <div class="me-3">
         <a asp-controller="Tour" asp-action="Create" class="btn btn-success">
@@ -295,6 +291,9 @@
     </div>
 </div>
 
+<!-- ========== DANH SÁCH TOUR ========== -->
+@if (Model.Tours.Any())
+{
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         @foreach (var item in Model.Tours)
         {
