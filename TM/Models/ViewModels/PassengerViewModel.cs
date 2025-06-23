@@ -55,6 +55,14 @@ public class PassengerViewModel
     [Range(0, double.MaxValue, ErrorMessage = "Số tiền phải >= 0")]
     public decimal? CustomerPaid { get; set; }
 
+    [Display(Name = "Giá sau khi giảm")]
+    [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
+    public decimal DiscountPrice { get; set; }
+
+    [Display(Name = "Phí hoa hồng")]
+    [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
+    public decimal hhFee { get; set; }
+
     [Required(ErrorMessage = "Trạng thái là bắt buộc")]
     [Display(Name = "Trạng thái")]
     public string Status { get; set; }

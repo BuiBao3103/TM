@@ -80,6 +80,8 @@ else if(groupBy != null && Model.Count > 0)
                                         <th>Số điện thoại</th>
                                         <th>Giá đề xuất</th>
                                         <th>Đã trả</th>
+                                        <th>Phí HH</th>
+                                        <th>Giá giảm</th>
                                         <th>Phải trả</th>
                                         <th>Passport</th>
                                         <th>Vé máy bay</th>
@@ -100,7 +102,13 @@ else if(groupBy != null && Model.Count > 0)
                                                 <span class="">@string.Format("{0:N0}₫", item.CustomerPaid)</span>
                                             </td>
                                             <td>
-                                                <span class="">@string.Format("{0:N0}₫", item.AssignedPrice - item.CustomerPaid)</span>
+                                                <span class="">@string.Format("{0:N0}₫", item.hhFee)</span>
+                                            </td>
+                                            <td>
+                                                <span class="">@string.Format("{0:N0}₫", item.DiscountPrice)</span>
+                                            </td>
+                                            <td>
+                                                <span class="">@string.Format("{0:N0}₫", (item.AssignedPrice - item.DiscountPrice) - item.CustomerPaid)</span>
                                             </td>
                                             <td>
                                                 @if (item.PassportNum != null)
@@ -201,6 +209,8 @@ else
                     <th>Số điện thoại</th>
                     <th>Giá đề xuất</th>
                     <th>Đã trả</th>
+                    <th>Phí HH</th>
+                    <th>Giá giảm</th>
                     <th>Phải trả</th>
                     <th>Passport</th>
                     <th>Vé máy bay</th>
@@ -221,8 +231,15 @@ else
                             <span class="">@string.Format("{0:N0}₫", item.CustomerPaid)</span>
                         </td>
                         <td>
-                            <span class="">@string.Format("{0:N0}₫", item.AssignedPrice - item.CustomerPaid)</span>
+                            <span class="">@string.Format("{0:N0}₫", item.hhFee)</span>
                         </td>
+                        <td>
+                            <span class="">@string.Format("{0:N0}₫", item.DiscountPrice)</span>
+                        </td>
+                        <td>
+                            <span class="">@string.Format("{0:N0}₫", (item.AssignedPrice - item.DiscountPrice) - item.CustomerPaid)</span>
+                        </td>
+                        
                         <td>
                             @if (item.PassportNum != null)
                             {

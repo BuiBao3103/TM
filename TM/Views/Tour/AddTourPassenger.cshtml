@@ -185,6 +185,34 @@
                                 </div>
 
                                 <div class="col-md-4 mb-3">
+                                    <label asp-for="DiscountPrice" class="form-label fw-semibold d-flex justify-content-between">
+                                        <span>
+                                            <i class="fas fa-tags me-1"></i>Giá sau khi giảm
+                                        </span>
+                                        <small id="DiscountPriceDisplay" class="text-success"></small>
+                                    </label>
+                                    <div class="input-group">
+                                        <input asp-for="DiscountPrice" type="number" min="0" step="1000" class="form-control money-input" oninput="updateFormattedDisplay(this, 'AssignedPriceDisplay')" />
+                                        <span class="input-group-text">VNĐ</span>
+                                    </div>
+                                    <span asp-validation-for="DiscountPrice" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label asp-for="hhFee" class="form-label fw-semibold d-flex justify-content-between">
+                                        <span>
+                                            <i class="fas fa-tags me-1"></i>Phí hoa hồng
+                                        </span>
+                                        <small id="hhFeeDisplay" class="text-success"></small>
+                                    </label>
+                                    <div class="input-group">
+                                        <input asp-for="hhFee" type="number" min="0" step="1000" class="form-control money-input" oninput="updateFormattedDisplay(this, 'AssignedPriceDisplay')" />
+                                        <span class="input-group-text">VNĐ</span>
+                                    </div>
+                                    <span asp-validation-for="hhFee" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-4 mb-3">
                                     <label asp-for="CustomerPaid" class="form-label fw-semibold d-flex justify-content-between">
                                         <span>
                                             <i class="fas fa-wallet me-1"></i>Khách đã trả
