@@ -21,24 +21,65 @@ namespace TM.Services
             string? passportNum,
             ModelStateDictionary modelState)
         {
-            bool identityNumberExists = _context.Passengers.Any(p => p.IdentityNumber == identityNumber
-                                                                && p.TourId == tourId && p.Id != id);
-            if (identityNumberExists)
-            {
-                modelState.AddModelError("IdentityNumber", "Số CCCD này đã tồn tại trong tour.");
+            bool identityNumberExists;
+            if (tourId <= 0) {
+                modelState.AddModelError("", "Invalid TourId.");
+                return;
             }
 
-            bool codeExists = _context.Passengers.Any(p => p.Code == code && p.TourId == tourId && p.Id != id);
-            if (codeExists)
+            if (modelState == null)
             {
-                modelState.AddModelError("Code", "Mã này đã tồn tại trong tour.");
+                throw new ArgumentNullException(nameof(modelState));
             }
 
-            bool passportExits = _context.Passengers.Any(p => p.PassportNum == passportNum && p.TourId == tourId && p.Id != id);
-            if (passportExits)
+            identityNumber = identityNumber?.Trim();
+            code = code?.Trim();
+            passportNum = passportNum?.Trim();
+            var duplicates = _context.Passengers
+                .Where(p => p.TourId == tourId && p.Id != id)
+                .Select(p => new
+                {
+                    p.IdentityNumber,
+                    p.Code,
+                    p.PassportNum,
+                    IsIdentityNumberMatch = !string.IsNullOrWhiteSpace(identityNumber) && !string.IsNullOrWhiteSpace(p.IdentityNumber) && p.IdentityNumber.ToLower() == identityNumber.ToLower(),
+                    IsCodeMatch = !string.IsNullOrWhiteSpace(code) && !string.IsNullOrWhiteSpace(p.Code) && p.Code.ToLower() == code.ToLower(),
+                    IsPassportNumMatch = !string.IsNullOrWhiteSpace(passportNum) && !string.IsNullOrWhiteSpace(p.PassportNum) && p.PassportNum.ToLower() == passportNum.ToLower()
+                })
+                .FirstOrDefault(p => p.IsIdentityNumberMatch || p.IsCodeMatch || p.IsPassportNumMatch);
+
+            if (duplicates != null)
             {
-                modelState.AddModelError("PassportNum", "Số hộ chiếu này đã tồn tại trong tour.");
+                if (duplicates.IsIdentityNumberMatch)
+                {
+                    modelState.AddModelError("IdentityNumber", "Số CCCD này đã tồn tại trong tour.");
+                }
+                if (duplicates.IsCodeMatch)
+                {
+                    modelState.AddModelError("Code", "Mã này đã tồn tại trong tour.");
+                }
+                if (duplicates.IsPassportNumMatch)
+                {
+                    modelState.AddModelError("PassportNum", "Số hộ chiếu này đã tồn tại trong tour.");
+                }
             }
+
+            if (duplicates != null)
+            {
+                if (duplicates.IsIdentityNumberMatch)
+                {
+                    modelState.AddModelError("IdentityNumber", "Số CCCD này đã tồn tại trong tour.");
+                }
+                if (duplicates.IsCodeMatch)
+                {
+                    modelState.AddModelError("Code", "Mã này đã tồn tại trong tour.");
+                }
+                if (duplicates.IsPassportNumMatch)
+                {
+                    modelState.AddModelError("PassportNum", "Số hộ chiếu này đã tồn tại trong tour.");
+                }
+            }
+          
         }
 
         public void ValidatePassportExpiryDate(

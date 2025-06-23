@@ -26,13 +26,13 @@ namespace TM.Models.ViewModels
         [GenderValidation(ErrorMessage = "Giới tính không hợp lệ")]
         public string Gender { get; set; }
 
-        [Required(ErrorMessage = "Số CMND/CCCD là bắt buộc")]
+       
         [Display(Name = "Số CMND/CCCD")]
         [RegularExpression(@"^\d+$", ErrorMessage = "Số CCCD chỉ được chứa chữ số")]
         [StringLength(20, ErrorMessage = "Số CCCD không được vượt quá 20 ký tự")]
-        public string IdentityNumber { get; set; }
+        public string? IdentityNumber { get; set; }
 
-        [Required(ErrorMessage = "Số hộ chiếu là bắt buộc")]
+        
         [Display(Name = "Số hộ chiếu")]
         [StringLength(9, MinimumLength = 6, ErrorMessage = "Số hộ chiếu phải từ 6 đến 9 ký tự.")]
         [RegularExpression("^[A-Za-z0-9]+$", ErrorMessage = "Số hộ chiếu chỉ được chứa chữ và số.")]
