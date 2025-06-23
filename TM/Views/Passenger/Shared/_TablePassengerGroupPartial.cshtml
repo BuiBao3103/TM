@@ -155,7 +155,7 @@ else if(groupBy != null && Model.Count > 0)
                                                 }
                                             </td>
                                             <td class="text-center">
-                                                @if (Context.Session.IsValidRole(["Admin", "Sale"], item.ModifiedById.ToString() ?? "-1"))
+                                                @if (Context.Session.IsValidRole(["Admin", "Sale"], item.CreatedById.ToString() ?? "-1"))
                                                 {
                                                     <div>
                                                         <a href="/Tour/EditPassenger?passengerId=@item.Id"
@@ -276,7 +276,7 @@ else
                             }
                         </td>
                         <td class="text-center">
-                            @if (Context.Session.IsValidRole(["Admin", "Sale"], item.ModifiedById.ToString() ?? "-1"))
+                            @if (Context.Session.IsValidRole(["Admin", "Sale"], item.CreatedById.ToString() ?? "-1"))
                             {
                                 <div>
                                     <a href="/Tour/EditPassenger?passengerId=@item.Id"
