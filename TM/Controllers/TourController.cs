@@ -641,6 +641,7 @@ namespace TM.Controllers
         [RequireAuthorize("Admin", "Sale")]
         public IActionResult EditPassenger(PassengerEditViewModel viewModel)
         {
+
             // Check duplicate identity/passport/code in tour
             _validator.ValidateDuplicatePassengerFields(
                 viewModel.Id,
@@ -663,6 +664,7 @@ namespace TM.Controllers
                 return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
             }
 
+            // Update passenger information
             _mapper.Map(viewModel, passenger);
             _context.SaveChanges();
 
@@ -675,6 +677,8 @@ namespace TM.Controllers
                             && p.Status != Enum.PassengerStatus.Cancelled.ToString())
                 .ToList()
                 .Count;
+
+                // Update tour's available seats
                 tour.AvailableSeats = tour.TotalSeats - bookedSeatsAmount;
                 _context.SaveChanges();
             }
