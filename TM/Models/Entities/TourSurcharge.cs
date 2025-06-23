@@ -17,6 +17,8 @@ public partial class TourSurcharge
     public int? ModifiedById { get; set; }
 
     public DateTime? DeleteAt { get; set; }
+    public int? CreatedById { get; set; }
+    public virtual Account? CreatedBy { get; set; }
 
     public virtual Account? ModifiedBy { get; set; }
 

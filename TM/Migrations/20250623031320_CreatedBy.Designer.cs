@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TM.Models;
 
@@ -11,9 +12,11 @@ using TM.Models;
 namespace TM.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250623031320_CreatedBy")]
+    partial class CreatedBy
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -404,6 +407,9 @@ namespace TM.Migrations
                     b.Property<int?>("ModifiedById")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ModifiedById1")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -415,9 +421,9 @@ namespace TM.Migrations
                     b.HasKey("Id")
                         .HasName("PK__TourSurc__3214EC0738DFF85C");
 
-                    b.HasIndex("CreatedById");
-
                     b.HasIndex("ModifiedById");
+
+                    b.HasIndex("ModifiedById1");
 
                     b.HasIndex("TourId");
 
@@ -514,12 +520,12 @@ namespace TM.Migrations
                 {
                     b.HasOne("TM.Models.Entities.Account", "CreatedBy")
                         .WithMany("TourSurchargesCreated")
-                        .HasForeignKey("CreatedById");
+                        .HasForeignKey("ModifiedById")
+                        .HasConstraintName("FK__TourSurch__Modif__52E34C9D");
 
                     b.HasOne("TM.Models.Entities.Account", "ModifiedBy")
                         .WithMany("TourSurchargesModified")
-                        .HasForeignKey("ModifiedById")
-                        .HasConstraintName("FK__TourSurch__Modif__52E34C9D");
+                        .HasForeignKey("ModifiedById1");
 
                     b.HasOne("TM.Models.Entities.Tour", "Tour")
                         .WithMany("TourSurcharges")

@@ -59,6 +59,8 @@ public partial class Tour
     public virtual Location? Location { get; set; }
 
     public virtual Account? ModifiedBy { get; set; }
+    public int? CreatedById { get; set; }
+    public virtual Account? CreatedBy { get; set; }
 
     public virtual ICollection<Passenger> Passengers { get; set; } = new List<Passenger>();
 
