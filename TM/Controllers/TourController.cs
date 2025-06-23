@@ -566,7 +566,11 @@ namespace TM.Controllers
             passenger.TourId = viewModel.TourId;
             passenger.ModifiedAt = DateTime.Now;
             if (int.TryParse(HttpContext.Session.GetString("AuthId"), out int authId))
+            {
                 passenger.ModifiedById = authId;
+                passenger.CreatedById = authId;
+            }
+                
 
             _context.Add(passenger);
 
@@ -623,7 +627,7 @@ namespace TM.Controllers
             String? role = HttpContext.Session.GetString("Role");
 
             bool isAdmin = role == "Admin";
-            bool isValidSale = role == "Sale" && passenger?.ModifiedById != null && passenger.ModifiedById.ToString() == id;
+            bool isValidSale = role == "Sale" && passenger?.CreatedById != null && passenger.CreatedById.ToString() == id;
 
             if (!(isAdmin || isValidSale))
             {
@@ -663,6 +667,7 @@ namespace TM.Controllers
                 return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
             }
 
+            // save changes to passenger
             _mapper.Map(viewModel, passenger);
             _context.SaveChanges();
 
@@ -676,6 +681,8 @@ namespace TM.Controllers
                 .ToList()
                 .Count;
                 tour.AvailableSeats = tour.TotalSeats - bookedSeatsAmount;
+
+                // update tour's available seats
                 _context.SaveChanges();
             }
 
@@ -700,7 +707,7 @@ namespace TM.Controllers
             String? role = HttpContext.Session.GetString("Role");
 
             bool isAdmin = role == "Admin";
-            bool isValidSale = role == "Sale" && passenger?.ModifiedById != null && passenger.ModifiedById.ToString() == id;
+            bool isValidSale = role == "Sale" && passenger?.CreatedById != null && passenger.CreatedById.ToString() == id;
 
             if (!(isAdmin || isValidSale))
             {
