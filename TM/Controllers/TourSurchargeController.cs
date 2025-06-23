@@ -45,6 +45,12 @@ namespace TM.Controllers
             {
                 var surcharge = _mapper.Map<TourSurcharge>(viewModel);
                 surcharge.CreatedAt = DateTime.Now;
+                var identifiedTour = await _appDbContext.Tours.FindAsync(viewModel.TourId);
+                
+                identifiedTour.SuggestPrice = identifiedTour.SuggestPrice + surcharge.Amount;
+                identifiedTour.DiscountPrice = identifiedTour.DiscountPrice + surcharge.Amount;
+                _appDbContext.Add(surcharge);
+                _appDbContext.Update(identifiedTour);
 
                 _appDbContext.Add(surcharge);
                 await _appDbContext.SaveChangesAsync();
@@ -98,15 +104,21 @@ namespace TM.Controllers
                 }
 
                 var oldSuchange = await _appDbContext.TourSurcharges.FindAsync(tourSurchangeUpdate.Id);
+                var tour = await _appDbContext.Tours.FindAsync(oldSuchange.TourId);
 
                 if (oldSuchange == null)
                 {
                     ViewBag.ErrorMessage = "Không tìm thấy phụ thu với ID đã nhập.";
                     return View("UpdateSurcharge");
                 }
+                var priceGap = tourSurchangeUpdate.Amount - oldSuchange.Amount;
 
                 oldSuchange.Amount = tourSurchangeUpdate.Amount;
                 oldSuchange.Name = tourSurchangeUpdate.Name;
+                tour.SuggestPrice = tour.SuggestPrice + priceGap;
+                tour.DiscountPrice = tour.SuggestPrice + priceGap;
+                _appDbContext.Update(tour);
+
                 await _appDbContext.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Cập nhật thành công.";
@@ -133,8 +145,12 @@ namespace TM.Controllers
                     TempData["ErrorMessage"] = "Không tìm thấy phụ thu với ID đã nhập!";
                     return Redirect("/Tour");
                 }
-
+                var tour = await _appDbContext.Tours.FindAsync(tourId);
+                tour.SuggestPrice = tour.SuggestPrice - oldSuchange.Amount;
+                tour.DiscountPrice = tour.DiscountPrice - oldSuchange.Amount;
                 oldSuchange.DeleteAt = DateTime.Now;
+                _appDbContext.Update(tour);
+                
                 await _appDbContext.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Xóa thành công.";
