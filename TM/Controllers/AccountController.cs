@@ -26,19 +26,20 @@ namespace TM.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            Account? user = _context.Accounts.FirstOrDefault(a =>
-                a.Username == model.Username &&
-                a.Password == model.Password);
-
-            if (user == null)
+            if (!ValidateLogin(model.Username, model.Password))
             {
                 model.ErrorMessage = "Tên đăng nhập hoặc mật khẩu không đúng.";
                 return View(model);
             }
 
+            // Lấy thông tin user để set session
+            Account user = _context.Accounts.FirstOrDefault(a =>
+                a.Username.ToLower() == model.Username.ToLower());
+
             HttpContext.Session.SetString("Username", user.Username);
             HttpContext.Session.SetString("Role", user.Role);
             HttpContext.Session.SetString("AuthId", user.Id.ToString());
+
             return RedirectToAction("Index", "Tour");
         }
 
@@ -53,8 +54,6 @@ namespace TM.Controllers
             HttpContext.Session.Clear();
             return RedirectToAction("Login", "Account");
         }
-
-
 
         // user profile
         public IActionResult Profile()
@@ -78,19 +77,35 @@ namespace TM.Controllers
             if (string.IsNullOrEmpty(username)) return RedirectToAction("Login", "Account");
 
             var account = _context.Accounts.FirstOrDefault(a => a.Username == username);
-            if (account == null || account.Password != OldPassword)
+
+            if (account == null || !ValidateLogin(username, OldPassword))
             {
                 TempData["ChangePassStatus"] = "error";
                 return RedirectToAction("Profile");
             }
 
-            account.Password = NewPassword;
+            account.Password = BCrypt.Net.BCrypt.HashPassword(NewPassword);
             _context.SaveChanges();
 
             TempData["ChangePassStatus"] = "success";
             return RedirectToAction("Profile");
         }
 
+        private bool VerifyPasswordBCrypt(string password, string hash)
+        {
+            return BCrypt.Net.BCrypt.Verify(password, hash);
+        }
+
+        // Method để verify login
+        public bool ValidateLogin(string username, string password)
+        {
+            var user = _context.Accounts
+                .FirstOrDefault(a => a.Username.ToLower() == username.ToLower());
+
+            if (user == null) return false;
+
+            return VerifyPasswordBCrypt(password, user.Password);
+        }
     }
 
     public class RequireAuthorizeAttribute : ActionFilterAttribute

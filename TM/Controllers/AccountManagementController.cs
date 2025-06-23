@@ -18,6 +18,7 @@ namespace TM.Controllers
             _mapper = mapper;
         }
 
+        [RequireAuthorize("Admin")]
         public IActionResult Index()
         {
             var accounts = _context.Accounts
@@ -31,6 +32,7 @@ namespace TM.Controllers
             return View(accounts);
         }
 
+        [RequireAuthorize("Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateAccountViewModel model)
@@ -82,6 +84,7 @@ namespace TM.Controllers
             }
         }
 
+        [RequireAuthorize("Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CheckUserName(string userName)
