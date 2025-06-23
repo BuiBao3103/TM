@@ -715,58 +715,267 @@ namespace TM.Controllers
         }
 
         // Countries/Locations handle section
+        // Hiển thị form thêm/sửa quốc gia
+        [RequireAuthorize("Admin")]
+        public IActionResult ModifyCountry(int? id, string? q = null, int page = 1, int pageSize = 12)
+        {
+            // Filter và paging list
+            var query = _context.Countries.AsQueryable();
+            if (!string.IsNullOrEmpty(q))
+                query = query.Where(c => c.Name.Contains(q) || c.Code.Contains(q));
+
+            int totalItems = query.Count();
+            var list = query.OrderBy(c => c.Name)
+                            .Skip((page - 1) * pageSize)
+                            .Take(pageSize)
+                            .ToList();
+
+            var pagination = new PaginationViewModel
+            {
+                CurrentPage = page,
+                TotalItems = totalItems,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+                ActionName = "ModifyCountry"
+            };
+
+            Country editCountry = new Country();
+            if (id.HasValue && id.Value > 0)
+            {
+                editCountry = _context.Countries.FirstOrDefault(c => c.Id == id) ?? new Country();
+            }
+
+            var vm = new ModifyCountryViewModel
+            {
+                Countries = list,
+                EditCountry = editCountry,
+                Pagination = pagination,
+                Query = q ?? ""
+            };
+
+            return View(vm);
+        }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuthorize("Admin")]
-        public IActionResult SaveCountry(Country model)
+        public IActionResult ModifyCountry(ModifyCountryViewModel model, string? q = null, int page = 1, int pageSize = 12)
         {
-            if (model.Id > 0)
+            // Lấy danh sách tất cả quốc gia để hiển thị trong ViewBag
+            //var allCountries = _context.Countries.OrderBy(c => c.Name).ToList();
+            //ViewBag.CountryListFull = allCountries;
+
+            string? userIdStr = HttpContext.Session.GetString("AuthId");
+            int? userId = null;
+            if (int.TryParse(userIdStr, out int parsedId))
             {
-                // Find if exists => update
-                var c = _context.Countries.Find(model.Id);
+                userId = parsedId;
+            }
+
+            string newName = model.EditCountry.Name?.Trim() ?? "";
+            string newCode = model.EditCountry.Code?.Trim()?.ToUpper() ?? "";
+
+            bool nameExists = _context.Countries.Any(c => c.Name.ToLower() == newName.ToLower() && c.Id != model.EditCountry.Id);
+            bool codeExists = _context.Countries.Any(c => c.Code.ToUpper() == newCode && c.Id != model.EditCountry.Id);
+
+            if (nameExists)
+                ModelState.AddModelError("Name", "Tên quốc gia đã tồn tại!");
+            if (codeExists)
+                ModelState.AddModelError("Code", "Mã quốc gia đã tồn tại!");
+
+            //if (!ModelState.IsValid)
+            //{
+            //    var queryDb = _context.Countries.AsQueryable();
+            //    if (!string.IsNullOrEmpty(q))
+            //        queryDb = queryDb.Where(c => c.Name.Contains(q) || c.Code.Contains(q));
+            //    int totalItems = queryDb.Count();
+            //    var list = queryDb.OrderBy(c => c.Name)
+            //                      .Skip((page - 1) * pageSize)
+            //                      .Take(pageSize)
+            //                      .ToList();
+            //    var pagination = new PaginationViewModel
+            //    {
+            //        CurrentPage = page,
+            //        TotalItems = totalItems,
+            //        PageSize = pageSize,
+            //        TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+            //        ActionName = "ModifyCountry"
+            //    };
+
+            //    model.Countries = list;
+            //    model.Pagination = pagination;
+            //    model.Query = q ?? "";
+            //    return View(model);
+            //}
+
+
+
+            if (model.EditCountry.Id > 0)
+            {
+                var c = _context.Countries.Find(model.EditCountry.Id);
                 if (c != null)
                 {
-                    c.Name = model.Name;
-                    c.Code = model.Code;
+                    c.Name = newName;
+                    c.Code = newCode;
+                    c.ModifiedAt = DateTime.Now;
+                    c.ModifiedById = userId;
                 }
             }
             else
             {
-                // Find if not exists => create
-                _context.Countries.Add(model);
+                var country = new Country
+                {
+                    Name = newName,
+                    Code = newCode,
+                    CreatedAt = DateTime.Now,
+                    ModifiedById = userId,
+                };
+                _context.Countries.Add(country);
             }
 
             _context.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("ModifyCountry", new { q = q, page = page, pageSize = pageSize });
+        }
+
+
+        // Hiển thị form thêm/sửa địa điểm
+
+        [RequireAuthorize("Admin")]
+        public IActionResult ModifyLocation(int? id, string? q = null, int page = 1, int pageSize = 12)
+        {
+            //var countries = _context.Countries.ToList();
+            //ViewBag.CountryList = new SelectList(countries, "Id", "Name");
+
+            var query = _context.Locations.Include(l => l.Country).AsQueryable();
+
+            if (!string.IsNullOrEmpty(q))
+                query = query.Where(l => l.LocationName.Contains(q) || l.Country.Name.Contains(q));
+
+            int totalItems = query.Count();
+            var list = query
+                .OrderBy(l => l.LocationName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var pagination = new PaginationViewModel
+            {
+                CurrentPage = page,
+                TotalItems = totalItems,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+                ActionName = "ModifyLocation"
+            };
+
+            Location editLocation = new Location();
+            if (id.HasValue && id.Value > 0)
+            {
+                editLocation = _context.Locations.FirstOrDefault(l => l.Id == id) ?? new Location();
+            }
+
+            var vm = new ModifyLocationViewModel
+            {
+                Locations = list,
+                EditLocation = editLocation,
+                Pagination = pagination,
+                Query = q ?? "",
+                CountrySelectList = new SelectList(_context.Countries.OrderBy(c => c.Name).ToList(), "Id", "Name")
+            };
+
+            return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuthorize("Admin")]
-        public IActionResult SaveLocation(Location model)
+        public IActionResult ModifyLocation(ModifyLocationViewModel model, string? q = null, int page = 1, int pageSize = 12)
         {
-            if (!ModelState.IsValid)
-                return RedirectToAction("Index");
-
-            if (model.Id > 0)
+            //var countries = _context.Countries.OrderBy(c => c.Name).ToList();
+            //ViewBag.CountryList = new SelectList(countries, "Id", "Name");
+            string? userIdStr = HttpContext.Session.GetString("AuthId");
+            int? userId = null;
+            if (int.TryParse(userIdStr, out int parsedId))
             {
-                // Find if exists => update
-                Location? existing = _context.Locations.FirstOrDefault(l => l.Id == model.Id);
+                userId = parsedId;
+            }
+
+            string newName = model.EditLocation.LocationName?.Trim() ?? "";
+
+            bool nameExists = _context.Locations.Any(l =>
+                l.LocationName.ToLower() == newName.ToLower()
+                && l.CountryId == model.EditLocation.CountryId
+                && l.Id != model.EditLocation.Id);
+
+            var locations = _context.Locations
+            .Select(l => new {
+                l.Id,
+                l.LocationName,
+                l.CountryId,
+                CountryName = l.Country.Name
+            })
+            .OrderBy(l => l.LocationName)
+            .ToList();
+                ViewBag.LocationListFull = locations;
+
+            if (nameExists)
+                ModelState.AddModelError("EditLocation.LocationName", "Tên địa điểm đã tồn tại trong quốc gia này!");
+
+            //if (!ModelState.IsValid)
+            //{
+            //    var queryDb = _context.Locations.Include(l => l.Country).AsQueryable();
+            //    if (!string.IsNullOrEmpty(q))
+            //        queryDb = queryDb.Where(l => l.LocationName.Contains(q) || l.Country.Name.Contains(q));
+            //    int totalItems = queryDb.Count();
+            //    var list = queryDb
+            //        .OrderBy(l => l.LocationName)
+            //        .Skip((page - 1) * pageSize)
+            //        .Take(pageSize)
+            //        .ToList();
+            //    var pagination = new PaginationViewModel
+            //    {
+            //        CurrentPage = page,
+            //        TotalItems = totalItems,
+            //        PageSize = pageSize,
+            //        TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+            //        ActionName = "ModifyLocation"
+            //    };
+
+            //    model.Locations = list;
+            //    model.Pagination = pagination;
+            //    model.Query = q ?? "";
+            //    model.CountrySelectList = new SelectList(_context.Countries.OrderBy(c => c.Name).ToList(), "Id", "Name");
+            //    return View(model);
+            //}
+
+            if (model.EditLocation.Id > 0)
+            {
+                var existing = _context.Locations.Find(model.EditLocation.Id);
                 if (existing != null)
                 {
-                    existing.LocationName = model.LocationName;
-                    _context.SaveChanges();
+                    existing.LocationName = newName;
+                    existing.CountryId = model.EditLocation.CountryId;
+                    existing.Description = model.EditLocation.Description;
+                    existing.ModifiedAt = DateTime.Now;
+                    existing.ModifiedById = userId;
                 }
             }
             else
             {
-                // Find if not exists => create
-                _context.Locations.Add(model);
-                _context.SaveChanges();
+                var location = new Location
+                {
+                    LocationName = newName,
+                    CountryId = model.EditLocation.CountryId,
+                    Description = model.EditLocation.Description,
+                    CreatedAt = DateTime.Now,
+                    ModifiedById = userId
+                };
+                _context.Locations.Add(location);
             }
-
-            return RedirectToAction("Index");
+            _context.SaveChanges();
+            return RedirectToAction("ModifyLocation", new { q = q, page = page, pageSize = pageSize });
         }
+
+
     }
 }

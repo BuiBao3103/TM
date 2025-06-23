@@ -88,9 +88,9 @@
     <h5 class="mb-0">Quốc gia</h5>
     @if (Context.Session.GetString("Role") == "Admin")
     {
-        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#manageCountryModal">
+        <a class="btn btn-warning btn-sm" href="@Url.Action("ModifyCountry", "Tour")">
             <i class="bi bi-gear me-1"></i> Quản lý quốc gia
-        </button>
+        </a>
     }
 </div>
 
@@ -145,9 +145,9 @@
         <h5 class="mb-0">Địa điểm</h5>
         @if (Context.Session.IsInRole("Admin"))
         {
-            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#manageLocationModal">
+            <a class="btn btn-warning btn-sm" href="@Url.Action("ModifyLocation", "Tour")">
                 <i class="bi bi-gear me-1"></i> Quản lý địa điểm
-            </button>
+            </a>
         }
     </div>
 
@@ -510,7 +510,7 @@ else
     </div>
 </div>
 
-<!-- Modal modify Country -->
+@* <!-- Modal modify Country -->
 <div class="modal fade" id="manageCountryModal" tabindex="-1" aria-labelledby="manageCountryLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -590,7 +590,7 @@ else
       </form>
     </div>
   </div>
-</div>
+</div> *@
 
 <!-- Function cho các modal chỉnh sửa quốc gia -->
 <script>
@@ -705,24 +705,5 @@ else
             });
         }
     });
-
-
-    //handle lỗi khi update/create country/location trùng
-    $(function() {
-            @if (ViewBag.CountryModalOpen == true)
-            {
-                <text>
-                var modal = new bootstrap.Modal(document.getElementById('manageCountryModal'));
-                modal.show();
-                </text>
-            }
-            @if (ViewBag.LocationModalOpen == true)
-            {
-                <text>
-                var modal = new bootstrap.Modal(document.getElementById('manageLocationModal'));
-                modal.show();
-                </text>
-            }
-        });
 </script>
 
