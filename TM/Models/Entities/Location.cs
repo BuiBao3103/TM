@@ -21,6 +21,8 @@ public partial class Location
     public virtual Country Country { get; set; } = null!;
 
     public virtual Account? ModifiedBy { get; set; }
+    public int? CreatedById { get; set; }
+    public virtual Account? CreatedBy { get; set; }
 
     public virtual ICollection<Tour> Tours { get; set; } = new List<Tour>();
 }

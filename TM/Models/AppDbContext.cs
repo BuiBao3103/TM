@@ -55,9 +55,11 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(50);
 
-            entity.HasOne(d => d.ModifiedBy).WithMany(p => p.Countries)
+            entity.HasOne(d => d.ModifiedBy).WithMany(p => p.CountriesModified)
                 .HasForeignKey(d => d.ModifiedById)
                 .HasConstraintName("FK__Country__Modifie__4F12BBB9");
+            entity.HasOne(d => d.CreatedBy).WithMany(p => p.CountriesCreated)
+               .HasForeignKey(d => d.CreatedById);
         });
 
         modelBuilder.Entity<Location>(entity =>
@@ -79,9 +81,11 @@ public partial class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Location__Countr__5006DFF2");
 
-            entity.HasOne(d => d.ModifiedBy).WithMany(p => p.Locations)
+            entity.HasOne(d => d.ModifiedBy).WithMany(p => p.LocationsModified)
                 .HasForeignKey(d => d.ModifiedById)
                 .HasConstraintName("FK__Location__Modifi__50FB042B");
+            entity.HasOne(d => d.CreatedBy).WithMany(p => p.LocationsCreated)
+               .HasForeignKey(d => d.CreatedById);
         });
 
         modelBuilder.Entity<Passenger>(entity =>
@@ -121,9 +125,11 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(255)
                 .HasDefaultValue("Reserved");
 
-            entity.HasOne(d => d.ModifiedBy).WithMany(p => p.Passengers)
+            entity.HasOne(d => d.ModifiedBy).WithMany(p => p.PassengersModified)
                 .HasForeignKey(d => d.ModifiedById)
                 .HasConstraintName("FK__Passenger__Modif__4E1E9780");
+            entity.HasOne(d => d.CreatedBy).WithMany(p => p.PassengersCreated)
+              .HasForeignKey(d => d.CreatedById);
 
             entity.HasOne(d => d.Tour).WithMany(p => p.Passengers)
                 .HasForeignKey(d => d.TourId)
@@ -165,10 +171,11 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.Location).WithMany(p => p.Tours)
                 .HasForeignKey(d => d.LocationId)
                 .HasConstraintName("FK__Tour__LocationId__4B422AD5");
-
-            entity.HasOne(d => d.ModifiedBy).WithMany(p => p.Tours)
+            entity.HasOne(d => d.ModifiedBy).WithMany(p => p.ToursModified)
                 .HasForeignKey(d => d.ModifiedById)
                 .HasConstraintName("FK__Tour__ModifiedBy__4C364F0E");
+            entity.HasOne(d => d.CreatedBy).WithMany(p => p.ToursCreated)
+                .HasForeignKey(d => d.CreatedById);
         });
 
         modelBuilder.Entity<TourSurcharge>(entity =>
@@ -185,13 +192,16 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
 
-            entity.HasOne(d => d.ModifiedBy).WithMany(p => p.TourSurcharges)
+            entity.HasOne(d => d.ModifiedBy).WithMany(p => p.TourSurchargesModified)
                 .HasForeignKey(d => d.ModifiedById)
                 .HasConstraintName("FK__TourSurch__Modif__52E34C9D");
+            entity.HasOne(d => d.CreatedBy).WithMany(p => p.TourSurchargesCreated)
+              .HasForeignKey(d => d.CreatedById);
 
             entity.HasOne(d => d.Tour).WithMany(p => p.TourSurcharges)
                 .HasForeignKey(d => d.TourId)
                 .HasConstraintName("FK__TourSurch__TourI__51EF2864");
+
         });
 
         OnModelCreatingPartial(modelBuilder);
