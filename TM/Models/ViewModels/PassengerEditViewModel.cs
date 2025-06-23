@@ -60,7 +60,7 @@ namespace TM.Models.ViewModels
         [Required(ErrorMessage = "Tour là bắt buộc")]
         public int TourId { get; set; }
 
-        [Required(ErrorMessage = "Giá đè xuất  là bắt buộc")]
+        [Required(ErrorMessage = "Giá đề xuất là bắt buộc")]
         [Display(Name = "Giá đề xuất")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
         public decimal AssignedPrice { get; set; }

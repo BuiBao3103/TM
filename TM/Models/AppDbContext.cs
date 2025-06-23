@@ -104,6 +104,8 @@ public partial class AppDbContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.CustomerPaid).HasColumnType("decimal(38, 0)");
+            entity.Property(e => e.HhFee).HasColumnType("decimal(38, 0)");
+            entity.Property(e => e.DiscountPrice).HasColumnType("decimal(38, 0)");
             entity.Property(e => e.DeleteAt).HasColumnType("datetime");
             entity.Property(e => e.DepartureFlightInfo).HasMaxLength(255);
             entity.Property(e => e.Email)
