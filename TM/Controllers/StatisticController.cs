@@ -21,15 +21,15 @@ namespace TM.Controllers
 
         [RequireAuthorize("Admin")]
         public IActionResult Index(string? selectedCountry = null, string? selectedLocation = null,
-            DateTime? fromDate = null, DateTime? toDate = null)
+            string? selectedSeller = null, DateTime? fromDate = null, DateTime? toDate = null)
         {
             var dateRange = SetDefaultDateRange(fromDate, toDate);
             fromDate = dateRange.fromDate;
             toDate = dateRange.toDate;
 
-            SetupViewBag(selectedCountry, selectedLocation, fromDate, toDate);
+            SetupViewBag(selectedCountry, selectedLocation, selectedSeller, fromDate, toDate);
 
-            var filteredTours = GetFilteredTours(selectedCountry, selectedLocation, fromDate, toDate);
+            var filteredTours = GetFilteredTours(selectedCountry, selectedLocation, selectedSeller, fromDate, toDate);
 
             var statistics = CalculateBasicStatistics(filteredTours);
             var dailyStats = GetDailyStatistics(filteredTours, fromDate, toDate);
@@ -63,19 +63,21 @@ namespace TM.Controllers
             return (fromDate, toDate);
         }
 
-        private void SetupViewBag(string? selectedCountry, string? selectedLocation,
+        private void SetupViewBag(string? selectedCountry, string? selectedLocation, string? selectedSeller,
             DateTime? fromDate, DateTime? toDate)
         {
             ViewBag.Countries = GetCountriesSelectList();
             ViewBag.Locations = GetLocationsSelectList();
+            ViewBag.Sellers = GetSellersSelectList();
             ViewBag.SelectedCountry = selectedCountry;
             ViewBag.SelectedLocation = selectedLocation;
+            ViewBag.SelectedSeller = selectedSeller;
             ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
             ViewBag.ToDate = toDate?.ToString("yyyy-MM-dd");
         }
 
         private IQueryable<Tour> GetFilteredTours(string? selectedCountry, string? selectedLocation,
-            DateTime? fromDate, DateTime? toDate)
+            string? selectedSeller, DateTime? fromDate, DateTime? toDate)
         {
             var baseQuery = _context.Tours
                 .Where(t => t.Status == "Completed")
@@ -84,7 +86,7 @@ namespace TM.Controllers
                 .Include(t => t.Passengers)
                 .AsQueryable();
 
-            return ApplyFilters(baseQuery, selectedCountry, selectedLocation, fromDate, toDate);
+            return ApplyFilters(baseQuery, selectedCountry, selectedLocation, selectedSeller, fromDate, toDate);
         }
 
         private (int totalTours, int totalPassengers, decimal totalRevenue) CalculateBasicStatistics(
@@ -236,7 +238,7 @@ namespace TM.Controllers
         }
 
         private IQueryable<Tour> ApplyFilters(IQueryable<Tour> query, string? selectedCountry,
-            string? selectedLocation, DateTime? fromDate, DateTime? toDate)
+            string? selectedLocation, string? selectedSeller, DateTime? fromDate, DateTime? toDate)
         {
             if (!string.IsNullOrEmpty(selectedCountry))
             {
@@ -249,6 +251,11 @@ namespace TM.Controllers
             {
                 query = query.Where(t => t.Location != null &&
                     t.Location.LocationName == selectedLocation);
+            }
+
+            if (!string.IsNullOrEmpty(selectedSeller) && int.TryParse(selectedSeller, out int sellerId))
+            {
+                query = query.Where(t => t.CreatedById == sellerId);
             }
 
             if (fromDate.HasValue)
@@ -294,6 +301,38 @@ namespace TM.Controllers
             };
 
             selectList.AddRange(locations.Select(l => new SelectListItem { Value = l, Text = l }));
+            return selectList;
+        }
+
+        private List<SelectListItem> GetSellersSelectList()
+        {
+            // Cách tối ưu hơn với join trực tiếp
+            var sellers = _context.Tours
+                .Where(t => t.CreatedById.HasValue)
+                .Join(_context.Accounts,
+                      t => t.CreatedById,
+                      u => u.Id,
+                      (t, u) => new { t.CreatedById, User = u })
+                .GroupBy(x => new { x.CreatedById })
+                .Select(g => new
+                {
+                    Id = g.Key.CreatedById.Value,
+                    Name = g.FirstOrDefault().User.Username
+                })
+                .OrderBy(s => s.Name)
+                .ToList();
+
+            var selectList = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "", Text = "Tất cả nhân viên" }
+    };
+
+            selectList.AddRange(sellers.Select(s => new SelectListItem
+            {
+                Value = s.Id.ToString(),
+                Text = s.Name
+            }));
+
             return selectList;
         }
 
