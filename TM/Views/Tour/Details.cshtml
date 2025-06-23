@@ -159,19 +159,58 @@
         <!-- Thông tin giá -->
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingPrice">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrice" aria-expanded="false" aria-controls="collapsePrice">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrice" aria-expanded="true" aria-controls="collapsePrice">
                     <i class="fas fa-dollar-sign me-2"></i>Thông tin giá
                 </button>
             </h2>
-            <div id="collapsePrice" class="accordion-collapse collapse" aria-labelledby="headingPrice">
+            <div id="collapsePrice" class="accordion-collapse collapse show" aria-labelledby="headingPrice">
                 <div class="accordion-body">
-                    <div class="row">
-                        <div class="col-md-4"><strong>Giá đề xuất:</strong> <span class="text-success fw-bold">@Model.SuggestPrice.ToString("N0") VNĐ</span></div>
-                        <div class="col-md-4"><strong>Giá giảm:</strong> <span class="text-warning fw-bold">@(Model.DiscountPrice?.ToString("N0") ?? "N/A") VNĐ</span></div>
-                        <div class="col-md-4"><strong>Phí HH:</strong> <span class="text-danger fw-bold">@Model.HhFee.ToString("N0") VNĐ</span></div>
+                    <!-- VÙNG GIÁ VÉ -->
+                    <div class="mb-3 pb-2 border-bottom">
+                        <h6 class="text-primary mb-3">
+                            <i class="bi bi-ticket-detailed-fill me-2"></i>Thông tin giá vé
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>Giá đề xuất:</strong>
+                                <span class="text-success fw-bold">@Model.SuggestPrice.ToString("N0") VNĐ</span>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Giá giảm:</strong>
+                                <span class="text-warning fw-bold">@(Model.DiscountPrice?.ToString("N0") ?? "N/A") VNĐ</span>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Phí HH:</strong>
+                                <span class="text-danger fw-bold">@Model.HhFee.ToString("N0") VNĐ</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VÙNG TỔNG THU -->
+                    <div class="pt-2">
+                        <h6 class="text-primary mb-3">
+                            <i class="bi bi-cash-coin me-2"></i>Thông tin tổng thu
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>Tổng giá đề xuất:</strong>
+                                <span class="text-success fw-bold">@Model.TotalAssignedPrice?.ToString("N0") VNĐ</span>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Tổng thu hiện tại:</strong>
+                                <span class="text-warning fw-bold">@(Model.TotalCustomerPaid?.ToString("N0") ?? "N/A") VNĐ</span>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Cần thu:</strong>
+                                <span class="text-danger fw-bold">
+                                    @((Model.TotalAssignedPrice - Model.TotalCustomerPaid)?.ToString("N0")) VNĐ
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+
         </div>
 
         <!-- Cài đặt -->
