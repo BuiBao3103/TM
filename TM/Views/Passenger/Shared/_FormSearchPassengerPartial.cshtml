@@ -97,7 +97,7 @@
     const formData = new FormData(form);
     const params = new URLSearchParams(formData);
 
-    fetch(`/passenger/filter?${params.toString()}`)
+    fetch(`../../passenger/filter?${params.toString()}`)
       .then(res => res.text())
       .then(html => {
         document.getElementById("container-passenger-table").innerHTML = html;
