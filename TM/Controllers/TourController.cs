@@ -276,17 +276,105 @@ namespace TM.Controllers
         [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> Details(int id)
         {
-            var tour = await _context.Tours
-                .Include(t => t.Location)
-                    .ThenInclude(l => l.Country)
-                .Include(t => t.TourSurcharges.Where(s => s.DeleteAt == null))
-                .Include(t => t.Passengers.Where(p => p.DeleteAt == null))
-                .FirstOrDefaultAsync(t => t.Id == id);
+            var query = from t in _context.Tours
+                        join l in _context.Locations on t.LocationId equals l.Id
+                        join c in _context.Countries on l.CountryId equals c.Id
+                        join p in _context.Passengers on t.Id equals p.TourId into passengerGroup
+                        from p in passengerGroup.DefaultIfEmpty()
+                        where t.DeleteAt == null
+                            && (p.Status != "Cancelled" || p.Status == null)
+                            && p.DeleteAt == null
+                            && t.Id == id
+                        group new { t, l, c, p } by new
+                        {
+                            t.Id,
+                            l.LocationName,
+                            CountryName = c.Name,
+                            t.Name,
+                            t.StartDate,
+                            t.EndDate,
+                            t.SuggestPrice,
+                            t.DiscountPrice,
+                            t.AvailableSeats,
+                            t.TotalSeats,
+                            t.Status,
+                            t.IsVisaRequired,
+                            t.Code,
+                            t.HhFee,
+                            t.DepartureFlightInfo,
+                            t.ArrivalFlightInfo,
+                            t.IsAutoHoldTime,
+                            t.HoldTime,
+                            t.VisaDeadline,
+                            t.FullPayDeadline,
+                            t.LocationId,
+                            t.DepartureLocation,
+                            t.DepartureAssembleTime,
+                            t.RoomNote,
+                            t.Note,
+                            t.CreatedAt,
+                            t.ModifiedAt,
+                            t.ModifiedById,
+                            t.DeleteAt
+                        } into g
+                        select new TourWithPassengerStatsViewModel
+                        {
+                            // Tour properties
+                            Id = g.Key.Id,
+                            LocationName = g.Key.LocationName,
+                            CountryName = g.Key.Name,
+                            Name = g.Key.Name,
+                            StartDate = g.Key.StartDate,
+                            EndDate = g.Key.EndDate,
+                            SuggestPrice = g.Key.SuggestPrice,
+                            DiscountPrice = g.Key.DiscountPrice,
+                            AvailableSeats = g.Key.AvailableSeats,
+                            TotalSeats = g.Key.TotalSeats,
+                            Status = g.Key.Status,
+                            IsVisaRequired = g.Key.IsVisaRequired,
+                            Code = g.Key.Code,
+                            HhFee = g.Key.HhFee,
+                            DepartureFlightInfo = g.Key.DepartureFlightInfo,
+                            ArrivalFlightInfo = g.Key.ArrivalFlightInfo,
+                            IsAutoHoldTime = g.Key.IsAutoHoldTime,
+                            HoldTime = g.Key.HoldTime,
+                            VisaDeadline = g.Key.VisaDeadline,
+                            FullPayDeadline = g.Key.FullPayDeadline,
+                            LocationId = g.Key.LocationId,
+                            DepartureLocation = g.Key.DepartureLocation,
+                            DepartureAssembleTime = g.Key.DepartureAssembleTime,
+                            RoomNote = g.Key.RoomNote,
+                            Note = g.Key.Note,
+                            CreatedAt = g.Key.CreatedAt,
+                            ModifiedAt = g.Key.ModifiedAt,
+                            ModifiedById = g.Key.ModifiedById,
+                            DeleteAt = g.Key.DeleteAt,
+                            // Aggregated fields
+                            TotalCustomers = g.Count(x => x.p != null && x.p.Id != 0),
+                            FullPayCustomers = g.Count(x => x.p != null && x.p.AssignedPrice <= x.p.CustomerPaid),
+                            CustomerNoPassport = g.Count(x => x.p != null && (x.p.PassportNum == null || x.p.PassportNum == "")),
+                            ReservedCustomer = g.Count(x => x.p != null && x.p.Status == "Reserved"),
+                            DepositedCustomer = g.Count(x => x.p != null && x.p.CustomerPaid > 0 && x.p.CustomerPaid < x.p.AssignedPrice),
+                            CustomerFullPayNotTicket = g.Count(x => x.p != null && x.p.AssignedPrice <= x.p.CustomerPaid
+                                && (x.p.DepartureFlightInfo == null || x.p.DepartureFlightInfo == ""
+                                    || x.p.ArrivalFlightInfo == null || x.p.ArrivalFlightInfo == "")),
+                            TotalAssignedPrice = g.Sum(x => x.p != null ? x.p.AssignedPrice : 0),
+                            TotalCustomerPaid = g.Sum(x => x.p != null ? x.p.CustomerPaid : 0),
+                        };
+
+            var tour = await query.FirstOrDefaultAsync();
 
             if (tour == null)
             {
                 return NotFound();
             }
+
+            var tourSurcharges = await _context.TourSurcharges.Where(s => s.TourId == id && s.DeleteAt == null).ToListAsync();
+            var tourPassengers = await _context.Passengers.Where(p => p.TourId == id && p.DeleteAt == null).ToListAsync();
+
+            tour.Passengers = tourPassengers;
+            tour.TourSurcharges = tourSurcharges;
+
             ViewData["Title"] = "Chi tiết tour";
             return View(tour);
         }
@@ -453,17 +541,10 @@ namespace TM.Controllers
                 ModelState
             );
 
-            Tour? tour = await _context.Tours.FindAsync(viewModel.TourId);
-
-            _validator.ValidatePassportExpiryDate(
-                viewModel.PassportExpiryDate,
-                tour,
-                ModelState
-            );
-
             // If model state is invalid, retrieve the tour name and return the view with the model
             if (!ModelState.IsValid)
             {
+                Tour? tour = await _context.Tours.FindAsync(viewModel.TourId);
                 if (tour != null)
                 {
                     viewModel.TourName = tour.Name;
@@ -525,8 +606,7 @@ namespace TM.Controllers
             }
 
             TempData["SuccessMessage"] = "Thêm hành khách thành công!";
-            TempData["Fragment"] = "#passenger-list";
-            return RedirectToAction("Edit", "Tour", new { id = passenger?.TourId });
+            return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
         }
 
         [RequireAuthorize("Admin", "Sale")]
@@ -571,20 +651,12 @@ namespace TM.Controllers
                 ModelState
             );
 
-            Passenger? passenger = _context.Passengers.Find(viewModel.Id);
-            Tour? tour = _context.Tours.Find(passenger?.TourId);
-
-            _validator.ValidatePassportExpiryDate(
-                viewModel.PassportExpiryDate,
-                tour,
-                ModelState
-            );
-
             if (!ModelState.IsValid)
             {
                 return View(viewModel);
             }
 
+            Passenger? passenger = _context.Passengers.Find(viewModel.Id);
             if (passenger == null)
             {
                 TempData["ErrorMessage"] = "Có lỗi xảy ra, dữ liệu không tồn tại.";
@@ -594,6 +666,7 @@ namespace TM.Controllers
             _mapper.Map(viewModel, passenger);
             _context.SaveChanges();
 
+            Tour? tour = _context.Tours.Find(passenger?.TourId);
 
             if (tour != null)
             {
@@ -607,8 +680,7 @@ namespace TM.Controllers
             }
 
             TempData["SuccessMessage"] = "Cập nhật hành khách thành công!";
-            TempData["Fragment"] = "#passenger-list";
-            return RedirectToAction("Edit", "Tour", new { id = passenger?.TourId });
+            return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
         }
 
         [HttpPost]
@@ -643,32 +715,15 @@ namespace TM.Controllers
         }
 
         // Countries/Locations handle section
-        // lưu country khi update/create
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuthorize("Admin")]
         public IActionResult SaveCountry(Country model)
         {
-            string newName = model.Name.Trim().ToLower();
-            string newCode = model.Code.Trim().ToUpper();
-
-            // validate if any country with the same name or code exists
-            bool nameExists = _context.Countries.Any(c => c.Name.ToLower() == newName && c.Id != model.Id);
-            bool codeExists = _context.Countries.Any(c => c.Code.ToUpper() == newCode && c.Id != model.Id);
-
-            if (nameExists)
-            {
-                TempData["ErrorMessage"] = "Tên quốc gia đã tồn tại!";
-                return RedirectToAction("Index");
-            }
-            if (codeExists)
-            {
-                TempData["ErrorMessage"] = "Mã quốc gia đã tồn tại!";
-                return RedirectToAction("Index");
-            }
-
             if (model.Id > 0)
             {
+                // Find if exists => update
                 var c = _context.Countries.Find(model.Id);
                 if (c != null)
                 {
@@ -678,14 +733,14 @@ namespace TM.Controllers
             }
             else
             {
+                // Find if not exists => create
                 _context.Countries.Add(model);
             }
+
             _context.SaveChanges();
-            TempData["SuccessMessage"] = "Lưu quốc gia thành công!";
             return RedirectToAction("Index");
         }
 
-        //// lưu location khi update/create
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuthorize("Admin")]
@@ -694,19 +749,9 @@ namespace TM.Controllers
             if (!ModelState.IsValid)
                 return RedirectToAction("Index");
 
-            string newName = model.LocationName.Trim().ToLower();
-
-
-            bool nameExists = _context.Locations.Any(l => l.LocationName.ToLower() == newName && l.CountryId == model.CountryId && l.Id != model.Id);
-
-            if (nameExists)
-            {
-                TempData["ErrorMessage"] = "Tên địa điểm đã tồn tại!";
-                return RedirectToAction("Index");
-            }
-
             if (model.Id > 0)
             {
+                // Find if exists => update
                 Location? existing = _context.Locations.FirstOrDefault(l => l.Id == model.Id);
                 if (existing != null)
                 {
@@ -716,13 +761,12 @@ namespace TM.Controllers
             }
             else
             {
+                // Find if not exists => create
                 _context.Locations.Add(model);
                 _context.SaveChanges();
             }
 
-            TempData["SuccessMessage"] = "Lưu địa điểm thành công!";
             return RedirectToAction("Index");
         }
-
     }
 }
