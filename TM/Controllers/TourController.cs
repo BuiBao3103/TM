@@ -398,6 +398,12 @@ namespace TM.Controllers
                 return NotFound();
             }
 
+            if (tour.Status == "Completed")
+            {
+                TempData["ErrorMessage"] = "Không thể chỉnh sửa tour đã hoàn thành.";
+                return RedirectToAction("Details", new { id = tour.Id });
+            }
+
             var locations = _context.Locations
                 .Include(l => l.Country)
                 .ToList()
