@@ -3,6 +3,7 @@ using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using TM.Models;
 using TM.Models.Entities;
 using TM.Models.ViewModels;
@@ -381,45 +382,54 @@ namespace TM.Controllers
 
         [HttpGet]
         [RequireAuthorize("Admin", "Sale")]
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
+            TourEditViewModel model;
+
+            if (TempData["InvalidModel"] is string json && !string.IsNullOrWhiteSpace(json))
             {
-                return NotFound();
+                model = JsonConvert.DeserializeObject<TourEditViewModel>(json)!;
+                this.RestoreModelState();
+                ViewBag.IsInvalid = true;
+            }
+            else
+            {
+                var tour = await _context.Tours.FirstOrDefaultAsync(t => t.Id == id);
+                if (tour == null) return NotFound();
+                if (tour.Status == "Completed")
+                {
+                    TempData["ErrorMessage"] = "Không thể chỉnh sửa tour đã hoàn thành.";
+                    return RedirectToAction("Details", new { id = tour.Id });
+                }
+                model = _mapper.Map<TourEditViewModel>(tour);
             }
 
-            var tour = await _context.Tours
-                .Include(t => t.TourSurcharges.Where(s => s.DeleteAt == null))
-                .Include(t => t.Passengers.Where(p => p.DeleteAt == null))
-                .FirstOrDefaultAsync(t => t.Id == id);
 
-            if (tour == null)
-            {
-                return NotFound();
-            }
-
-            if (tour.Status == "Completed")
-            {
-                TempData["ErrorMessage"] = "Không thể chỉnh sửa tour đã hoàn thành.";
-                return RedirectToAction("Details", new { id = tour.Id });
-            }
-
+            // Load dropdown Location
             var locations = _context.Locations
                 .Include(l => l.Country)
-                .ToList()
                 .Select(l => new
                 {
-                    Id = l.Id,
+                    l.Id,
                     DisplayText = $"{l.LocationName} - {l.Country.Name}"
                 })
+                .AsEnumerable() // chuyển sang LINQ to Objects
                 .OrderBy(l => l.DisplayText)
                 .ToList();
 
-            ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText");
+            ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText", model.LocationId);
 
-            var model = _mapper.Map<TourEditViewModel>(tour);
-            ViewData["Surcharges"] = _mapper.Map<IEnumerable<TourSurchargeViewModel>>(tour.TourSurcharges);
-            ViewData["Passengers"] = _mapper.Map<List<PassengerViewModel>>(tour.Passengers);
+            // Load surcharges and passengers
+            var tourSurcharges = await _context.TourSurcharges
+                .Where(s => s.TourId == id && s.DeleteAt == null)
+                .ToListAsync();
+
+            var tourPassengers = await _context.Passengers
+                .Where(p => p.TourId == id && p.DeleteAt == null)
+                .ToListAsync();
+
+            ViewData["Surcharges"] = _mapper.Map<IEnumerable<TourSurchargeViewModel>>(tourSurcharges);
+            ViewData["Passengers"] = _mapper.Map<List<PassengerViewModel>>(tourPassengers);
 
             return View(model);
         }
@@ -429,41 +439,26 @@ namespace TM.Controllers
         [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> Edit(int id, TourEditViewModel model)
         {
-            if (id != model.Id)
-            {
-                return NotFound();
-            }
+            if (id != model.Id) return NotFound();
 
             if (!ModelState.IsValid)
             {
-                var locations = _context.Locations
-                    .Include(l => l.Country)
-                    .ToList()
-                    .Select(l => new
-                    {
-                        Id = l.Id,
-                        DisplayText = $"{l.LocationName} - {l.Country.Name}"
-                    })
-                    .OrderBy(l => l.DisplayText)
-                    .ToList();
-                ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText", model.LocationId);
-                return View(model);
+                TempData["InvalidModel"] = JsonConvert.SerializeObject(model);
+                TempData.PutModelState(ModelState);
+                return RedirectToAction(nameof(Edit), new { id });
             }
 
             var tour = await _context.Tours.FindAsync(id);
-            if (tour == null)
-            {
-                return NotFound();
-            }
+            if (tour == null) return NotFound();
 
             _mapper.Map(model, tour);
             tour.ModifiedAt = DateTime.Now;
+
             _context.Update(tour);
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Sửa thành công";
-
-            return RedirectToAction("Edit");
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         private bool TourExists(int id)
@@ -572,7 +567,11 @@ namespace TM.Controllers
             passenger.TourId = viewModel.TourId;
             passenger.ModifiedAt = DateTime.Now;
             if (int.TryParse(HttpContext.Session.GetString("AuthId"), out int authId))
+            {
                 passenger.ModifiedById = authId;
+                passenger.CreatedById = authId;
+            }
+                
 
             _context.Add(passenger);
 
@@ -629,7 +628,7 @@ namespace TM.Controllers
             String? role = HttpContext.Session.GetString("Role");
 
             bool isAdmin = role == "Admin";
-            bool isValidSale = role == "Sale" && passenger?.ModifiedById != null && passenger.ModifiedById.ToString() == id;
+            bool isValidSale = role == "Sale" && passenger?.CreatedById != null && passenger.CreatedById.ToString() == id;
 
             if (!(isAdmin || isValidSale))
             {
@@ -669,6 +668,7 @@ namespace TM.Controllers
                 return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
             }
 
+            // save changes to passenger
             _mapper.Map(viewModel, passenger);
             _context.SaveChanges();
 
@@ -682,6 +682,8 @@ namespace TM.Controllers
                 .ToList()
                 .Count;
                 tour.AvailableSeats = tour.TotalSeats - bookedSeatsAmount;
+
+                // update tour's available seats
                 _context.SaveChanges();
             }
 
@@ -706,7 +708,7 @@ namespace TM.Controllers
             String? role = HttpContext.Session.GetString("Role");
 
             bool isAdmin = role == "Admin";
-            bool isValidSale = role == "Sale" && passenger?.ModifiedById != null && passenger.ModifiedById.ToString() == id;
+            bool isValidSale = role == "Sale" && passenger?.CreatedById != null && passenger.CreatedById.ToString() == id;
 
             if (!(isAdmin || isValidSale))
             {
@@ -914,7 +916,8 @@ namespace TM.Controllers
                 && l.Id != model.EditLocation.Id);
 
             var locations = _context.Locations
-            .Select(l => new {
+            .Select(l => new
+            {
                 l.Id,
                 l.LocationName,
                 l.CountryId,
@@ -922,7 +925,7 @@ namespace TM.Controllers
             })
             .OrderBy(l => l.LocationName)
             .ToList();
-                ViewBag.LocationListFull = locations;
+            ViewBag.LocationListFull = locations;
 
             if (nameExists)
                 ModelState.AddModelError("EditLocation.LocationName", "Tên địa điểm đã tồn tại trong quốc gia này!");
