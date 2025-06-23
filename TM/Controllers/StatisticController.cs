@@ -91,12 +91,12 @@ namespace TM.Controllers
             IQueryable<Tour> filteredTours)
         {
             var totalTours = filteredTours.Count();
-            var confirmedPassengers = filteredTours
+            var PaidPassengers = filteredTours
                 .SelectMany(t => t.Passengers)
-                .Where(p => p.Status == "Confirmed");
+                .Where(p => p.Status == "Paid");
 
-            var totalPassengers = confirmedPassengers.Count();
-            var totalRevenue = confirmedPassengers.Sum(p => p.CustomerPaid ?? 0);
+            var totalPassengers = PaidPassengers.Count();
+            var totalRevenue = PaidPassengers.Sum(p => p.CustomerPaid ?? 0);
 
             return (totalTours, totalPassengers, totalRevenue);
         }
@@ -122,10 +122,10 @@ namespace TM.Controllers
                     Date = g.Key,
                     TourCount = g.Count(),
                     PassengerCount = g.SelectMany(t => t.Passengers)
-                                    .Where(p => p.Status == "Confirmed")
+                                    .Where(p => p.Status == "Paid")
                                     .Count(),
                     Revenue = g.SelectMany(t => t.Passengers)
-                             .Where(p => p.Status == "Confirmed")
+                             .Where(p => p.Status == "Paid")
                              .Sum(p => p.CustomerPaid ?? 0)
                 })
                 .ToDictionary(x => x.Date, x => (x.TourCount, x.PassengerCount, x.Revenue));
@@ -174,7 +174,7 @@ namespace TM.Controllers
                 {
                     Date = g.Key,
                     Revenue = g.SelectMany(t => t.Passengers)
-                             .Where(p => p.Status == "Confirmed")
+                             .Where(p => p.Status == "Paid")
                              .Sum(p => p.CustomerPaid ?? 0)
                 })
                 .ToDictionary(x => x.Date, x => x.Revenue);
@@ -204,10 +204,10 @@ namespace TM.Controllers
                     CountryName = g.Key,
                     TourCount = g.Count(),
                     PassengerCount = g.SelectMany(t => t.Passengers)
-                                    .Where(p => p.Status == "Confirmed")
+                                    .Where(p => p.Status == "Paid")
                                     .Count(),
                     Revenue = g.SelectMany(t => t.Passengers)
-                             .Where(p => p.Status == "Confirmed")
+                             .Where(p => p.Status == "Paid")
                              .Sum(p => p.CustomerPaid ?? 0)
                 })
                 .OrderByDescending(x => x.Revenue)
@@ -225,10 +225,10 @@ namespace TM.Controllers
                     CountryName = g.Key.Name,
                     TourCount = g.Count(),
                     PassengerCount = g.SelectMany(t => t.Passengers)
-                                    .Where(p => p.Status == "Confirmed")
+                                    .Where(p => p.Status == "Paid")
                                     .Count(),
                     Revenue = g.SelectMany(t => t.Passengers)
-                             .Where(p => p.Status == "Confirmed")
+                             .Where(p => p.Status == "Paid")
                              .Sum(p => p.CustomerPaid ?? 0)
                 })
                 .OrderByDescending(x => x.Revenue)
