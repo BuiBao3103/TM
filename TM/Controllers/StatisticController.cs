@@ -19,7 +19,7 @@ namespace TM.Controllers
             _mapper = mapper;
         }
 
-        [RequireAuthorize("Admin", "Sale")]
+        [RequireAuthorize("Admin")]
         public IActionResult Index(string? selectedCountry = null, string? selectedLocation = null,
             DateTime? fromDate = null, DateTime? toDate = null)
         {
