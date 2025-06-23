@@ -30,7 +30,7 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("Account");
 
-            entity.Property(e => e.Password).HasMaxLength(50);
+            entity.Property(e => e.Password).HasMaxLength(128);
             entity.Property(e => e.Role).HasMaxLength(20);
             entity.Property(e => e.Username).HasMaxLength(50);
         });
