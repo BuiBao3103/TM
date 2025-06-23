@@ -178,7 +178,7 @@
                                         <small id="AssignedPriceDisplay" class="text-success"></small>
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="AssignedPrice" type="number" class="form-control money-input" oninput="updateFormattedDisplay(this, 'AssignedPriceDisplay')" />
+                                        <input asp-for="AssignedPrice" type="number" min="0" step="1000" class="form-control money-input" oninput="updateFormattedDisplay(this, 'AssignedPriceDisplay')" />
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="AssignedPrice" class="text-danger small"></span>
@@ -192,7 +192,7 @@
                                         <small id="CustomerPaidDisplay" class="text-success"></small>
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="CustomerPaid" type="number" class="form-control money-input" oninput="updateFormattedDisplay(this, 'CustomerPaidDisplay')" />
+                                        <input asp-for="CustomerPaid" type="number" min="0" step="1000" class="form-control money-input" oninput="updateFormattedDisplay(this, 'CustomerPaidDisplay')" />
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="CustomerPaid" class="text-danger small"></span>

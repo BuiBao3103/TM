@@ -146,7 +146,7 @@
                                         <i class="fas fa-tags me-1"></i>Giá đề xuất
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="AssignedPrice" type="number" class="form-control" />
+                                        <input asp-for="AssignedPrice" type="number" step="1000" min="0" class="form-control" />
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="AssignedPrice" class="text-danger small"></span>
@@ -156,7 +156,7 @@
                                         <i class="fas fa-wallet me-1"></i>Khách đã trả
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="CustomerPaid" type="number" class="form-control" />
+                                        <input asp-for="CustomerPaid" type="number" step="1000" min="0" class="form-control" />
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="CustomerPaid" class="text-danger small"></span>
