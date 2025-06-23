@@ -57,6 +57,8 @@ namespace TM.Controllers
                     ArrivalFlightInfo = p.ArrivalFlightInfo,
                     Status = p.Status,
                     ModifiedById = p.ModifiedById,
+                    HhFee = p.HhFee,
+                    DiscountPrice = p.DiscountPrice,
                 }).ToListAsync();
 
                 var listPassengerViewModel = _mapper.Map<List<PassengerViewModel>>(listPassenger);
