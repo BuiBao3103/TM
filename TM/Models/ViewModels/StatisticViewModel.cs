@@ -18,7 +18,7 @@
         public List<TourRevenueByDateViewModel> RevenueByDate { get; set; } = new();
         public List<TourCountByCountryViewModel> ToursByCountry { get; set; } = new();
         public List<TourCountByLocationViewModel> ToursByLocation { get; set; } = new();
-
+        public List<EmployeeStatisticItemViewModel> EmployeeStatistics { get; set; } = new();
     }
 
     public class TourRevenueByDateViewModel
@@ -46,6 +46,12 @@
         public int PassengerCount { get; set; }
     }
 
-
-
+    public class EmployeeStatisticItemViewModel
+    {
+        public string EmployeeName { get; set; }
+        public decimal TotalRevenue { get; set; }
+        public decimal TotalCommission { get; set; }
+        public decimal TotalDiscount { get; set; }
+        public decimal TotalEarnings { get; set; }
+    }
 }

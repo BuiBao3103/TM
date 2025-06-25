@@ -21,20 +21,25 @@ namespace TM.Controllers
 
         [RequireAuthorize("Admin")]
         public IActionResult Index(string? selectedCountry = null, string? selectedLocation = null,
-            string? selectedSeller = null, DateTime? fromDate = null, DateTime? toDate = null)
+            string? selectedSeller = null, DateTime? fromDate = null, DateTime? toDate = null, string tab = "tour")
         {
             var dateRange = SetDefaultDateRange(fromDate, toDate);
             fromDate = dateRange.fromDate;
             toDate = dateRange.toDate;
 
             SetupViewBag(selectedCountry, selectedLocation, selectedSeller, fromDate, toDate);
+            ViewBag.ActiveTab = tab;
 
             var filteredTours = GetFilteredTours(selectedCountry, selectedLocation, selectedSeller, fromDate, toDate);
 
+            // Tour statistics
             var statistics = CalculateBasicStatistics(filteredTours);
             var dailyStats = GetDailyStatistics(filteredTours, fromDate, toDate);
             var toursByCountry = GetToursByCountry(filteredTours);
             var toursByLocation = GetToursByLocation(filteredTours);
+            
+            // Employee statistics
+            var employeeStatistics = GetEmployeeStatistics(filteredTours);
 
             var model = new StatisticViewModel
             {
@@ -43,7 +48,8 @@ namespace TM.Controllers
                 TotalRevenue = statistics.totalRevenue,
                 RevenueByDate = dailyStats,
                 ToursByCountry = toursByCountry,
-                ToursByLocation = toursByLocation
+                ToursByLocation = toursByLocation,
+                EmployeeStatistics = employeeStatistics
             };
 
             return View(model);
@@ -323,9 +329,9 @@ namespace TM.Controllers
                 .ToList();
 
             var selectList = new List<SelectListItem>
-    {
-        new SelectListItem { Value = "", Text = "Tất cả nhân viên" }
-    };
+            {
+                new SelectListItem { Value = "", Text = "Tất cả nhân viên" }
+            };
 
             selectList.AddRange(sellers.Select(s => new SelectListItem
             {
@@ -334,6 +340,26 @@ namespace TM.Controllers
             }));
 
             return selectList;
+        }
+
+        private List<EmployeeStatisticItemViewModel> GetEmployeeStatistics(IQueryable<Tour> filteredTours)
+        {
+            var employeeStats = filteredTours
+                .SelectMany(t => t.Passengers)
+                .Where(p => p.CreatedById != null && p.CreatedBy != null)
+                .GroupBy(p => p.CreatedBy)
+                .Select(g => new EmployeeStatisticItemViewModel
+                {
+                    EmployeeName = g.Key.Username,
+                    TotalRevenue = g.Sum(p => p.CustomerPaid ?? 0),
+                    TotalCommission = g.Sum(p => p.HhFee),
+                    TotalDiscount = g.Sum(p => p.DiscountPrice),
+                })
+                .ToList();
+
+            employeeStats.ForEach(e => e.TotalEarnings = e.TotalCommission - e.TotalDiscount);
+
+            return employeeStats.OrderByDescending(e => e.TotalEarnings).ToList();
         }
 
         #endregion

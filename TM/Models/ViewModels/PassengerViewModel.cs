@@ -55,7 +55,7 @@ public class PassengerViewModel
     [Range(0, double.MaxValue, ErrorMessage = "Số tiền phải >= 0")]
     public decimal? CustomerPaid { get; set; }
 
-    [Display(Name = "Giá sau khi giảm")]
+    [Display(Name = "Số tiền giảm")]
     [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
     public decimal DiscountPrice { get; set; }
 
