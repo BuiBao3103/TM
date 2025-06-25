@@ -18,7 +18,7 @@
             <a asp-action="Index" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
             </a>
-            @if (Model.Status != "Completed")
+            @if (Model.Status != "Completed" && Model.Status != "Cancelled")
             {
             <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
                 <i class="fas fa-edit me-2"></i>Chỉnh sửa
@@ -26,6 +26,15 @@
             }
         </div>
     </div>
+
+    <!-- Error Message -->
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@ViewBag.ErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
   
     <!-- Main Content -->
@@ -297,86 +306,14 @@
         <div class="card-header bg-light">
             <h5 class="mb-0"><i class="fas fa-users me-2"></i>Danh sách hành khách</h5>
         </div>
-        <div class="card-body">
-            @if (Model.Passengers.Any())
-            {
-                <div class="table-responsive">
-                    <table class="table table-sm table-hover table-striped">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Họ tên</th>
-                                <th>Số điện thoại</th>
-                                <th>Giới tính</th>
-                                <th class="text-end">Giá đề xuất</th>
-                                <th class="text-end">Đã trả</th>
-                                <th class="text-end">Phải trả</th>
-                                <th class="text-center">Passport</th>
-                                <th class="text-center">Vé máy bay</th>
-                                <th>Trạng thái</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model.Passengers)
-                            {
-                                <tr>
-                                    <td>@item.FullName</td>
-                                    <td>@item.Phone</td>
-                                    @if (@item.Gender == "Male")
-                                    {
-                                        <td>Nam</td>
-                                    }
-                                    else if (@item.Gender == "Female")
-                                    {
-                                        <td>Nữ</td>
-                                    }
-                                    else
-                                    {
-                                        <td>Khác</td>
-                                    }
-                                    <td class="text-end">@string.Format("{0:N0}", item.AssignedPrice) VNĐ</td>
-                                    <td class="text-end">@string.Format("{0:N0}", item.CustomerPaid) VNĐ</td>
-                                    <td class="text-end text-danger fw-bold">@string.Format("{0:N0}", (item.AssignedPrice - item.CustomerPaid)) VNĐ</td>
-                                    <td class="text-center">
-                                        @if (!string.IsNullOrEmpty(item.PassportNum))
-                                        {
-                                            <i class="fas fa-check-circle text-success" title="@item.PassportNum"></i>
-                                        }
-                                        else
-                                        {
-                                            <i class="fas fa-times-circle text-danger"></i>
-                                        }
-                                    </td>
-                                    <td class="text-center">
-                                        @if (!string.IsNullOrEmpty(item.DepartureFlightInfo) && !string.IsNullOrEmpty(item.ArrivalFlightInfo))
-                                        {
-                                            <i class="fas fa-check-circle text-success"></i>
-                                        }
-                                        else
-                                        {
-                                            <i class="fas fa-times-circle text-danger"></i>
-                                        }
-                                    </td>
-                                    <td>
-                                        @{
-                                            var statusClass = "bg-secondary";
-                                            var statusText = "Không xác định";
-                                            if (item.Status == "Paid") { statusClass = "bg-success"; statusText = "Đã thanh toán"; }
-                                            else if (item.Status == "Confirmed") { statusClass = "bg-primary"; statusText = "Đã cọc"; }
-                                            else if (item.Status == "Reserved") { statusClass = "bg-warning text-dark"; statusText = "Đang giữ chỗ"; }
-                                            else if (item.Status == "Cancelled") { statusClass = "bg-danger"; statusText = "Đã hủy"; }
-                                        }
-                                        <span class="badge @statusClass">@statusText</span>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+        <div class="card-body" id="passenger-list">
+            @{
+                ViewBag.FormAction = "Details";
             }
-            else
-            {
-                <p class="text-muted">Chưa có hành khách nào.</p>
-            }
+            @(await Html.PartialAsync("~/Views/Passenger/Shared/_FormSearchPassengerPartial.cshtml", Model.Id))
+            <div id="container-passenger-table">
+                @(await Html.PartialAsync("~/Views/Passenger/Shared/_TablePassengerGroupPartial.cshtml", Model.Passengers))
+            </div>
         </div>
     </div>
 </div>

@@ -9,6 +9,9 @@ namespace TM.Services
     {
         private const string Key = "ModelStateErrors";
 
+        // CẢNH BÁO: KHÔNG sử dụng TempData cho object phức tạp (JArray, JObject, List, Dictionary, ...)!
+        // Nên chỉ dùng TempData cho string, int, bool hoặc object đã serialize thành string.
+        // Nếu cần truyền dữ liệu phức tạp, hãy dùng query string hoặc ViewBag.
         public static void PutModelState(this ITempDataDictionary tempData, ModelStateDictionary modelState)
         {
             var errors = modelState.Where(ms => ms.Value?.Errors.Count > 0)
