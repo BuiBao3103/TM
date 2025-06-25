@@ -21,8 +21,7 @@
     };
 }
 
-<form id="filterCustomerForm" class="row g-3 mb-2" method="get" asp-action="@formAction" asp-controller="Tour" asp-route-id="@Model">
-    <input type="hidden" name="id" value="@Model"/>
+<div id="filterCustomerContainer" class="row g-3 mb-2" data-action="@formAction" data-id="@Model">
     <div class="col-md-5">
         <div class="input-group">
             <div class="input-group-text">
@@ -49,7 +48,7 @@
                     {
                         <option value="@opt.Value" selected>@opt.Text</option>
                     }
-                    else    
+                    else
                     {
                         <option value="@opt.Value">@opt.Text</option>
                     }
@@ -76,9 +75,40 @@
         </div>
     </div>
     <div class="col-md-1">
-        <button type="submit" class="btn btn-primary">Lọc</button>
+        <button type="button" id="applyPassengerFilterBtn" class="btn btn-primary">Lọc</button>
     </div>
-</form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const applyFilterBtn = document.getElementById('applyPassengerFilterBtn');
+    if (applyFilterBtn) {
+        applyFilterBtn.addEventListener('click', function() {
+            const container = document.getElementById('filterCustomerContainer');
+            const action = container.dataset.action;
+            const tourId = container.dataset.id;
+
+            const keyword = document.querySelector('input[name="keyword"]').value;
+            const passengerGroup = document.querySelector('select[name="PassengerGroup"]').value;
+            
+            const statusSelect = document.getElementById('status-passenger');
+            const selectedStatusOptions = Array.from(statusSelect.selectedOptions).map(option => ['status', option.value]);
+
+            const params = new URLSearchParams(selectedStatusOptions);
+
+            if (keyword) {
+                params.append('keyword', keyword);
+            }
+            if (passengerGroup) {
+                params.append('PassengerGroup', passengerGroup);
+            }
+
+            const finalUrl = `/Tour/${action}/${tourId}?${params.toString()}#passenger-list`;
+            window.location.href = finalUrl;
+        });
+    }
+});
+</script>
 
 <style>
     /* Giới hạn chiều rộng của các mục đã chọn trong selectpicker */
