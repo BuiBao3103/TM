@@ -47,6 +47,14 @@
     </div>
 }
 
+@if (TempData["ChangePassError"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ChangePassError"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
 
 <div class="container py-5">
     <!-- Block 1: Thông tin tài khoản -->
@@ -138,35 +146,30 @@
             <form id="changePasswordForm" method="post" asp-controller="Account" asp-action="ChangePassword">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="changePasswordLabel">Đổi mật khẩu</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     @Html.AntiForgeryToken()
 
-                    <!-- Old Password -->
                     <div class="mb-3">
-                        <label class="form-label">Mật khẩu hiện tại</label>
+                        <label for="OldPassword" class="form-label">Mật khẩu hiện tại</label>
                         <input type="password" class="form-control" name="OldPassword" id="OldPassword" required />
-                        <div class="form-text text-danger" id="oldPassError" style="display: none;"></div>
                     </div>
 
-                    <!-- Mật khẩu mới -->
-                    <div class="mb-3" id="newPassSection" style="display: none;">
-                        <label class="form-label">Mật khẩu mới</label>
-                        <input type="password" class="form-control" name="NewPassword" id="NewPassword" />
+                    <div class="mb-3">
+                        <label for="NewPassword" class="form-label">Mật khẩu mới</label>
+                        <input type="password" class="form-control" name="NewPassword" id="NewPassword" required minlength="6" />
                     </div>
 
-                    <!-- Xác nhận mật khẩu mới -->
-                    <div class="mb-3" id="confirmPassSection" style="display: none;">
-                        <label class="form-label">Xác nhận mật khẩu mới</label>
-                        <input type="password" class="form-control" id="ConfirmPassword" />
-                        <div class="form-text text-danger" id="confirmError" style="display: none;"></div>
+                    <div class="mb-3">
+                        <label for="ConfirmPassword" class="form-label">Xác nhận mật khẩu mới</label>
+                        <input type="password" class="form-control" name="ConfirmPassword" id="ConfirmPassword" required />
+                        <div class="invalid-feedback">Mật khẩu xác nhận không khớp.</div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-primary" id="nextStepBtn">Kiểm tra</button>
-                    <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">Lưu mật khẩu</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Lưu thay đổi</button>
                 </div>
             </form>
         </div>
@@ -176,104 +179,48 @@
 
 @section Scripts {
     <script>
-        const oldPassword = "@Model.Password";
+        document.addEventListener('DOMContentLoaded', function () {
+            const newPasswordInput = document.getElementById('NewPassword');
+            const confirmPasswordInput = document.getElementById('ConfirmPassword');
+            const changePasswordForm = document.getElementById('changePasswordForm');
 
-        // Kiểm tra mật khẩu hiện tại
-        document.getElementById('nextStepBtn').addEventListener('click', function () {
-            const entered = document.getElementById('OldPassword').value;
-            const errorDiv = document.getElementById('oldPassError');
-
-            if (entered !== oldPassword) {
-                errorDiv.innerText = 'Mật khẩu hiện tại không đúng';
-                errorDiv.style.display = 'block';
-            } else {
-                errorDiv.style.display = 'none';
-
-                // Disable old password input
-                document.getElementById('OldPassword').readOnly = true;
-
-                // Hiện field nhập mới
-                document.getElementById('newPassSection').style.display = 'block';
-                document.getElementById('confirmPassSection').style.display = 'block';
-
-                // Nút kiểm tra ẩn, hiện nút submit
-                this.style.display = 'none';
-                document.getElementById('submitBtn').style.display = 'inline-block';
+            function validatePasswords() {
+                if (newPasswordInput.value !== confirmPasswordInput.value) {
+                    confirmPasswordInput.setCustomValidity("Mật khẩu xác nhận không khớp.");
+                } else {
+                    confirmPasswordInput.setCustomValidity("");
+                }
             }
-        });
 
-        // Kiểm tra confirm password
-        document.getElementById('changePasswordForm').addEventListener('submit', function (e) {
-            const newPass = document.getElementById('NewPassword').value;
-            const confirm = document.getElementById('ConfirmPassword').value;
-            const confirmErr = document.getElementById('confirmError');
+            if (changePasswordForm) {
+                newPasswordInput.addEventListener('change', validatePasswords);
+                confirmPasswordInput.addEventListener('keyup', validatePasswords);
 
-            if (newPass !== confirm) {
-                e.preventDefault();
-                confirmErr.innerText = 'Xác nhận mật khẩu không khớp';
-                confirmErr.style.display = 'block';
-            } else {
-                confirmErr.style.display = 'none';
+                // Reset modal khi đóng
+                const changePasswordModal = document.getElementById('changePasswordModal');
+                changePasswordModal.addEventListener('hidden.bs.modal', function () {
+                    changePasswordForm.reset();
+                    confirmPasswordInput.setCustomValidity("");
+                });
+
+                 // Nếu có lỗi từ server, mở lại modal
+                @if (TempData["ChangePassError"] != null)
+                {
+                    <text>
+                        var myModal = new bootstrap.Modal(document.getElementById('changePasswordModal'), {});
+                        myModal.show();
+                    </text>
+                }
             }
+
+            // Auto fade alert sau 5s
+            setTimeout(() => {
+                const alert = document.querySelector('.alert.show');
+                if (alert) {
+                    new bootstrap.Alert(alert).close();
+                }
+            }, 5000);
         });
-
-        // Handle enter sẽ hiện new password thay vì submit
-        let isOldPasswordConfirmed = false;
-
-        document.getElementById('nextStepBtn').addEventListener('click', function () {
-            const entered = document.getElementById('OldPassword').value;
-            const errorDiv = document.getElementById('oldPassError');
-
-            if (entered !== oldPassword) {
-                errorDiv.innerText = 'Mật khẩu hiện tại không đúng';
-                errorDiv.style.display = 'block';
-            } else {
-                errorDiv.style.display = 'none';
-                document.getElementById('OldPassword').readOnly = true;
-
-                document.getElementById('newPassSection').style.display = 'block';
-                document.getElementById('confirmPassSection').style.display = 'block';
-
-                this.style.display = 'none';
-                document.getElementById('submitBtn').style.display = 'inline-block';
-
-                isOldPasswordConfirmed = true;
-            }
-        });
-
-        // Chặn Enter nếu chưa xác thực old password
-        document.getElementById('changePasswordForm').addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' && !isOldPasswordConfirmed) {
-                e.preventDefault();
-            }
-        });
-
-        // Reset modal khi đóng
-        document.getElementById('changePasswordModal').addEventListener('hidden.bs.modal', function () {
-            document.getElementById('OldPassword').readOnly = false;
-            document.getElementById('OldPassword').value = "";
-            document.getElementById('NewPassword').value = "";
-            document.getElementById('ConfirmPassword').value = "";
-
-            document.getElementById('oldPassError').style.display = 'none';
-            document.getElementById('confirmError').style.display = 'none';
-
-            document.getElementById('newPassSection').style.display = 'none';
-            document.getElementById('confirmPassSection').style.display = 'none';
-
-            document.getElementById('nextStepBtn').style.display = 'inline-block';
-            document.getElementById('submitBtn').style.display = 'none';
-        });
-
-        // Auto fade alert sau 5s
-        setTimeout(() => {
-            const alert = document.querySelector('.alert');
-            if (alert) {
-                alert.classList.remove('show');
-                alert.classList.add('fade');
-                alert.style.opacity = 0;
-            }
-        }, 5000);
     </script>
 }
 

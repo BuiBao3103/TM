@@ -71,20 +71,28 @@ namespace TM.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult ChangePassword(string OldPassword, string NewPassword)
+        public IActionResult ChangePassword(ChangePasswordViewModel model)
         {
             var username = HttpContext.Session.GetString("Username");
             if (string.IsNullOrEmpty(username)) return RedirectToAction("Login", "Account");
 
+            if (!ModelState.IsValid)
+            {
+                // Lấy lỗi và gửi về TempData để hiển thị trong Modal
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                TempData["ChangePassError"] = string.Join(" ", errors);
+                return RedirectToAction("Profile");
+            }
+            
             var account = _context.Accounts.FirstOrDefault(a => a.Username == username);
 
-            if (account == null || !ValidateLogin(username, OldPassword))
+            if (account == null || !VerifyPasswordBCrypt(model.OldPassword, account.Password))
             {
-                TempData["ChangePassStatus"] = "error";
+                TempData["ChangePassError"] = "Mật khẩu hiện tại không chính xác.";
                 return RedirectToAction("Profile");
             }
 
-            account.Password = BCrypt.Net.BCrypt.HashPassword(NewPassword);
+            account.Password = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
             _context.SaveChanges();
 
             TempData["ChangePassStatus"] = "success";
