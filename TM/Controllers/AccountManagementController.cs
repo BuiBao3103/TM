@@ -121,5 +121,80 @@ namespace TM.Controllers
             return VerifyPasswordBCrypt(password, user.Password);
         }
 
+        [RequireAuthorize("Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Update(EditAccountViewModel model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    TempData["ErrorMessage"] = "Vui lòng kiểm tra lại thông tin nhập vào.";
+                    return RedirectToAction("Index");
+                }
+
+                var account = await _context.Accounts.FindAsync(model.Id);
+                if (account == null)
+                {
+                    TempData["ErrorMessage"] = "Không tìm thấy tài khoản.";
+                    return RedirectToAction("Index");
+                }
+
+                // Validate role
+                if (model.Role != "Sale" && model.Role != "Admin")
+                {
+                    TempData["ErrorMessage"] = "Vai trò không hợp lệ.";
+                    return RedirectToAction("Index");
+                }
+
+                account.Role = model.Role;
+
+                // Update password if provided
+                if (!string.IsNullOrWhiteSpace(model.NewPassword))
+                {
+                    // If changing password, old password is required
+                    if (string.IsNullOrWhiteSpace(model.OldPassword))
+                    {
+                        TempData["ErrorMessage"] = "Vui lòng nhập mật khẩu cũ để thay đổi mật khẩu.";
+                        return RedirectToAction("Index");
+                    }
+
+                    // Verify old password
+                    if (!VerifyPasswordBCrypt(model.OldPassword, account.Password))
+                    {
+                        TempData["ErrorMessage"] = "Mật khẩu cũ không chính xác.";
+                        return RedirectToAction("Index");
+                    }
+
+                    // Validate new password
+                    if (model.NewPassword.Length < 6)
+                    {
+                        TempData["ErrorMessage"] = "Mật khẩu mới phải có ít nhất 6 ký tự.";
+                        return RedirectToAction("Index");
+                    }
+
+                    if (model.NewPassword != model.ConfirmPassword) {
+                        TempData["ErrorMessage"] = "Mật khẩu mới và mật khẩu xác nhận không khớp.";
+                        return RedirectToAction("Index");
+                    }
+
+                    account.Password = HashPasswordBCrypt(model.NewPassword);
+                }
+
+                _context.Accounts.Update(account);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = $"Tài khoản '{account.Username}' đã được cập nhật thành công.";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                // Log error
+                TempData["ErrorMessage"] = "Có lỗi xảy ra khi cập nhật tài khoản. Vui lòng thử lại.";
+                return RedirectToAction("Index");
+            }
+        }
+
     }
 }
