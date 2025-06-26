@@ -67,21 +67,20 @@ namespace TM.Controllers
             return View(viewModel);
         }
 
-        [HttpGet("tour-surcharge/update")]
         [RequireAuthorize("Admin", "Sale")]
-        public async Task<IActionResult> UpdateAsync([FromQuery] int id)
+        public async Task<IActionResult> UpdateAsync(int id)
         {
             try
             {
-                var oldSucharge = await _appDbContext.TourSurcharges.FindAsync(id);
+                var oldSurcharge = await _appDbContext.TourSurcharges.FindAsync(id);
 
-                if (oldSucharge == null)
+                if (oldSurcharge == null)
                 {
                     ViewBag.ErrorMessage = "Không tìm thấy phụ thu với ID đã nhập.";
                     return View("UpdateSurcharge");
                 }
 
-                var suchargeViewModel = new TourSurchargeUpdateViewModel { Id = id, Name = oldSucharge.Name, Amount = oldSucharge.Amount };
+                var suchargeViewModel = new TourSurchargeUpdateViewModel { Id = id, Name = oldSurcharge.Name, Amount = oldSurcharge.Amount };
 
                 return View("UpdateSurcharge", suchargeViewModel);
             }
@@ -92,7 +91,7 @@ namespace TM.Controllers
             }
         }
 
-        [HttpPost("tour-surcharge/update")]
+        [HttpPost]
         [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> UpdateAsync(TourSurchargeUpdateViewModel tourSurchangeUpdate)
         {
@@ -131,7 +130,6 @@ namespace TM.Controllers
             }
         }
 
-        [HttpPost("tour-surcharge/delete")]
         [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> Delete([FromForm] int id, [FromForm] int tourId)
         {

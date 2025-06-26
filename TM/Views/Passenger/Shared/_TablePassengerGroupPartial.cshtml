@@ -181,9 +181,9 @@ else if(groupBy != null && Model.Count > 0)
                                                 @if (Context.Session.IsValidRole(["Admin", "Sale"], item.ModifiedById.ToString() ?? "-1"))
                                                 {
                                                     <div>
-                                                        <a href="/Tour/EditPassenger?passengerId=@item.Id"
+                                                        <a href="@Url.Action("EditPassenger", "Tour", new { passengerId = item.Id })#passenger-list"
                                                            class="btn btn-outline-primary btn-sm">
-                                                            <i class="fas fa-edit me-1"></i>
+                                                            <i class="fas fa-edit"></i>
                                                         </a>
                                                         <form asp-action="DeletePassenger" method="post" class="d-inline">
                                                             @Html.AntiForgeryToken()
@@ -193,7 +193,7 @@ else if(groupBy != null && Model.Count > 0)
                                                                     data-bs-target="#confirmDeleteModal"
                                                                     data-id="@item.Id"
                                                                     data-name="@item.FullName">
-                                                                <i class="fas fa-trash me-1"></i>
+                                                                <i class="fas fa-trash"></i>
                                                             </button>
                                                         </form>
                                                     </div>
@@ -315,7 +315,7 @@ else
                                 @if (Context.Session.IsValidRole(["Admin", "Sale"], item.ModifiedById.ToString() ?? "-1"))
                                 {
                                     <div>
-                                        <a href="/Tour/EditPassenger?passengerId=@item.Id"
+                                        <a href="@Url.Action("EditPassenger", "Tour", new { passengerId = item.Id })#passenger-list"
                                            class="btn btn-outline-primary btn-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>
