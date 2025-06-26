@@ -21,89 +21,99 @@
     };
 }
 
-<div id="filterCustomerContainer" class="row g-3 mb-2" data-action="@formAction" data-id="@Model">
-    <div class="col-md-5">
-        <div class="input-group">
-            <div class="input-group-text">
-                <i class="fa-solid fa-magnifying-glass"></i>
+<form method="get" action="@Url.Action(formAction, "Tour", new { id = Model })" id="passengerFilterForm">
+    <div id="filterCustomerContainer" class="row g-3 mb-2" data-action="@formAction" data-id="@Model">
+        <div class="col-md-5">
+            <div class="input-group">
+                <div class="input-group-text">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <input type="text" class="form-control" placeholder="Tìm theo Tên, CCCD hoặc SĐT" name="keyword" value="@keyword">
             </div>
-            <input type="text" class="form-control" placeholder="Tìm theo Tên, CCCD hoặc SĐT" name="keyword" value="@keyword">
+        </div>
+        <div class="col-md-3">
+            <div class="input-group d-flex align-items-center" style="flex-wrap: nowrap; max-width: 100%; overflow: hidden;">
+                <label class="input-group-text flex-shrink-0" style="white-space: nowrap; flex-basis: auto; padding: 0.38rem 0.5rem; margin-right: 1px;">Trạng thái</label>
+                <select class="selectpicker"
+                        name="status"
+                        id="status-passenger"
+                        multiple
+                        data-width="100%"
+                        data-dropup-auto="false"
+                        data-dropdown-align-right="auto"
+                        data-container="body"
+                        style="border-top-left-radius: 0; border-bottom-left-radius: 0; min-width: 0; flex: 1 1 auto;">
+                    @foreach (var opt in statusOptions)
+                    {
+                        if (selectedStatus.Contains(opt.Value))
+                        {
+                            <option value="@opt.Value" selected>@opt.Text</option>
+                        }
+                        else
+                        {
+                            <option value="@opt.Value">@opt.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="input-group">
+                <label class="input-group-text">Gom nhóm</label>
+                <select class="form-select" name="PassengerGroup" id="PassengerGroup">
+                    @foreach (var opt in groupOptions)
+                    {
+                        if (selectedGroupBy == opt.Value)
+                        {
+                            <option value="@opt.Value" selected>@opt.Text</option>
+                        }
+                        else
+                        {
+                            <option value="@opt.Value">@opt.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="col-md-1">
+            <button type="submit" id="applyPassengerFilterBtn" class="btn btn-primary">Lọc</button>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="input-group d-flex align-items-center" style="flex-wrap: nowrap; max-width: 100%; overflow: hidden;">
-            <label class="input-group-text flex-shrink-0" style="white-space: nowrap; flex-basis: auto; padding: 0.38rem 0.5rem; margin-right: 1px;">Trạng thái</label>
-            <select class="selectpicker"
-                    name="status"
-                    id="status-passenger"
-                    multiple
-                    data-width="100%"
-                    data-dropup-auto="false"
-                    data-dropdown-align-right="auto"
-                    data-container="body"
-                    style="border-top-left-radius: 0; border-bottom-left-radius: 0; min-width: 0; flex: 1 1 auto;">
-                @foreach (var opt in statusOptions)
-                {
-                    if (selectedStatus.Contains(opt.Value))
-                    {
-                        <option value="@opt.Value" selected>@opt.Text</option>
-                    }
-                    else
-                    {
-                        <option value="@opt.Value">@opt.Text</option>
-                    }
-                }
-            </select>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="input-group">
-            <label class="input-group-text">Gom nhóm</label>
-            <select class="form-select" name="PassengerGroup" id="PassengerGroup">
-                @foreach (var opt in groupOptions)
-                {
-                    if (selectedGroupBy == opt.Value)
-                    {
-                        <option value="@opt.Value" selected>@opt.Text</option>
-                    }
-                    else
-                    {
-                        <option value="@opt.Value">@opt.Text</option>
-                    }
-                }
-            </select>
-        </div>
-    </div>
-    <div class="col-md-1">
-        <button type="button" id="applyPassengerFilterBtn" class="btn btn-primary">Lọc</button>
-    </div>
-</div>
+</form>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const applyFilterBtn = document.getElementById('applyPassengerFilterBtn');
-    if (applyFilterBtn) {
-        applyFilterBtn.addEventListener('click', function() {
-            const container = document.getElementById('filterCustomerContainer');
-            const action = container.dataset.action;
-            const tourId = container.dataset.id;
-
-            const keyword = document.querySelector('input[name="keyword"]').value;
-            const passengerGroup = document.querySelector('select[name="PassengerGroup"]').value;
+    const passengerFilterForm = document.getElementById('passengerFilterForm');
+    if (passengerFilterForm) {
+        passengerFilterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            const statusSelect = document.getElementById('status-passenger');
-            const selectedStatusOptions = Array.from(statusSelect.selectedOptions).map(option => ['status', option.value]);
-
-            const params = new URLSearchParams(selectedStatusOptions);
-
+            const formData = new FormData(this);
+            const params = new URLSearchParams();
+            
+            // Thêm keyword nếu có
+            const keyword = formData.get('keyword');
             if (keyword) {
                 params.append('keyword', keyword);
             }
+            
+            // Thêm PassengerGroup nếu có
+            const passengerGroup = formData.get('PassengerGroup');
             if (passengerGroup) {
                 params.append('PassengerGroup', passengerGroup);
             }
-
-            const finalUrl = `/Tour/${action}/${tourId}?${params.toString()}#passenger-list`;
+            
+            // Thêm các status đã chọn
+            const statusSelect = document.getElementById('status-passenger');
+            const selectedStatusOptions = Array.from(statusSelect.selectedOptions);
+            selectedStatusOptions.forEach(option => {
+                params.append('status', option.value);
+            });
+            
+            // Tạo URL với anchor
+            const currentUrl = this.action;
+            const finalUrl = `${currentUrl}?${params.toString()}#passenger-list`;
+            
             window.location.href = finalUrl;
         });
     }
