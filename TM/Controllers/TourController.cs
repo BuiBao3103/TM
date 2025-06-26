@@ -676,11 +676,11 @@ namespace TM.Controllers
 
             if (!(isAdmin || isValidSale))
             {
-                TempData["ErrorMessage"] = "Bạn không có quyền xóa hành khách này.";
+                TempData["ErrorMessage"] = "Bạn không có quyền sửa hành khách này.";
                 return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");
             }
 
-            PassengerEditViewModel viewModel = _mapper.Map<TM.Models.ViewModels.PassengerEditViewModel>(passenger);
+            PassengerEditViewModel viewModel = _mapper.Map<PassengerEditViewModel>(passenger);
             ViewData["Title"] = "Sửa thông tin khách hàng";
             return View(viewModel);
         }

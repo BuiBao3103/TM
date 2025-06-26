@@ -447,7 +447,7 @@
         <div class="card-footer text-end bg-white border-0">
                         @if (item.Status != "Completed" && item.Status != "Cancelled")
             {
-                <a class="btn btn-sm btn-outline-info me-1" asp-action="Detail" asp-route-id="@item.Id" title="Chi tiết">
+                <a class="btn btn-sm btn-outline-info me-1" asp-action="Details" asp-route-id="@item.Id" title="Chi tiết">
                     <i class="bi bi-eye"></i>
                 </a>
                 <a class="btn btn-sm btn-outline-warning me-1" asp-action="@actionName" asp-route-id="@item.Id" title="Chỉnh sửa">
