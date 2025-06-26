@@ -38,6 +38,9 @@ builder.Services.AddTransient<PassengerStatusChecker>();
 
 var app = builder.Build();
 
+// Configure PathBase
+app.UsePathBase("/tm"); 
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
