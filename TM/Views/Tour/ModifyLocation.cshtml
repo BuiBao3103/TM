@@ -67,17 +67,17 @@
     <input type="hidden" name="page" value="@pagination.CurrentPage" />
     <input type="hidden" name="pageSize" value="@pagination.PageSize" />
     <div class="mb-3">
-        <label asp-for="EditLocation.LocationName" class="form-label"></label>
+        <label asp-for="EditLocation.LocationName" class="form-label">Tên địa điểm</label>
         <input asp-for="EditLocation.LocationName" class="form-control" maxlength="50" />
         <span asp-validation-for="EditLocation.LocationName" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="EditLocation.CountryId" class="form-label">Quốc gia</label>
+        <label asp-for="EditLocation.CountryId" class="form-label">Tên quốc gia</label>
         <select asp-for="EditLocation.CountryId" asp-items="Model.CountrySelectList" class="form-control"></select>
         <span asp-validation-for="EditLocation.CountryId" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="EditLocation.Description" class="form-label"></label>
+        <label asp-for="EditLocation.Description" class="form-label">Chú thích  </label>
         <textarea asp-for="EditLocation.Description" class="form-control"></textarea>
         <span asp-validation-for="EditLocation.Description" class="text-danger"></span>
     </div>

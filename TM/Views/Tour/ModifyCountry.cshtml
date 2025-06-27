@@ -67,12 +67,12 @@
     <input type="hidden" name="page" value="@pagination.CurrentPage" />
     <input type="hidden" name="pageSize" value="@pagination.PageSize" />
     <div class="mb-3">
-        <label asp-for="EditCountry.Name" class="form-label"></label>
+        <label asp-for="EditCountry.Name" class="form-label">Tên quốc gia</label>
         <input asp-for="EditCountry.Name" class="form-control" maxlength="50" />
         <span asp-validation-for="EditCountry.Name" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="EditCountry.Code" class="form-label"></label>
+        <label asp-for="EditCountry.Code" class="form-label">Mã quốc gia</label>
         <input asp-for="EditCountry.Code" class="form-control" maxlength="3" />
         <span asp-validation-for="EditCountry.Code" class="text-danger"></span>
     </div>
