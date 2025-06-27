@@ -297,6 +297,9 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         @foreach (var item in Model.Tours)
         {
+            var isReadOnly = item.Status == "Completed" || item.Status == "Cancelled";
+            var actionName = isReadOnly ? "Details" : "Edit";
+
             <div class="col">
     <div class="card shadow-sm h-100">
         <div class="card-body">
@@ -372,7 +375,15 @@
 
             <div class="mb-1">
                 <strong>Đang giữ chỗ:</strong>
-                <a href="passenger/quick-filter?tourId=@item.Id&status=Confirmed&status=Reserved">
+                @{
+                    var routeValues = new RouteValueDictionary
+                    {
+                        { "id", item.Id },
+                        { "status", new[] { "Confirmed", "Reserved" } }
+                    };
+                    var url = Url.Action(actionName, "Tour", routeValues) + "#passenger-list";
+                }
+                <a href="@url">
                 <span class="badge bg-light text-dark" style="background-color: #f0e9ff !important; cursor: pointer">
                     <i class="fa-solid fa-user-clock me-1"></i> @item.DepositedCustomer khách, @item.ReservedCustomer đã cọc
                 </span>
@@ -381,7 +392,15 @@
 
             <div class="mb-1">
                 <strong>Passport:</strong>
-                <a href="passenger/quick-filter?tourId=@item.Id&groupBy=3">
+                @{
+                    var passportRouteValues = new RouteValueDictionary
+                    {
+                        { "id", item.Id },
+                        { "PassengerGroup", "3" }
+                    };
+                    var passportUrl = Url.Action(actionName, "Tour", passportRouteValues) + "#passenger-list";
+                }
+                <a href="@passportUrl">
                     <span class="badge bg-light text-dark" style="background-color: #f0e9ff !important; cursor: pointer">
                         <i class="fa-solid fa-passport me-1"></i> @(item.TotalCustomers - item.CustomerNoPassport) / @item.TotalCustomers khách
                     </span>
@@ -390,7 +409,16 @@
 
             <div class="mb-1">
                 <strong>Đã thanh toán đủ:</strong>
-                <a href="passenger/quick-filter?tourId=@item.Id&status=Paid&status=Confirmed&status=Reserved&groupBy=4">
+                @{
+                    var paidRouteValues = new RouteValueDictionary
+                    {
+                        { "id", item.Id },
+                        { "status", new[] { "Paid", "Confirmed", "Reserved" } },
+                        { "PassengerGroup", "4" }
+                    };
+                    var paidUrl = Url.Action(actionName, "Tour", paidRouteValues) + "#passenger-list";
+                }
+                <a href="@paidUrl">
                     <span class="badge bg-light text-dark" style="background-color: #e1f8e6 !important; cursor: pointer">
                         <i class="fa-solid fa-money-bill-wave me-1"></i> @item.FullPayCustomers / @item.TotalCustomers khách
                     </span>
@@ -399,7 +427,16 @@
 
             <div class="mb-1">
                 <strong>Di chuyển:</strong>
-                <a href="passenger/quick-filter?tourId=@item.Id&status=Paid&groupBy=5">
+                @{
+                    var travelRouteValues = new RouteValueDictionary
+                    {
+                        { "id", item.Id },
+                        { "status", new[] { "Paid" } },
+                        { "PassengerGroup", "5" }
+                    };
+                    var travelUrl = Url.Action(actionName, "Tour", travelRouteValues) + "#passenger-list";
+                }
+                <a href="@travelUrl">
                     <span class="badge bg-light text-dark" style="background-color: #fff3cd !important; cursor: pointer">
                         <i class="fa-solid fa-plane-departure me-1"></i> @item.CustomerFullPayNotTicket khách hàng trả đủ chưa có vé
                     </span>
@@ -408,12 +445,12 @@
         </div>
 
         <div class="card-footer text-end bg-white border-0">
-            @if (item.Status != "Completed")
+                        @if (item.Status != "Completed" && item.Status != "Cancelled")
             {
                 <a class="btn btn-sm btn-outline-info me-1" asp-action="Details" asp-route-id="@item.Id" title="Chi tiết">
                     <i class="bi bi-eye"></i>
                 </a>
-                <a class="btn btn-sm btn-outline-warning me-1" asp-action="Edit" asp-route-id="@item.Id" title="Chỉnh sửa">
+                <a class="btn btn-sm btn-outline-warning me-1" asp-action="@actionName" asp-route-id="@item.Id" title="Chỉnh sửa">
                     <i class="bi bi-pencil"></i>
                 </a>
                 <form asp-action="DeleteConfirmed" method="post" class="d-inline">
@@ -428,7 +465,7 @@
             }
             else
             {
-                <a class="btn btn-sm btn-outline-info me-1" asp-action="Details" asp-route-id="@item.Id" title="Chi tiết">
+                <a class="btn btn-sm btn-outline-info me-1" asp-action="@actionName" asp-route-id="@item.Id" title="Chi tiết">
                     <i class="bi bi-eye"></i>
                 </a>
             }

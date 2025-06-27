@@ -14,5 +14,7 @@ namespace TM.Models.ViewModels
         public string? CountryName { get; set; }
         public decimal? TotalCustomerPaid { get; set; }
         public decimal? TotalAssignedPrice { get; set; }
+        public List<PassengerViewModel> Passengers { get; set; } = new();
+        public List<TourSurcharge> TourSurcharges { get; set; } = new();
     }
 }

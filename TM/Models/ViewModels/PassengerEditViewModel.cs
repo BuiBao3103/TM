@@ -60,10 +60,18 @@ namespace TM.Models.ViewModels
         [Required(ErrorMessage = "Tour là bắt buộc")]
         public int TourId { get; set; }
 
-        [Required(ErrorMessage = "Giá đè xuất  là bắt buộc")]
+        [Required(ErrorMessage = "Giá đề xuất là bắt buộc")]
         [Display(Name = "Giá đề xuất")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
         public decimal AssignedPrice { get; set; }
+
+        [Display(Name = "Số tiền giảm")]
+        [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
+        public decimal DiscountPrice { get; set; }
+
+        [Display(Name = "Phí hoa hồng")]
+        [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
+        public decimal hhFee { get; set; }
 
         [Required(ErrorMessage = "Số tiền khách trả là bắt buộc")]
         [Display(Name = "Khách đã trả")]

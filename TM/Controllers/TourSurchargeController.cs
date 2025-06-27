@@ -23,7 +23,7 @@ namespace TM.Controllers
             var tour = await _appDbContext.Tours.FindAsync(tourId);
             if (tour == null)
             {
-                return Redirect("/Tour");
+                return RedirectToAction("Index", "Tour");
             }
 
             var viewModel = new TourSurchargeViewModel
@@ -54,7 +54,7 @@ namespace TM.Controllers
 
                 _appDbContext.Add(surcharge);
                 await _appDbContext.SaveChangesAsync();
-                return Redirect("/Tour/Edit/" + viewModel.TourId + "#surcharge-list");
+                return Redirect($"{Url.Action("Edit", "Tour", new { id = surcharge.TourId })}#surcharge-list");
             }
 
             // Nếu model không hợp lệ, lấy lại tên tour để hiển thị
@@ -67,21 +67,20 @@ namespace TM.Controllers
             return View(viewModel);
         }
 
-        [HttpGet("tour-surcharge/update")]
         [RequireAuthorize("Admin", "Sale")]
-        public async Task<IActionResult> UpdateAsync([FromQuery] int id)
+        public async Task<IActionResult> UpdateAsync(int id)
         {
             try
             {
-                var oldSucharge = await _appDbContext.TourSurcharges.FindAsync(id);
+                var oldSurcharge = await _appDbContext.TourSurcharges.FindAsync(id);
 
-                if (oldSucharge == null)
+                if (oldSurcharge == null)
                 {
                     ViewBag.ErrorMessage = "Không tìm thấy phụ thu với ID đã nhập.";
                     return View("UpdateSurcharge");
                 }
 
-                var suchargeViewModel = new TourSurchargeUpdateViewModel { Id = id, Name = oldSucharge.Name, Amount = oldSucharge.Amount };
+                var suchargeViewModel = new TourSurchargeUpdateViewModel { Id = id, Name = oldSurcharge.Name, Amount = oldSurcharge.Amount };
 
                 return View("UpdateSurcharge", suchargeViewModel);
             }
@@ -92,7 +91,7 @@ namespace TM.Controllers
             }
         }
 
-        [HttpPost("tour-surcharge/update")]
+        [HttpPost]
         [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> UpdateAsync(TourSurchargeUpdateViewModel tourSurchangeUpdate)
         {
@@ -122,7 +121,7 @@ namespace TM.Controllers
                 await _appDbContext.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Cập nhật thành công.";
-                return Redirect("/Tour/Edit/" + oldSuchange.TourId);
+                return Redirect($"{Url.Action("Edit", "Tour", new { id = oldSuchange.TourId })}#surcharge-list");
             }
             catch (Exception)
             {
@@ -131,7 +130,6 @@ namespace TM.Controllers
             }
         }
 
-        [HttpPost("tour-surcharge/delete")]
         [RequireAuthorize("Admin", "Sale")]
         public async Task<IActionResult> Delete([FromForm] int id, [FromForm] int tourId)
         {
@@ -143,7 +141,8 @@ namespace TM.Controllers
                 {
 
                     TempData["ErrorMessage"] = "Không tìm thấy phụ thu với ID đã nhập!";
-                    return Redirect("/Tour");
+                    return RedirectToAction("Index", "Tour");
+
                 }
                 var tour = await _appDbContext.Tours.FindAsync(tourId);
                 tour.SuggestPrice = tour.SuggestPrice - oldSuchange.Amount;
@@ -154,12 +153,14 @@ namespace TM.Controllers
                 await _appDbContext.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Xóa thành công.";
-                return Redirect($"/Tour/Edit/{oldSuchange.TourId}");
+                return Redirect($"{Url.Action("Edit", "Tour", new { id = oldSuchange.TourId })}#surcharge-list");
+
             }
             catch (Exception)
             {
                 TempData["ErrorMessage"] = "Đã xảy ra lỗi khi thao tác với dữ liệu!";
-                return Redirect($"/Tour/Edit/{tourId}");
+                return Redirect($"{Url.Action("Edit", "Tour", new { id = tourId })}#surcharge-list");
+
             }
         }
     }

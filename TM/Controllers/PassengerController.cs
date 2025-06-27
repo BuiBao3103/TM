@@ -57,6 +57,8 @@ namespace TM.Controllers
                     ArrivalFlightInfo = p.ArrivalFlightInfo,
                     Status = p.Status,
                     ModifiedById = p.ModifiedById,
+                    HhFee = p.HhFee,
+                    DiscountPrice = p.DiscountPrice,
                 }).ToListAsync();
 
                 var listPassengerViewModel = _mapper.Map<List<PassengerViewModel>>(listPassenger);
@@ -77,20 +79,41 @@ namespace TM.Controllers
 
         [RequireAuthorize("Admin", "Sale")]
         [HttpGet("passenger/quick-filter")]
-        public IActionResult QuickFilterFromListTour(
-            [FromQuery] PassengerGroup? groupBy,
+        public async Task<IActionResult> QuickFilterFromListTour(
+            [FromQuery] string? PassengerGroup,
             [FromQuery] string[]? status,
             [FromQuery] string tourId
         )
         {
             try
             {
-                TempData["groupByPassenger"] = groupBy;
-                TempData["status"] = status;
-                return RedirectToAction("Edit", "Tour", new { id = tourId });
+                var routeValues = new RouteValueDictionary
+                {
+                    { "id", tourId },
+                    { "PassengerGroup", PassengerGroup }
+                };
+
+                if (status != null && status.Length > 0)
+                {
+                    routeValues["status"] = status;
+                }
+
+                // Kiểm tra trạng thái tour
+                if (int.TryParse(tourId, out int tourIdInt))
+                {
+                    var tour = await _context.Tours.FindAsync(tourIdInt);
+                    if (tour != null && (tour.Status == "Completed" || tour.Status == "Cancelled"))
+                    {
+                        return RedirectToAction("Details", "Tour", routeValues);
+                    }
+                }
+
+                // Nếu tour chưa hoàn thành hoặc chưa hủy, chuyển đến trang Edit
+                return RedirectToAction("Edit", "Tour", routeValues);
             }
             catch (Exception ex)
             {
+                // Ghi log lỗi ở đây nếu cần
                 return Redirect("/");
             }
         }

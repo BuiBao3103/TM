@@ -151,7 +151,9 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-sm btn-outline-success" title="Chỉnh sửa">
+                                        <button type="button" class="btn btn-sm btn-outline-success edit-account-btn" title="Chỉnh sửa"
+                                                data-bs-toggle="modal" data-bs-target="#editAccountModal"
+                                                data-id="@account.Id" data-username="@account.UserName" data-role="@account.Role">
                                             <i class="fa-solid fa-edit"></i>
                                         </button>
                                         <button type="button" class="btn btn-sm btn-outline-danger" title="Xóa">
@@ -247,6 +249,88 @@
                     </button>
                     <button type="submit" class="btn btn-primary">
                         <i class="fa-solid fa-save me-1"></i>Tạo tài khoản
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Account Modal -->
+<div class="modal fade" id="editAccountModal" tabindex="-1" aria-labelledby="editAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="editAccountModalLabel">
+                    <i class="fa-solid fa-user-edit me-2"></i>Chỉnh sửa tài khoản
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editAccountForm" method="post" action="/AccountManagement/Update">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="editAccountId" name="Id" />
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editUserName" class="form-label">
+                            <i class="fa-solid fa-user me-1 text-primary"></i>Tên đăng nhập
+                        </label>
+                        <input type="text" class="form-control" id="editUserName" name="UserName" readonly>
+                    </div>
+
+                    <p class="text-muted small">Để đổi mật khẩu, vui lòng nhập đầy đủ các trường dưới đây. Để trống nếu không muốn thay đổi.</p>
+                    
+                    <div class="mb-3">
+                        <label for="editOldPassword" class="form-label">
+                            <i class="fa-solid fa-key me-1 text-primary"></i>Mật khẩu cũ
+                        </label>
+                        <input type="password" class="form-control" id="editOldPassword" name="OldPassword" placeholder="Nhập mật khẩu cũ">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editPassword" class="form-label">
+                            <i class="fa-solid fa-lock me-1 text-primary"></i>Mật khẩu mới
+                        </label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="editPassword" name="NewPassword" placeholder="Nhập mật khẩu mới" minlength="6" maxlength="100">
+                            <button class="btn btn-outline-secondary" type="button" id="toggleEditPassword">
+                                <i class="fa-solid fa-eye" id="editEyeIcon"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback" id="editPassword-feedback">
+                            Mật khẩu phải có ít nhất 6 ký tự.
+                        </div>
+                    </div>
+
+                     <div class="mb-3">
+                        <label for="editConfirmPassword" class="form-label">
+                            <i class="fa-solid fa-check-double me-1 text-primary"></i>Xác nhận mật khẩu mới
+                        </label>
+                        <input type="password" class="form-control" id="editConfirmPassword" name="ConfirmPassword" placeholder="Nhập lại mật khẩu mới">
+                         <div class="invalid-feedback">
+                            Mật khẩu xác nhận không khớp.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editRole" class="form-label">
+                            <i class="fa-solid fa-user-tag me-1 text-primary"></i>Vai trò
+                        </label>
+                        <select class="form-select" id="editRole" name="Role" required>
+                            <option value="">Chọn vai trò</option>
+                            <option value="Sale">Sale</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Vui lòng chọn vai trò.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-times me-1"></i>Hủy
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fa-solid fa-save me-1"></i>Lưu thay đổi
                     </button>
                 </div>
             </form>
@@ -466,10 +550,110 @@
         document.getElementById('addAccountModal').addEventListener('hidden.bs.modal', function() {
             addAccountForm.reset();
             document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            document.querySelector('.username-check-message').innerHTML = '';
 
             // Reset password visibility
             passwordInput.setAttribute('type', 'password');
             eyeIcon.className = 'fa-solid fa-eye';
         });
+
+        // Edit Account Modal Logic
+        const editAccountModal = document.getElementById('editAccountModal');
+        if (editAccountModal) {
+            editAccountModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const accountId = button.getAttribute('data-id');
+                const userName = button.getAttribute('data-username');
+                const role = button.getAttribute('data-role');
+
+                const modal = this;
+                modal.querySelector('#editAccountId').value = accountId;
+                modal.querySelector('#editUserName').value = userName;
+                modal.querySelector('#editRole').value = role;
+            });
+
+            // Toggle password visibility for edit form
+            const toggleEditPassword = document.getElementById('toggleEditPassword');
+            const editPasswordInput = document.getElementById('editPassword');
+            const editEyeIcon = document.getElementById('editEyeIcon');
+
+            if (toggleEditPassword) {
+                toggleEditPassword.addEventListener('click', function () {
+                    const type = editPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    editPasswordInput.setAttribute('type', type);
+                    editEyeIcon.className = type === 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+                });
+            }
+
+            // Reset form when modal is hidden
+            editAccountModal.addEventListener('hidden.bs.modal', function () {
+                const form = document.getElementById('editAccountForm');
+                form.reset();
+                form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+                editPasswordInput.setAttribute('type', 'password');
+                editEyeIcon.className = 'fa-solid fa-eye';
+            });
+
+            // Form validation for edit
+            const editAccountForm = document.getElementById('editAccountForm');
+            editAccountForm.addEventListener('submit', function(e) {
+                const oldPassword = document.getElementById('editOldPassword').value;
+                const newPassword = document.getElementById('editPassword').value;
+                const confirmPassword = document.getElementById('editConfirmPassword').value;
+                const role = document.getElementById('editRole').value;
+                let isValid = true;
+
+                // Clear previous validation states
+                this.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+                // --- Password Change Validation ---
+                const isChangingPassword = oldPassword || newPassword || confirmPassword;
+
+                if (isChangingPassword) {
+                    // All three fields are required if one is filled
+                    if (!oldPassword) {
+                        document.getElementById('editOldPassword').classList.add('is-invalid');
+                        isValid = false;
+                    }
+                    if (!newPassword) {
+                        document.getElementById('editPassword').classList.add('is-invalid');
+                        document.getElementById('editPassword-feedback').innerText = "Vui lòng nhập mật khẩu mới.";
+                        isValid = false;
+                    }
+                    if (!confirmPassword) {
+                        document.getElementById('editConfirmPassword').classList.add('is-invalid');
+                        isValid = false;
+                    }
+
+                    // Validate new password length
+                    if (newPassword && (newPassword.length < 6 || newPassword.length > 100)) {
+                        document.getElementById('editPassword').classList.add('is-invalid');
+                         document.getElementById('editPassword-feedback').innerText = "Mật khẩu phải có ít nhất 6 ký tự.";
+                        isValid = false;
+                    }
+
+                    // Validate passwords match
+                    if (newPassword && confirmPassword && newPassword !== confirmPassword) {
+                        document.getElementById('editConfirmPassword').classList.add('is-invalid');
+                        isValid = false;
+                    }
+                }
+                
+                // --- Role Validation ---
+                if (!role || (role !== 'Sale' && role !== 'Admin')) {
+                    document.getElementById('editRole').classList.add('is-invalid');
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Đang lưu...';
+                submitBtn.disabled = true;
+            });
+        }
     });
 </script>
