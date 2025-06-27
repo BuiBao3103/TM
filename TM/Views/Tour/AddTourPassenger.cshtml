@@ -123,6 +123,14 @@
                                     <input asp-for="Address" class="form-control" />
                                     <span asp-validation-for="Address" class="text-danger small"></span>
                                 </div>
+
+                                <div class="col-md-12 mb-3">
+                                    <label asp-for="Note" class="form-label fw-semibold">
+                                        <i class="fas fa-sticky-note me-1"></i>Ghi chú
+                                    </label>
+                                    <textarea asp-for="Note" class="form-control" rows="3" placeholder="Nhập ghi chú về hành khách (nếu có)"></textarea>
+                                    <span asp-validation-for="Note" class="text-danger small"></span>
+                                </div>
                             </div>
                         </div>
 
