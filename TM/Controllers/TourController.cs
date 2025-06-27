@@ -505,20 +505,29 @@ namespace TM.Controllers
 
             var tour = await _context.Tours.FindAsync(id);
             if (tour == null) return NotFound();
+                
+                int? seatsUp = model.TotalSeats - tour.TotalSeats;
 
-            var seatsUp = model.TotalSeats - tour.TotalSeats;
-
-            _mapper.Map(model, tour);
-            tour.ModifiedAt = DateTime.Now;
+                _mapper.Map(model, tour);
+                tour.ModifiedAt = DateTime.Now;
 
             // Update tour's available seats
-            tour.AvailableSeats += seatsUp;
+            // Fix for CS0266 and CS8629: Ensure nullable values are handled properly and explicitly cast to non-nullable types.
+            if (seatsUp.HasValue)
+            {
+                tour.AvailableSeats += seatsUp.Value;
+            }
+            else
+            {
+                // Handle the case where seatsUp is null, e.g., set AvailableSeats to TotalSeats or log an error.
+                tour.AvailableSeats = tour.TotalSeats;
+            }
 
             _context.Update(tour);
-            await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Sửa thành công";
-            return RedirectToAction(nameof(Edit), new { id });
+                TempData["SuccessMessage"] = "Sửa thành công";
+                return RedirectToAction(nameof(Edit), new { id });
         }
 
         private bool TourExists(int id)
