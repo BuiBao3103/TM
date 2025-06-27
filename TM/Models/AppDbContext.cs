@@ -127,6 +127,8 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(255)
                 .HasDefaultValue("Reserved");
 
+            entity.Property(e => e.Note).HasMaxLength(500);
+
             entity.HasOne(d => d.ModifiedBy).WithMany(p => p.PassengersModified)
                 .HasForeignKey(d => d.ModifiedById)
                 .HasConstraintName("FK__Passenger__Modif__4E1E9780");

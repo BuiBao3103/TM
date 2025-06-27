@@ -193,7 +193,7 @@
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="addAccountForm" method="post" action="/AccountManagement/Create">
+            <form id="addAccountForm" method="post" asp-action="Create" asp-controller="AccountManagement">
                 @Html.AntiForgeryToken()
                 <div class="modal-body">
                     <div class="mb-3">
@@ -266,7 +266,7 @@
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="editAccountForm" method="post" action="/AccountManagement/Update">
+            <form id="editAccountForm" method="post" asp-action="Update" asp-controller="AccountManagement">
                 @Html.AntiForgeryToken()
                 <input type="hidden" id="editAccountId" name="Id" />
                 <div class="modal-body">
@@ -465,38 +465,38 @@
         const userNameInput = document.getElementById('userName');
         let checkUsernameTimeout;
 
-        userNameInput.addEventListener('input', function() {
-            clearTimeout(checkUsernameTimeout);
-            const messageDiv = document.querySelector('.username-check-message');
-            messageDiv.innerHTML = '';
+        // userNameInput.addEventListener('input', function() {
+        //     clearTimeout(checkUsernameTimeout);
+        //     const messageDiv = document.querySelector('.username-check-message');
+        //     messageDiv.innerHTML = '';
 
-            const userName = this.value.trim();
-            if (userName.length >= 3) {
-                checkUsernameTimeout = setTimeout(() => {
-                    fetch('/AccountManagement/CheckUserName', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                        },
-                        body: `userName=${encodeURIComponent(userName)}`
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.exists) {
-                            messageDiv.innerHTML = '<small class="text-danger"><i class="fa-solid fa-times me-1"></i>Tên đăng nhập đã tồn tại</small>';
-                            userNameInput.classList.add('is-invalid');
-                        } else {
-                            messageDiv.innerHTML = '<small class="text-success"><i class="fa-solid fa-check me-1"></i>Tên đăng nhập có thể sử dụng</small>';
-                            userNameInput.classList.remove('is-invalid');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error checking username:', error);
-                    });
-                }, 500);
-            }
-        });
+        //     const userName = this.value.trim();
+        //     if (userName.length >= 3) {
+        //         checkUsernameTimeout = setTimeout(() => {
+        //             fetch('/AccountManagement/CheckUserName', {
+        //                 method: 'POST',
+        //                 headers: {
+        //                     'Content-Type': 'application/x-www-form-urlencoded',
+        //                     'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+        //                 },
+        //                 body: `userName=${encodeURIComponent(userName)}`
+        //             })
+        //             .then(response => response.json())
+        //             .then(data => {
+        //                 if (data.exists) {
+        //                     messageDiv.innerHTML = '<small class="text-danger"><i class="fa-solid fa-times me-1"></i>Tên đăng nhập đã tồn tại</small>';
+        //                     userNameInput.classList.add('is-invalid');
+        //                 } else {
+        //                     messageDiv.innerHTML = '<small class="text-success"><i class="fa-solid fa-check me-1"></i>Tên đăng nhập có thể sử dụng</small>';
+        //                     userNameInput.classList.remove('is-invalid');
+        //                 }
+        //             })
+        //             .catch(error => {
+        //                 console.error('Error checking username:', error);
+        //             });
+        //         }, 500);
+        //     }
+        // });
 
         // Form validation
         const addAccountForm = document.getElementById('addAccountForm');

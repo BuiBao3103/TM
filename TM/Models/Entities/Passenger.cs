@@ -34,6 +34,7 @@ public partial class Passenger
     public string? DepartureFlightInfo { get; set; }
 
     public string? ArrivalFlightInfo { get; set; }
+    public string? Note { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
