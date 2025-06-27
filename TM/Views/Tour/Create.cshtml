@@ -100,7 +100,7 @@
                                     </h6>
 
                                     <div class="row">
-                                        <div class="col-md-4">
+                                        <div class="col-md-12">
                                             <div class="mb-3">
                                                 <label asp-for="SuggestPrice" class="form-label fw-semibold">
                                                     <i class="fas fa-tag me-1"></i>Giá đề xuất
@@ -112,7 +112,19 @@
                                                 <span asp-validation-for="SuggestPrice" class="text-danger small"></span>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-12">
+                                            <div class="mb-3">
+                                                <label asp-for="HhFee" class="form-label fw-semibold">
+                                                    <i class="fas fa-coins me-1"></i>Chi phí hoa hồng
+                                                </label>
+                                                <div class="input-group">
+                                                    <input asp-for="HhFee" type="number" step="1000" min="0" class="form-control" />
+                                                    <span class="input-group-text">VNĐ</span>
+                                                </div>
+                                                <span asp-validation-for="HhFee" class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
                                             <div class="mb-3">
                                                 <label asp-for="DiscountPrice" class="form-label fw-semibold">
                                                     <i class="fas fa-percent me-1"></i>Giá giảm
@@ -122,18 +134,6 @@
                                                     <span class="input-group-text">VNĐ</span>
                                                 </div>
                                                 <span asp-validation-for="DiscountPrice" class="text-danger small"></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label asp-for="HhFee" class="form-label fw-semibold">
-                                                    <i class="fas fa-coins me-1"></i>Phí HH
-                                                </label>
-                                                <div class="input-group">
-                                                    <input asp-for="HhFee" type="number" step="1000" min="0" class="form-control" />
-                                                    <span class="input-group-text">VNĐ</span>
-                                                </div>
-                                                <span asp-validation-for="HhFee" class="text-danger small"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -243,6 +243,15 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="mb-3">
+                                                    <label asp-for="DepartureLocation" class="form-label fw-semibold">
+                                                        <i class="fas fa-map-pin me-1"></i>Điểm khởi hành
+                                                    </label>
+                                                    <input asp-for="DepartureLocation" class="form-control" placeholder="VD: Hà Nội" />
+                                                    <span asp-validation-for="DepartureLocation" class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
                                                     <label asp-for="LocationId" class="form-label fw-semibold">
                                                         <i class="fas fa-map me-1"></i>Địa điểm
                                                     </label>
@@ -250,15 +259,6 @@
                                                         <option value="">-- Chọn địa điểm --</option>
                                                     </select>
                                                     <span asp-validation-for="LocationId" class="text-danger small"></span>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label asp-for="DepartureLocation" class="form-label fw-semibold">
-                                                        <i class="fas fa-map-pin me-1"></i>Điểm khởi hành
-                                                    </label>
-                                                    <input asp-for="DepartureLocation" class="form-control" placeholder="VD: Hà Nội" />
-                                                    <span asp-validation-for="DepartureLocation" class="text-danger small"></span>
                                                 </div>
                                             </div>
                                         </div>

@@ -82,4 +82,5 @@ public class PassengerViewModel
 
     public int? ModifiedById { get; set; }
 
+    public int? CreatedById { get; set; }
 }
