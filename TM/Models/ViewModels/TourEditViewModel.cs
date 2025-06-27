@@ -6,36 +6,39 @@ namespace TM.Models.ViewModels
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Tên tour không được để trống.")]
+        [Required(ErrorMessage = "Tên tour là bắt buộc, vui lòng nhập.")]
         public string Name { get; set; }
 
-        [Required(ErrorMessage = "Mã tour không được để trống.")]
+        [Required(ErrorMessage = "Mã tour là bắt buộc, vui lòng nhập.")]
         public string Code { get; set; }
 
-        [Required(ErrorMessage = "Ngày bắt đầu không được để trống.")]
-        public DateTime StartDate { get; set; }
+        [Required(ErrorMessage = "Ngày bắt đầu là bắt buộc, vui lòng nhập.")]
+        public DateTime? StartDate { get; set; }
 
-        [Required(ErrorMessage = "Ngày kết thúc không được để trống.")]
-        public DateTime EndDate { get; set; }
+        [Required(ErrorMessage = "Ngày kết thúc là bắt buộc, vui lòng nhập.")]
+        public DateTime? EndDate { get; set; }
 
+        [Required(ErrorMessage = "Giá đề xuất là bắt buộc, không được để trống.")]
         [Range(1, int.MaxValue, ErrorMessage = "Tổng chỗ phải lớn hơn 0.")]
-        public int TotalSeats { get; set; }
+        public int? TotalSeats { get; set; }
 
         [Range(0, int.MaxValue, ErrorMessage = "Chỗ trống không hợp lệ.")]
         public int AvailableSeats { get; set; }
 
         [Range(0, double.MaxValue, ErrorMessage = "Giá đề xuất không hợp lệ.")]
-        public decimal SuggestPrice { get; set; }
+        public decimal? SuggestPrice { get; set; }
 
         [Range(0, double.MaxValue, ErrorMessage = "Giá giảm không hợp lệ.")]
         public decimal? DiscountPrice { get; set; }
 
         [Range(0, double.MaxValue, ErrorMessage = "Phí HH không hợp lệ.")]
-        public decimal HhFee { get; set; }
+        public decimal? HhFee { get; set; }
 
         public string? DepartureFlightInfo { get; set; }
         public string? ArrivalFlightInfo { get; set; }
         public bool? IsAutoHoldTime { get; set; }
+
+        [Range(0, double.MaxValue, ErrorMessage = "Thời gian giữ chỗ không hợp lệ.")]
         public int? HoldTime { get; set; }
         public bool? IsVisaRequired { get; set; }
         public DateTime? VisaDeadline { get; set; }
