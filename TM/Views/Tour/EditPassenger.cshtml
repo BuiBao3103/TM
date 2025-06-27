@@ -154,7 +154,7 @@
                                         <i class="fas fa-tags me-1"></i>Giá đề xuất
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="AssignedPrice" type="number" step="1000" min="0" class="form-control" />
+                                        <input asp-for="AssignedPrice" type="number" min="0" class="form-control" />
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="AssignedPrice" class="text-danger small"></span>
@@ -168,7 +168,7 @@
                                         <small id="DiscountPriceDisplay" class="text-success"></small>
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="DiscountPrice" type="number" min="0" step="1000" class="form-control money-input" oninput="updateFormattedDisplay(this, 'AssignedPriceDisplay')" />
+                                        <input asp-for="DiscountPrice" type="number" min="0" class="form-control money-input" oninput="updateFormattedDisplay(this, 'AssignedPriceDisplay')" />
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="DiscountPrice" class="text-danger small"></span>
@@ -182,7 +182,7 @@
                                         <small id="hhFeeDisplay" class="text-success"></small>
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="hhFee" type="number" min="0" step="1000" class="form-control money-input" oninput="updateFormattedDisplay(this, 'AssignedPriceDisplay')" />
+                                        <input asp-for="hhFee" type="number" min="0" class="form-control money-input" oninput="updateFormattedDisplay(this, 'AssignedPriceDisplay')" />
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="hhFee" class="text-danger small"></span>
@@ -193,7 +193,7 @@
                                         <i class="fas fa-wallet me-1"></i>Khách đã trả
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="CustomerPaid" type="number" step="1000" min="0" class="form-control" />
+                                        <input asp-for="CustomerPaid" type="number" min="0" class="form-control" />
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="CustomerPaid" class="text-danger small"></span>
