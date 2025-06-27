@@ -57,6 +57,10 @@ namespace TM.Models.ViewModels
         [StringLength(255, ErrorMessage = "Địa chỉ không được vượt quá 255 ký tự")]
         public string? Address { get; set; }
 
+        [Display(Name = "Ghi chú")]
+        [StringLength(500, ErrorMessage = "Ghi chú không được vượt quá 500 ký tự")]
+        public string? Note { get; set; }
+
         [Required(ErrorMessage = "Tour là bắt buộc")]
         public int TourId { get; set; }
 
