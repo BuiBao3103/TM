@@ -1,22 +1,102 @@
 ﻿@model TM.Models.ViewModels.TourSurchargeUpdateViewModel
 
+@{
+    ViewData["Title"] = "Cập nhật phụ phí";
+}
 
-<form action="" method="post">
-    <input type="hidden" asp-for="Id"/>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary mb-1">
+                        <i class="fas fa-edit me-2"></i>Cập nhật phụ phí
+                    </h2>
+                    <p class="text-muted mb-0">Chỉnh sửa thông tin phụ phí</p>
+                </div>
+            </div>
 
-    <div class="form-group">
-        <label asp-for="Name"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+            <!-- Form Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-pen me-2"></i>Thông tin phụ phí
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form action="" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Name" class="form-label fw-semibold">
+                                    <i class="fas fa-tag me-1"></i>Tên phụ phí
+                                </label>
+                                <input asp-for="Name" class="form-control" placeholder="Nhập tên phụ phí..." />
+                                <span asp-validation-for="Name" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Amount" class="form-label fw-semibold">
+                                    <i class="fas fa-money-bill-wave me-1"></i>Số tiền
+                                </label>
+                                <div class="input-group">
+                                    <input asp-for="Amount" type="number" min="0" step="1000" class="form-control" placeholder="Nhập số tiền..." />
+                                    <span class="input-group-text">VNĐ</span>
+                                </div>
+                                <span asp-validation-for="Amount" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage as string))
+                        {
+                            <p class="text-danger fw-semibold">@ViewBag.ErrorMessage</p>
+                        }
+
+                        <div class="text-end pt-3">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-1"></i>Cập nhật
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="form-group">
-        <label asp-for="Amount"></label>
-        <input asp-for="Amount" type="number" min="0" step="1000" class="form-control" />
-        <span asp-validation-for="Amount" class="text-danger"></span>
-    </div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
 
-    <p style="color:red">@ViewBag.ErrorMessage</p>
+<style>
+    .form-label {
+        color: #495057;
+    }
 
-    <button type="submit" class="btn btn-primary">Cập nhật</button>
-</form>
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+    }
+
+    .card {
+        border: none;
+        border-radius: 0.75rem;
+    }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+    }
+
+    .btn-success {
+        min-width: 140px;
+    }
+
+    .btn-secondary {
+        min-width: 120px;
+    }
+</style>
