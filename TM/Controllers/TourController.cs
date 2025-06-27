@@ -3,8 +3,6 @@ using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using TM.Enum;
 using TM.Models;
 using TM.Models.Entities;
 using TM.Models.ViewModels;
@@ -421,7 +419,7 @@ namespace TM.Controllers
                 };
                 return RedirectToAction("Details", routeValues);
             }
-            
+
             var model = _mapper.Map<TourEditViewModel>(tour);
 
             // Load dropdown Location
@@ -489,14 +487,32 @@ namespace TM.Controllers
                     .OrderBy(l => l.DisplayText)
                     .ToList();
                 ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText", model.LocationId);
+
+                // Get Passengers
+                var tourPassengers = await _context.Passengers
+                    .Where(p => p.TourId == id && p.DeleteAt == null)
+                    .ToListAsync();
+                ViewData["Passengers"] = _mapper.Map<List<PassengerViewModel>>(tourPassengers);
+
+                // Load surcharges
+                var tourSurcharges = await _context.TourSurcharges
+                    .Where(s => s.TourId == id && s.DeleteAt == null)
+                    .ToListAsync();
+                ViewData["Surcharges"] = _mapper.Map<IEnumerable<TourSurchargeViewModel>>(tourSurcharges);
+
                 return View(model);
             }
 
             var tour = await _context.Tours.FindAsync(id);
             if (tour == null) return NotFound();
 
+            var seatsUp = model.TotalSeats - tour.TotalSeats;
+
             _mapper.Map(model, tour);
             tour.ModifiedAt = DateTime.Now;
+
+            // Update tour's available seats
+            tour.AvailableSeats += seatsUp;
 
             _context.Update(tour);
             await _context.SaveChangesAsync();
@@ -615,7 +631,7 @@ namespace TM.Controllers
                 passenger.ModifiedById = authId;
                 passenger.CreatedById = authId;
             }
-                
+
 
             _context.Add(passenger);
 
@@ -625,7 +641,8 @@ namespace TM.Controllers
             Tour? tourUpdate = await _context.Tours.FindAsync(viewModel.TourId);
             int bookedSeatsAmount = _context.Passengers
                 .Where(p => p.TourId == viewModel.TourId
-                            && p.Status != Enum.PassengerStatus.Cancelled.ToString())
+                            && p.Status != Enum.PassengerStatus.Cancelled.ToString()
+                            && p.DeleteAt == null)
                 .ToList()
                 .Count;
 
@@ -723,7 +740,8 @@ namespace TM.Controllers
             {
                 int bookedSeatsAmount = _context.Passengers
                 .Where(p => p.TourId == viewModel.TourId
-                            && p.Status != Enum.PassengerStatus.Cancelled.ToString())
+                            && p.Status != Enum.PassengerStatus.Cancelled.ToString()
+                            && p.DeleteAt == null)
                 .ToList()
                 .Count;
 
@@ -741,7 +759,7 @@ namespace TM.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequireAuthorize("Admin", "Sale")]
-        public IActionResult DeletePassenger(int passengerId)
+        public async Task<IActionResult> DeletePassenger(int passengerId)
         {
             Passenger? passenger = _context.Passengers.FirstOrDefault(p => p.Id == passengerId && p.DeleteAt == null);
 
@@ -764,6 +782,26 @@ namespace TM.Controllers
             }
 
             passenger!.DeleteAt = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            // Code quá lỏ, yêu cầu fix lại
+            int bookedSeatsAmount = _context.Passengers
+                .Where(p => p.TourId == passenger.TourId
+                            && p.Status != Enum.PassengerStatus.Cancelled.ToString()
+                            && p.DeleteAt == null)
+                .ToList()
+                .Count;
+
+
+            var tour = await _context.Tours.FindAsync(passenger.TourId);
+
+            if (tour != null)
+            {
+                // Update tour's available seats
+                tour.AvailableSeats = tour.TotalSeats - bookedSeatsAmount;
+            }
+
             _context.SaveChanges();
 
             return Redirect($"{Url.Action("Edit", new { id = passenger?.TourId })}#passenger-list");

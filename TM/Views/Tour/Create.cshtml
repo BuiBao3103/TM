@@ -110,7 +110,7 @@
                                                 </label>
 
                                                 <div class="input-group">
-                                                    <input asp-for="SuggestPrice" type="number" class="form-control" />
+                                                    <input asp-for="SuggestPrice" type="number" min="0" class="form-control" />
                                                     <span class="input-group-text">VNĐ</span>
                                                 </div>
                                                 <span asp-validation-for="SuggestPrice" class="text-danger small"></span>
@@ -125,7 +125,7 @@
                                                     <small id="HhFeeDisplay" class="text-success"></small>
                                                 </label>
                                                 <div class="input-group">
-                                                    <input asp-for="HhFee" type="number" step="1000" min="0" class="form-control" />
+                                                    <input asp-for="HhFee" type="number" min="0" class="form-control" />
                                                     <span class="input-group-text">VNĐ</span>
                                                 </div>
                                                 <span asp-validation-for="HhFee" class="text-danger small"></span>
@@ -140,7 +140,7 @@
                                                     <small id="DiscountPriceDisplay" class="text-success"></small>
                                                 </label>
                                                 <div class="input-group">
-                                                    <input asp-for="DiscountPrice" type="number" step="1000" min="0" class="form-control" />
+                                                    <input asp-for="DiscountPrice" type="number" min="0" class="form-control" />
                                                     <span class="input-group-text">VNĐ</span>
                                                 </div>
                                                 <span asp-validation-for="DiscountPrice" class="text-danger small"></span>

@@ -26,7 +26,7 @@ namespace TM.Services
                 if (tour != null)
                 {
                     int bookedSeatsAmount = _context.Passengers
-                        .Where(p => p.TourId == tour.Id && p.Status != PassengerStatus.Cancelled.ToString())
+                        .Where(p => p.TourId == tour.Id && p.Status != PassengerStatus.Cancelled.ToString() && p.DeleteAt == null)
                         .Count();
 
                     tour.AvailableSeats = tour.TotalSeats - bookedSeatsAmount;
@@ -56,7 +56,7 @@ namespace TM.Services
             _context.SaveChanges(); 
 
             int bookedSeatsAmount = _context.Passengers
-                .Where(p => p.TourId == tour.Id && p.Status != PassengerStatus.Cancelled.ToString())
+                .Where(p => p.TourId == tour.Id && p.Status != PassengerStatus.Cancelled.ToString() && p.DeleteAt == null) 
                 .Count();
 
             tour.AvailableSeats = tour.TotalSeats - bookedSeatsAmount;
