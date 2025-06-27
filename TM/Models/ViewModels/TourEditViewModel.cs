@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TM.Models.ViewModels
 {
-    public class TourEditViewModel
+    public class TourEditViewModel : IValidatableObject
     {
         public int Id { get; set; }
 
@@ -48,5 +48,53 @@ namespace TM.Models.ViewModels
         public string Status { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? ModifiedAt { get; set; }
+
+        // Custom validation method
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            var results = new List<ValidationResult>();
+
+            // Ngày bắt đầu < ngày kết thúc
+            if (StartDate >= EndDate)
+            {
+                results.Add(new ValidationResult(
+                    "Ngày bắt đầu phải nhỏ hơn ngày kết thúc",
+                    new[] { nameof(StartDate), nameof(EndDate) }));
+            }
+
+            // Giá khuyến mãi < giá gợi ý 
+            if (DiscountPrice.HasValue && DiscountPrice >= SuggestPrice)
+            {
+                results.Add(new ValidationResult(
+                    "Giá khuyến mãi phải nhỏ hơn giá gợi ý",
+                    new[] { nameof(DiscountPrice) }));
+            }
+
+            // Phí hoa hồng < giá gợi ý
+            if (HhFee >= SuggestPrice)
+            {
+                results.Add(new ValidationResult(
+                    "Phí hoa hồng phải nhỏ hơn giá gợi ý",
+                    new[] { nameof(HhFee) }));
+            }
+
+            // Hạn visa phải > ngày bắt đầu (nếu cần visa)
+            if (IsVisaRequired == true && VisaDeadline.HasValue && VisaDeadline >= StartDate)
+            {
+                results.Add(new ValidationResult(
+                    "Hạn visa phải trước ngày bắt đầu tour",
+                    new[] { nameof(VisaDeadline) }));
+            }
+
+            // Hạn thanh toán phải trước ngày bắt đầu
+            if (FullPayDeadline.HasValue && FullPayDeadline >= StartDate)
+            {
+                results.Add(new ValidationResult(
+                    "Hạn thanh toán phải trước ngày bắt đầu tour",
+                    new[] { nameof(FullPayDeadline) }));
+            }
+
+            return results;
+        }
     }
 }
