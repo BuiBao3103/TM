@@ -65,8 +65,8 @@
                 <div class="text-info mb-2">
                     <i class="fa-solid fa-user-tie fa-2x"></i>
                 </div>
-                <h4 class="fw-bold text-dark">@Model.Count(x => x.Role == "Manager")</h4>
-                <p class="text-muted small mb-0">Manager</p>
+                <h4 class="fw-bold text-dark">@Model.Count(x => x.Role == "Sale")</h4>
+                <p class="text-muted small mb-0">Sale</p>
             </div>
         </div>
     </div>
@@ -129,14 +129,12 @@
                                         {
                                             "Admin" => "bg-danger",
                                             "Sale" => "bg-warning",
-                                            "User" => "bg-info",
                                             _ => "bg-secondary"
                                         };
                                         var roleIcon = account.Role switch
                                         {
                                             "Admin" => "fa-user-shield",
                                             "Sale" => "fa-user-tie",
-                                            "User" => "fa-user",
                                             _ => "fa-question"
                                         };
                                     }
