@@ -3,8 +3,6 @@ using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using TM.Enum;
 using TM.Models;
 using TM.Models.Entities;
 using TM.Models.ViewModels;
@@ -421,7 +419,7 @@ namespace TM.Controllers
                 };
                 return RedirectToAction("Details", routeValues);
             }
-            
+
             var model = _mapper.Map<TourEditViewModel>(tour);
 
             // Load dropdown Location
@@ -489,6 +487,19 @@ namespace TM.Controllers
                     .OrderBy(l => l.DisplayText)
                     .ToList();
                 ViewBag.LocationId = new SelectList(locations, "Id", "DisplayText", model.LocationId);
+
+                // Get Passengers
+                var tourPassengers = await _context.Passengers
+                    .Where(p => p.TourId == id && p.DeleteAt == null)
+                    .ToListAsync();
+                ViewData["Passengers"] = _mapper.Map<List<PassengerViewModel>>(tourPassengers);
+
+                // Load surcharges
+                var tourSurcharges = await _context.TourSurcharges
+                    .Where(s => s.TourId == id && s.DeleteAt == null)
+                    .ToListAsync();
+                ViewData["Surcharges"] = _mapper.Map<IEnumerable<TourSurchargeViewModel>>(tourSurcharges);
+
                 return View(model);
             }
 
@@ -615,7 +626,7 @@ namespace TM.Controllers
                 passenger.ModifiedById = authId;
                 passenger.CreatedById = authId;
             }
-                
+
 
             _context.Add(passenger);
 
