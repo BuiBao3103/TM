@@ -69,13 +69,15 @@ namespace TM.Models.ViewModels
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
         public decimal AssignedPrice { get; set; }
 
+        [Required(ErrorMessage = "Số tiền giảm là bắt buộc")]
         [Display(Name = "Số tiền giảm")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
-        public decimal DiscountPrice { get; set; }
+        public decimal? DiscountPrice { get; set; }
 
+        [Required(ErrorMessage = "Phí hoa hồng là bắt buộc")]
         [Display(Name = "Phí hoa hồng")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
-        public decimal hhFee { get; set; }
+        public decimal? hhFee { get; set; }
 
         [Required(ErrorMessage = "Số tiền khách trả là bắt buộc")]
         [Display(Name = "Khách đã trả")]

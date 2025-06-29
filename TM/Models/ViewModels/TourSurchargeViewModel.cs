@@ -14,7 +14,7 @@ public class TourSurchargeViewModel
     [Required(ErrorMessage = "Số tiền là bắt buộc")]
     [Display(Name = "Số tiền")]
     [Range(0, double.MaxValue, ErrorMessage = "Số tiền phải lớn hơn 0")]
-    public decimal Amount { get; set; }
+    public decimal? Amount { get; set; }
 
     [Required(ErrorMessage = "Tour là bắt buộc")]
     public int TourId { get; set; }

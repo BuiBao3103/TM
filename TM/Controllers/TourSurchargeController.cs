@@ -110,18 +110,27 @@ namespace TM.Controllers
                     ViewBag.ErrorMessage = "Không tìm thấy phụ thu với ID đã nhập.";
                     return View("UpdateSurcharge");
                 }
-                var priceGap = tourSurchangeUpdate.Amount - oldSuchange.Amount;
 
-                oldSuchange.Amount = tourSurchangeUpdate.Amount;
-                oldSuchange.Name = tourSurchangeUpdate.Name;
-                tour.SuggestPrice = tour.SuggestPrice + priceGap;
-                tour.DiscountPrice = tour.SuggestPrice + priceGap;
-                _appDbContext.Update(tour);
+                if (tourSurchangeUpdate.Amount.HasValue)
+                {
+                    oldSuchange.Amount = tourSurchangeUpdate.Amount.Value;
+                    decimal priceGap = tourSurchangeUpdate.Amount.Value - oldSuchange.Amount;
 
-                await _appDbContext.SaveChangesAsync();
+                    // Update the tour prices
+                    tour.SuggestPrice += priceGap;
+                    tour.DiscountPrice += priceGap;
 
-                TempData["SuccessMessage"] = "Cập nhật thành công.";
-                return Redirect($"{Url.Action("Edit", "Tour", new { id = oldSuchange.TourId })}#surcharge-list");
+                    _appDbContext.Update(tour);
+
+                    await _appDbContext.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Cập nhật thành công.";
+                    return Redirect($"{Url.Action("Edit", "Tour", new { id = oldSuchange.TourId })}#surcharge-list");
+                }
+                else
+                {
+                    throw new InvalidOperationException("Amount cannot be null.");
+                }
             }
             catch (Exception)
             {

@@ -109,19 +109,19 @@
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label asp-for="PassportExpiryDate" class="form-label fw-semibold">
-                                        <i class="fas fa-calendar-alt me-1"></i>Ngày hết hạn hộ chiếu
-                                    </label>
-                                    <input asp-for="PassportExpiryDate" class="form-control" type="date" />
-                                    <span asp-validation-for="PassportExpiryDate" class="text-danger small"></span>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
                                     <label asp-for="Address" class="form-label fw-semibold">
                                         <i class="fas fa-map-marker-alt me-1"></i>Địa chỉ
                                     </label>
                                     <input asp-for="Address" class="form-control" />
                                     <span asp-validation-for="Address" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="PassportExpiryDate" class="form-label fw-semibold">
+                                        <i class="fas fa-calendar-alt me-1"></i>Ngày hết hạn hộ chiếu
+                                    </label>
+                                    <input asp-for="PassportExpiryDate" class="form-control" type="date" />
+                                    <span asp-validation-for="PassportExpiryDate" class="text-danger small"></span>
                                 </div>
 
                                 <div class="col-md-12 mb-3">
@@ -186,7 +186,8 @@
                                         <small id="AssignedPriceDisplay" class="text-success"></small>
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="AssignedPrice" type="number" min="0" step="1000" class="form-control money-input" oninput="updateFormattedDisplay(this, 'AssignedPriceDisplay')" />
+                                        <input asp-for="AssignedPrice" type="number" min="0" class="form-control money-input"
+                                        />
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="AssignedPrice" class="text-danger small"></span>
@@ -200,7 +201,7 @@
                                         <small id="DiscountPriceDisplay" class="text-success"></small>
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="DiscountPrice" type="number" min="0" step="1000" class="form-control money-input" oninput="updateFormattedDisplay(this, 'AssignedPriceDisplay')" />
+                                        <input asp-for="DiscountPrice" type="number" min="0" class="form-control money-input"/>
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="DiscountPrice" class="text-danger small"></span>
@@ -214,7 +215,7 @@
                                         <small id="hhFeeDisplay" class="text-success"></small>
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="hhFee" type="number" min="0" step="1000" class="form-control money-input" oninput="updateFormattedDisplay(this, 'AssignedPriceDisplay')" />
+                                        <input asp-for="hhFee" type="number" min="0" class="form-control money-input"/>
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="hhFee" class="text-danger small"></span>
@@ -228,13 +229,11 @@
                                         <small id="CustomerPaidDisplay" class="text-success"></small>
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="CustomerPaid" type="number" min="0" step="1000" class="form-control money-input" oninput="updateFormattedDisplay(this, 'CustomerPaidDisplay')" />
+                                        <input asp-for="CustomerPaid" type="number" min="0" class="form-control money-input"/>
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="CustomerPaid" class="text-danger small"></span>
                                 </div>
-
-
 
                                 <div class="col-md-4 mb-3">
                                     <label asp-for="Status" class="form-label fw-semibold">
@@ -323,19 +322,35 @@
     }
     <script>
         function updateFormattedDisplay(input, displayId) {
-            const value = input.value.replace(/\D/g, ''); // remove non-digit
-            if (value) {
-                const formatted = Number(value).toLocaleString('vi-VN') + ' VNĐ';
-                document.getElementById(displayId).innerText = formatted;
-            } else {
-                document.getElementById(displayId).innerText = '';
-            }
-        }
+                const value = input.value.replace(/\D/g, ''); // remove non-digit
+                const display = document.getElementById(displayId);
+                if (!display) return;
 
-        // Khởi tạo nếu người dùng đã nhập sẵn (ví dụ khi quay lại form bị lỗi)
-        document.addEventListener('DOMContentLoaded', () => {
-            updateFormattedDisplay(document.querySelector('input[name="AssignedPrice"]'), 'AssignedPriceDisplay');
-            updateFormattedDisplay(document.querySelector('input[name="CustomerPaid"]'), 'CustomerPaidDisplay');
-        });
+                if (value) {
+                    const formatted = Number(value).toLocaleString('vi-VN') + ' VNĐ';
+                    display.innerText = formatted;
+                } else {
+                    display.innerText = '';
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const fields = ['hhFee','DiscountPrice', 'AssignedPrice','CustomerPaid'];
+
+                fields.forEach(name => {
+                    const input = document.querySelector(`input[name="${name}"]`);
+                    const displayId = `${name}Display`;
+
+                    if (input) {
+                        input.addEventListener('input', () => {
+                            updateFormattedDisplay(input, displayId);
+                        });
+
+                        updateFormattedDisplay(input, displayId);
+                    } else {
+                        console.warn(`Không tìm thấy input[name="${name}"]`);
+                    }
+                });
+            });
     </script>
 }

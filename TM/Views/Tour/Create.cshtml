@@ -102,11 +102,15 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="mb-3">
-                                                <label asp-for="SuggestPrice" class="form-label fw-semibold">
-                                                    <i class="fas fa-tag me-1"></i>Giá đề xuất
+                                                <label asp-for="SuggestPrice" class="form-label fw-semibold d-flex justify-content-between">
+                                                    <span>
+                                                        <i class="fas fa-tags me-1"></i>Giá đề xuất
+                                                    </span>
+                                                    <small id="SuggestPriceDisplay" class="text-success"></small>
                                                 </label>
+
                                                 <div class="input-group">
-                                                    <input asp-for="SuggestPrice" type="number" step="1000" min="0" class="form-control" />
+                                                    <input asp-for="SuggestPrice" type="number" min="0" class="form-control" />
                                                     <span class="input-group-text">VNĐ</span>
                                                 </div>
                                                 <span asp-validation-for="SuggestPrice" class="text-danger small"></span>
@@ -114,11 +118,14 @@
                                         </div>
                                         <div class="col-md-12">
                                             <div class="mb-3">
-                                                <label asp-for="HhFee" class="form-label fw-semibold">
-                                                    <i class="fas fa-coins me-1"></i>Chi phí hoa hồng
+                                                <label asp-for="HhFee" class="form-label fw-semibold d-flex justify-content-between">
+                                                    <span>
+                                                        <i class="fas fa-tags me-1"></i>Chi phí hoa hồng
+                                                    </span>
+                                                    <small id="HhFeeDisplay" class="text-success"></small>
                                                 </label>
                                                 <div class="input-group">
-                                                    <input asp-for="HhFee" type="number" step="1000" min="0" class="form-control" />
+                                                    <input asp-for="HhFee" type="number" min="0" class="form-control" />
                                                     <span class="input-group-text">VNĐ</span>
                                                 </div>
                                                 <span asp-validation-for="HhFee" class="text-danger small"></span>
@@ -126,11 +133,14 @@
                                         </div>
                                         <div class="col-md-12">
                                             <div class="mb-3">
-                                                <label asp-for="DiscountPrice" class="form-label fw-semibold">
-                                                    <i class="fas fa-percent me-1"></i>Giá giảm
+                                                <label asp-for="DiscountPrice" class="form-label fw-semibold d-flex justify-content-between">
+                                                    <span>
+                                                        <i class="fas fa-tags me-1"></i>Giá giảm
+                                                    </span>
+                                                    <small id="DiscountPriceDisplay" class="text-success"></small>
                                                 </label>
                                                 <div class="input-group">
-                                                    <input asp-for="DiscountPrice" type="number" step="1000" min="0" class="form-control" />
+                                                    <input asp-for="DiscountPrice" type="number" min="0" class="form-control" />
                                                     <span class="input-group-text">VNĐ</span>
                                                 </div>
                                                 <span asp-validation-for="DiscountPrice" class="text-danger small"></span>
@@ -313,6 +323,43 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function updateFormattedDisplay(input, displayId) {
+            const value = input.value.replace(/\D/g, ''); // remove non-digit
+            const display = document.getElementById(displayId);
+            if (!display) return;
+
+            if (value) {
+                const formatted = Number(value).toLocaleString('vi-VN') + ' VNĐ';
+                display.innerText = formatted;
+            } else {
+                display.innerText = '';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const fields = ['SuggestPrice', 'DiscountPrice', 'HhFee'];
+
+            fields.forEach(name => {
+                const input = document.querySelector(`input[name="${name}"]`);
+                const displayId = `${name}Display`;
+
+                if (input) {
+                    input.addEventListener('input', () => {
+                        updateFormattedDisplay(input, displayId);
+                    });
+
+                    updateFormattedDisplay(input, displayId);
+                } else {
+                    console.warn(`Không tìm thấy input[name="${name}"]`);
+                }
+            });
+        });
+    </script>
+}
+
 
 <style>
     .form-label {

@@ -97,22 +97,24 @@ namespace TM.Models.ViewModels
         [Required(ErrorMessage = "Giá đề xuất là bắt buộc")]
         [Display(Name = "Giá đề xuất")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
-        public decimal AssignedPrice { get; set; }
+        public decimal? AssignedPrice { get; set; }
 
         [Display(Name = "Số tiền giảm")]
+        [Required(ErrorMessage = "Số tiền giảm là bắt buộc")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
-        public decimal DiscountPrice { get; set; }
+        public decimal? DiscountPrice { get; set; }
 
         [Display(Name = "Phí hoa hồng")]
+        [Required(ErrorMessage = "Phí hoa hồng là bắt buộc")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
-        public decimal hhFee { get; set; }
+        public decimal? hhFee { get; set; }
 
 
         [Required(ErrorMessage = "Số tiền khách trả là bắt buộc")]
         [Display(Name = "Khách đã trả")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải >= 0")]
         [CustomerPaidNotGreaterThanAssignedPrice("AssignedPrice", ErrorMessage = "Số tiền khách trả không được lớn hơn giá đã đề xuất")]
-        public decimal CustomerPaid { get; set; }
+        public decimal? CustomerPaid { get; set; }
 
         [Required(ErrorMessage = "Trạng thái khách hàng không được thiếu")]
         [Display(Name = "Trạng thái")]

@@ -13,35 +13,34 @@ namespace TM.Models.ViewModels
         public required string Code { get; set; }
 
         [Required(ErrorMessage = "Ngày bắt đầu là bắt buộc")]
-        [DataType(DataType.Date)]
         [Display(Name = "Ngày bắt đầu")]
-        public required DateTime StartDate { get; set; }
+        public required DateTime? StartDate { get; set; }
 
         [Required(ErrorMessage = "Ngày kết thúc là bắt buộc")]
-        [DataType(DataType.Date)]
         [Display(Name = "Ngày kết thúc")]
-        public required DateTime EndDate { get; set; }
+        public required DateTime? EndDate { get; set; }
 
         [Required(ErrorMessage = "Tổng số chỗ là bắt buộc")]
         [Range(1, int.MaxValue, ErrorMessage = "Tổng số chỗ phải lớn hơn 0")]
         [Display(Name = "Tổng số chỗ")]
-        public required int TotalSeats { get; set; }
+        public required int? TotalSeats { get; set; }
 
         public int? AvailableSeats { get; set; }
 
-        [Required(ErrorMessage = "Giá gợi ý là bắt buộc")]
+        [Required(ErrorMessage = "Giá gợi ý là bắt buộc, vui lòng nhập.")]
         [Range(0.01, double.MaxValue, ErrorMessage = "Giá phải lớn hơn 0")]
         [Display(Name = "Giá gợi ý")]
-        public required decimal SuggestPrice { get; set; }
+        public required decimal? SuggestPrice { get; set; }
 
         [Display(Name = "Giá khuyến mãi")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá khuyến mãi phải là số dương")]
+        [Required(ErrorMessage = "Giá giảm là bắt buộc, vui lòng nhập.")]
         public decimal? DiscountPrice { get; set; }
 
-        [Required(ErrorMessage = "Phí hoa hồng là bắt buộc")]
+        [Required(ErrorMessage = "Phí hoa hồng là bắt buộc, vui lòng nhập.")]
         [Display(Name = "Phí hoa hồng")]
         [Range(0, double.MaxValue, ErrorMessage = "Phí hoa hồng phải là số dương")]
-        public required decimal HhFee { get; set; }
+        public required decimal? HhFee { get; set; }
 
         [Required(ErrorMessage = "Chuyến bay đi là bắt buộc")]
         [Display(Name = "Chuyến bay đi")]
@@ -101,7 +100,7 @@ namespace TM.Models.ViewModels
             }
 
             // Ngày bắt đầu phải từ hôm nay trở đi
-            if (StartDate.Date < DateTime.Today)
+            if ( StartDate.HasValue && StartDate.Value.Date < DateTime.Today)
             {
                 results.Add(new ValidationResult(
                     "Ngày bắt đầu không được là ngày trong quá khứ",
