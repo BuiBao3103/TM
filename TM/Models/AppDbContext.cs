@@ -22,6 +22,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<TourSurcharge> TourSurcharges { get; set; }
 
+    public virtual DbSet<PassengerGroup> PassengerGroups { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -138,6 +140,10 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.Tour).WithMany(p => p.Passengers)
                 .HasForeignKey(d => d.TourId)
                 .HasConstraintName("FK__Passenger__TourI__4D2A7347");
+            entity.HasOne(d => d.PassengerGroup)
+                .WithMany(g => g.Passengers)
+                .HasForeignKey(d => d.PassengerGroupId)
+                .HasConstraintName("FK__Passenger__PassengerGroup");
         });
 
         modelBuilder.Entity<Tour>(entity =>
@@ -207,6 +213,43 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK__TourSurch__TourI__51EF2864");
 
         });
+
+        modelBuilder.Entity<PassengerGroup>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__PassengerGroup__3214EC07");
+
+            entity.ToTable("PassengerGroup");
+
+            entity.Property(e => e.GroupName).HasMaxLength(100);
+            entity.Property(e => e.Note).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.DeleteAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Tour)
+                .WithMany(p => p.PassengerGroups)
+                .HasForeignKey(d => d.TourId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__PassengerGroup__Tour");
+
+            entity.HasOne(d => d.Representative)
+                .WithMany()
+                .HasForeignKey(d => d.RepresentativeId)
+                .HasConstraintName("FK__PassengerGroup__Representative");
+
+            entity.HasOne(d => d.CreatedBy)
+                .WithMany(p => p.PassengerGroupsCreated)
+                .HasForeignKey(d => d.CreatedById)
+                .HasConstraintName("FK__PassengerGroup__CreatedBy");
+
+            entity.HasOne(d => d.ModifiedBy)
+                .WithMany(p => p.PassengerGroupsModified)
+                .HasForeignKey(d => d.ModifiedById)
+                .HasConstraintName("FK__PassengerGroup__ModifiedBy");
+        });
+
 
         OnModelCreatingPartial(modelBuilder);
     }

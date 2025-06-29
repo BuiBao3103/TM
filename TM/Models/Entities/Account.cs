@@ -24,4 +24,9 @@ public partial class Account
 
     public virtual ICollection<TourSurcharge> TourSurchargesCreated { get; set; } = new List<TourSurcharge>();
     public virtual ICollection<TourSurcharge> TourSurchargesModified { get; set; } = new List<TourSurcharge>();
+
+    public virtual ICollection<PassengerGroup>? PassengerGroupsCreated { get; set; }
+    public virtual ICollection<PassengerGroup>? PassengerGroupsModified { get; set; }
+
+
 }

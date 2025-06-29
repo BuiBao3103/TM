@@ -47,10 +47,15 @@ public partial class Passenger
     public decimal HhFee { get; set; }
     public decimal DiscountPrice { get; set; }
 
+    public int? PassengerGroupId { get; set; }
     public int? CreatedById { get; set; }
     public virtual Account? CreatedBy { get; set; }
 
     public virtual Account? ModifiedBy { get; set; }
 
     public virtual Tour? Tour { get; set; }
+
+
+    public virtual PassengerGroup? PassengerGroup { get; set; }
+
 }

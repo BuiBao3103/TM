@@ -65,4 +65,6 @@ public partial class Tour
     public virtual ICollection<Passenger> Passengers { get; set; } = new List<Passenger>();
 
     public virtual ICollection<TourSurcharge> TourSurcharges { get; set; } = new List<TourSurcharge>();
+    public virtual ICollection<PassengerGroup>? PassengerGroups { get; set; }
+
 }
