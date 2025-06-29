@@ -18,7 +18,7 @@ namespace TM.Models.ViewModels
         [Required(ErrorMessage = "Ngày kết thúc là bắt buộc, vui lòng nhập.")]
         public DateTime? EndDate { get; set; }
 
-        [Required(ErrorMessage = "Giá đề xuất là bắt buộc, không được để trống.")]
+        [Required(ErrorMessage = "Tổng chỗ là bắt buộc, không được để trống.")]
         [Range(1, int.MaxValue, ErrorMessage = "Tổng chỗ phải lớn hơn 0.")]
         public int? TotalSeats { get; set; }
 

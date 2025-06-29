@@ -150,11 +150,14 @@
                             </h6>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label asp-for="AssignedPrice" class="form-label fw-semibold">
-                                        <i class="fas fa-tags me-1"></i>Giá đề xuất
+                                    <label asp-for="AssignedPrice" class="form-label fw-semibold d-flex justify-content-between">
+                                        <span>
+                                            <i class="fas fa-tags me-1"></i>Giá đề xuất
+                                        </span>
+                                        <small id="AssignedPriceDisplay" class="text-success"></small>
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="AssignedPrice" type="number" min="0" class="form-control" />
+                                        <input asp-for="AssignedPrice" type="number" min="0" class="form-control money-input" />
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="AssignedPrice" class="text-danger small"></span>
@@ -168,7 +171,7 @@
                                         <small id="DiscountPriceDisplay" class="text-success"></small>
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="DiscountPrice" type="number" min="0" class="form-control money-input" oninput="updateFormattedDisplay(this, 'AssignedPriceDisplay')" />
+                                        <input asp-for="DiscountPrice" type="number" min="0" class="form-control money-input"/>
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="DiscountPrice" class="text-danger small"></span>
@@ -182,18 +185,21 @@
                                         <small id="hhFeeDisplay" class="text-success"></small>
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="hhFee" type="number" min="0" class="form-control money-input" oninput="updateFormattedDisplay(this, 'AssignedPriceDisplay')" />
+                                        <input asp-for="hhFee" type="number" min="0" class="form-control money-input"/>
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="hhFee" class="text-danger small"></span>
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label asp-for="CustomerPaid" class="form-label fw-semibold">
-                                        <i class="fas fa-wallet me-1"></i>Khách đã trả
+                                    <label asp-for="CustomerPaid" class="form-label fw-semibold d-flex justify-content-between">
+                                        <span>
+                                            <i class="fas fa-wallet me-1"></i>Khách đã trả
+                                        </span>
+                                        <small id="CustomerPaidDisplay" class="text-success"></small>
                                     </label>
                                     <div class="input-group">
-                                        <input asp-for="CustomerPaid" type="number" min="0" class="form-control" />
+                                        <input asp-for="CustomerPaid" type="number" min="0" class="form-control money-input" />
                                         <span class="input-group-text">VNĐ</span>
                                     </div>
                                     <span asp-validation-for="CustomerPaid" class="text-danger small"></span>
@@ -235,6 +241,39 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function updateFormattedDisplay(input, displayId) {
+                const value = input.value.replace(/\D/g, ''); // remove non-digit
+                const display = document.getElementById(displayId);
+                if (!display) return;
+
+                if (value) {
+                    const formatted = Number(value).toLocaleString('vi-VN') + ' VNĐ';
+                    display.innerText = formatted;
+                } else {
+                    display.innerText = '';
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const fields = ['hhFee','DiscountPrice', 'AssignedPrice','CustomerPaid'];
+
+                fields.forEach(name => {
+                    const input = document.querySelector(`input[name="${name}"]`);
+                    const displayId = `${name}Display`;
+
+                    if (input) {
+                        input.addEventListener('input', () => {
+                            updateFormattedDisplay(input, displayId);
+                        });
+
+                        updateFormattedDisplay(input, displayId);
+                    } else {
+                        console.warn(`Không tìm thấy input[name="${name}"]`);
+                    }
+                });
+            });
+    </script>
 }
 
 <style>

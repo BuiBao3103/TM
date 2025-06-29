@@ -38,8 +38,11 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label asp-for="Amount" class="form-label fw-semibold">
-                                    <i class="fas fa-money-bill-wave me-1"></i>Số tiền
+                                <label asp-for="Amount" class="form-label fw-semibold d-flex justify-content-between">
+                                    <span>
+                                        <i class="fas fa-money-bill-wave me-1"></i>Số tiền
+                                    </span>
+                                    <small id="AmountDisplay" class="text-success"></small>
                                 </label>
                                 <div class="input-group">
                                     <input asp-for="Amount" type="number" min="0" class="form-control" placeholder="Nhập số tiền..." />
@@ -69,6 +72,39 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script>
+            function updateFormattedDisplay(input, displayId) {
+                const value = input.value.replace(/\D/g, ''); // remove non-digit
+                const display = document.getElementById(displayId);
+                if (!display) return;
+
+                if (value) {
+                    const formatted = Number(value).toLocaleString('vi-VN') + ' VNĐ';
+                    display.innerText = formatted;
+                } else {
+                    display.innerText = '';
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const fields = ['Amount'];
+
+                fields.forEach(name => {
+                    const input = document.querySelector(`input[name="${name}"]`);
+                    const displayId = `${name}Display`;
+
+                    if (input) {
+                        input.addEventListener('input', () => {
+                            updateFormattedDisplay(input, displayId);
+                        });
+
+                        updateFormattedDisplay(input, displayId);
+                    } else {
+                        console.warn(`Không tìm thấy input[name="${name}"]`);
+                    }
+                });
+            });
+        </script>
     }
 }
 

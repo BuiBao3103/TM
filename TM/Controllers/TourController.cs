@@ -512,14 +512,12 @@ namespace TM.Controllers
                 tour.ModifiedAt = DateTime.Now;
 
             // Update tour's available seats
-            // Fix for CS0266 and CS8629: Ensure nullable values are handled properly and explicitly cast to non-nullable types.
             if (seatsUp.HasValue)
             {
                 tour.AvailableSeats += seatsUp.Value;
             }
             else
             {
-                // Handle the case where seatsUp is null, e.g., set AvailableSeats to TotalSeats or log an error.
                 tour.AvailableSeats = tour.TotalSeats;
             }
 
@@ -1078,7 +1076,5 @@ namespace TM.Controllers
             _context.SaveChanges();
             return RedirectToAction("ModifyLocation", new { q = q, page = page, pageSize = pageSize });
         }
-
-
     }
 }
