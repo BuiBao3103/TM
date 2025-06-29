@@ -1,0 +1,337 @@
+@model TM.Models.ViewModels.PassengerGroupCreateViewModel
+@using TM.Models.ViewModels
+
+@{
+    ViewData["Title"] = "Thêm đoàn khách";
+    var tour = ViewBag.Tour as TM.Models.Entities.Tour;
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary mb-1">
+                        <i class="fas fa-users me-2"></i>Thêm đoàn khách
+                    </h2>
+                    <p class="text-muted mb-0">
+                        Thêm đoàn khách cho tour: <strong>@tour?.Name</strong>
+                        <span class="badge bg-info ms-2">@tour?.Location?.LocationName</span>
+                    </p>
+                </div>
+                <div class="text-end">
+                    <small class="text-muted d-block">Chỗ trống: <span class="badge bg-success">@tour?.AvailableSeats</span></small>
+                    <small class="text-muted">Tổng chỗ: <span class="badge bg-secondary">@tour?.TotalSeats</span></small>
+                </div>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Thông tin đoàn khách
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <input type="hidden" asp-for="TourId" />
+                        
+                        <div class="row">
+                            <!-- Thông tin đoàn -->
+                            <div class="col-lg-6">
+                                <div class="mb-4">
+                                    <h6 class="text-primary border-bottom pb-2 mb-3 fw-bold">
+                                        <i class="fas fa-users me-2"></i>Thông tin đoàn
+                                    </h6>
+
+                                    <div class="mb-3">
+                                        <label asp-for="GroupName" class="form-label fw-semibold">
+                                            <i class="fas fa-tag me-1"></i>Tên đoàn
+                                        </label>
+                                        <input asp-for="GroupName" class="form-control" placeholder="VD: Đoàn công ty ABC" />
+                                        <span asp-validation-for="GroupName" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="TotalMember" class="form-label fw-semibold">
+                                            <i class="fas fa-user-friends me-1"></i>Số lượng thành viên
+                                        </label>
+                                        <input asp-for="TotalMember" type="number" class="form-control" min="1" max="@tour?.AvailableSeats" />
+                                        <div class="form-text">Tối đa: @tour?.AvailableSeats người</div>
+                                        <span asp-validation-for="TotalMember" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="Note" class="form-label fw-semibold">
+                                            <i class="fas fa-sticky-note me-1"></i>Ghi chú
+                                        </label>
+                                        <textarea asp-for="Note" class="form-control" rows="3" placeholder="Ghi chú về đoàn..."></textarea>
+                                        <span asp-validation-for="Note" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Thông tin người đại diện -->
+                            <div class="col-lg-6">
+                                <div class="mb-4">
+                                    <h6 class="text-primary border-bottom pb-2 mb-3 fw-bold">
+                                        <i class="fas fa-user-tie me-2"></i>Thông tin người đại diện
+                                    </h6>
+
+                                    <div class="mb-3">
+                                        <label asp-for="RepresentativeCode" class="form-label fw-semibold">
+                                            <i class="fas fa-id-badge me-1"></i>Mã khách
+                                        </label>
+                                        <input asp-for="RepresentativeCode" class="form-control" placeholder="VD: PAX001" />
+                                        <span asp-validation-for="RepresentativeCode" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="RepresentativeName" class="form-label fw-semibold">
+                                            <i class="fas fa-user me-1"></i>Họ tên
+                                        </label>
+                                        <input asp-for="RepresentativeName" class="form-control" placeholder="Họ và tên đầy đủ" />
+                                        <span asp-validation-for="RepresentativeName" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="RepresentativePhone" class="form-label fw-semibold">
+                                                    <i class="fas fa-phone me-1"></i>Số điện thoại
+                                                </label>
+                                                <input asp-for="RepresentativePhone" class="form-control" placeholder="VD: 0123456789" />
+                                                <span asp-validation-for="RepresentativePhone" class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="RepresentativeEmail" class="form-label fw-semibold">
+                                                    <i class="fas fa-envelope me-1"></i>Email
+                                                </label>
+                                                <input asp-for="RepresentativeEmail" type="email" class="form-control" placeholder="VD: example@email.com" />
+                                                <span asp-validation-for="RepresentativeEmail" class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="RepresentativeBirthDate" class="form-label fw-semibold">
+                                                    <i class="fas fa-calendar me-1"></i>Ngày sinh
+                                                </label>
+                                                <input asp-for="RepresentativeBirthDate" type="date" class="form-control" />
+                                                <span asp-validation-for="RepresentativeBirthDate" class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="RepresentativeGender" class="form-label fw-semibold">
+                                                    <i class="fas fa-venus-mars me-1"></i>Giới tính
+                                                </label>
+                                                <select asp-for="RepresentativeGender" class="form-select">
+                                                    <option value="">-- Chọn giới tính --</option>
+                                                    <option value="Male">Nam</option>
+                                                    <option value="Female">Nữ</option>
+                                                    <option value="Other">Khác</option>
+                                                </select>
+                                                <span asp-validation-for="RepresentativeGender" class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="RepresentativeIdentityNumber" class="form-label fw-semibold">
+                                            <i class="fas fa-id-card me-1"></i>Số CMND/CCCD
+                                        </label>
+                                        <input asp-for="RepresentativeIdentityNumber" class="form-control" placeholder="VD: 123456789012" />
+                                        <span asp-validation-for="RepresentativeIdentityNumber" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="RepresentativeAddress" class="form-label fw-semibold">
+                                            <i class="fas fa-map-marker-alt me-1"></i>Địa chỉ
+                                        </label>
+                                        <textarea asp-for="RepresentativeAddress" class="form-control" rows="2" placeholder="Địa chỉ hiện tại..."></textarea>
+                                        <span asp-validation-for="RepresentativeAddress" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Thông tin thanh toán -->
+                        <div class="mb-4">
+                            <h6 class="text-primary border-bottom pb-2 mb-3 fw-bold">
+                                <i class="fas fa-money-bill me-2"></i>Thông tin thanh toán
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label asp-for="AssignedPrice" class="form-label fw-semibold d-flex justify-content-between">
+                                        <span>
+                                            <i class="fas fa-tags me-1"></i>Giá đề xuất
+                                        </span>
+                                        <small id="AssignedPriceDisplay" class="text-success"></small>
+                                    </label>
+                                    <div class="input-group">
+                                        <input asp-for="AssignedPrice" type="number" min="0" class="form-control money-input" />
+                                        <span class="input-group-text">VNĐ</span>
+                                    </div>
+                                    <span asp-validation-for="AssignedPrice" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-3 mb-3">
+                                    <label asp-for="DiscountPrice" class="form-label fw-semibold d-flex justify-content-between">
+                                        <span>
+                                            <i class="fas fa-tags me-1"></i>Số tiền giảm
+                                        </span>
+                                        <small id="DiscountPriceDisplay" class="text-success"></small>
+                                    </label>
+                                    <div class="input-group">
+                                        <input asp-for="DiscountPrice" type="number" min="0" class="form-control money-input" />
+                                        <span class="input-group-text">VNĐ</span>
+                                    </div>
+                                    <span asp-validation-for="DiscountPrice" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-3 mb-3">
+                                    <label asp-for="HhFee" class="form-label fw-semibold d-flex justify-content-between">
+                                        <span>
+                                            <i class="fas fa-tags me-1"></i>Phí hoa hồng
+                                        </span>
+                                        <small id="HhFeeDisplay" class="text-success"></small>
+                                    </label>
+                                    <div class="input-group">
+                                        <input asp-for="HhFee" type="number" min="0" class="form-control money-input" />
+                                        <span class="input-group-text">VNĐ</span>
+                                    </div>
+                                    <span asp-validation-for="HhFee" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-3 mb-3">
+                                    <label asp-for="CustomerPaid" class="form-label fw-semibold d-flex justify-content-between">
+                                        <span>
+                                            <i class="fas fa-wallet me-1"></i>Khách đã trả
+                                        </span>
+                                        <small id="CustomerPaidDisplay" class="text-success"></small>
+                                    </label>
+                                    <div class="input-group">
+                                        <input asp-for="CustomerPaid" type="number" min="0" class="form-control money-input" />
+                                        <span class="input-group-text">VNĐ</span>
+                                    </div>
+                                    <span asp-validation-for="CustomerPaid" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Status" class="form-label fw-semibold">
+                                        <i class="fas fa-info-circle me-1"></i>Trạng thái
+                                    </label>
+                                    <select asp-for="Status" class="form-select">
+                                        <option value="">-- Chọn trạng thái --</option>
+                                        <option value="Reserved">Đang giữ chỗ</option>
+                                        <option value="Confirmed">Đã xác nhận đặt cọc</option>
+                                        <option value="Paid">Đã hoàn tất thanh toán</option>
+                                    </select>
+                                    <span asp-validation-for="Status" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                            <a asp-controller="Tour" asp-action="Edit" asp-route-id="@Model.TourId" class="btn btn-light btn-md px-4">
+                                <i class="fas fa-times me-2"></i>Hủy
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-md px-4">
+                                <i class="fas fa-save me-2"></i>Thêm đoàn
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // Validation cho số lượng thành viên
+        document.getElementById('TotalMember').addEventListener('input', function() {
+            const maxSeats = @(tour?.AvailableSeats ?? 0);
+            const value = parseInt(this.value);
+            
+            if (value > maxSeats) {
+                this.setCustomValidity(`Số lượng không được vượt quá ${maxSeats} người`);
+            } else {
+                this.setCustomValidity('');
+            }
+
+            if (value < 1) {
+                this.setCustomValidity('Số lượng không được nhỏ hơn 1 người');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Format tiền tệ
+        function updateFormattedDisplay(input, displayId) {
+            const value = input.value.replace(/\D/g, ''); // remove non-digit
+            const display = document.getElementById(displayId);
+            if (!display) return;
+
+            if (value) {
+                const formatted = Number(value).toLocaleString('vi-VN') + ' VNĐ';
+                display.innerText = formatted;
+            } else {
+                display.innerText = '';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const fields = ['AssignedPrice', 'DiscountPrice', 'HhFee', 'CustomerPaid'];
+
+            fields.forEach(name => {
+                const input = document.querySelector(`input[name="${name}"]`);
+                const displayId = `${name}Display`;
+
+                if (input) {
+                    input.addEventListener('input', () => {
+                        updateFormattedDisplay(input, displayId);
+                    });
+
+                    updateFormattedDisplay(input, displayId);
+                } else {
+                    console.warn(`Không tìm thấy input[name="${name}"]`);
+                }
+            });
+        });
+    </script>
+}
+
+<style>
+    .form-label {
+        color: #495057;
+    }
+
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+    }
+
+    .card {
+        border: none;
+        border-radius: 0.75rem;
+    }
+
+    .border-bottom {
+        border-bottom: 2px solid #e9ecef !important;
+    }
+
+    .badge {
+        padding: 0.5em 0.75em;
+    }
+</style> 
